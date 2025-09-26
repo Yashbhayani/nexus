@@ -13,6 +13,7 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
         //token: sessionStorage.getItem("token") || "",
       },
       body: body ? JSON.stringify(body) : null,
+      params,
       credentials: "include", // ✅ required for backend cookies
     });
 
