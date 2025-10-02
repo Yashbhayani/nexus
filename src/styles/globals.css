@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-@custom-variant dark (&:is(.dark *));
+/* Removed invalid @custom-variant dark (&:is(.dark *)); */
 
 :root {
   --font-size: 16px;
@@ -88,7 +88,7 @@
   --logo-inner-shadow: rgba(0, 0, 0, 0.1);
 }
 
-@theme inline {
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -135,11 +135,14 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--color-border);
+    outline: 1px solid var(--color-ring);
+    outline-offset: 2px;
   }
 
   body {
-    @apply bg-background text-foreground;
+    background: var(--color-background);
+    color: var(--color-foreground);
     position: relative;
   }
 
@@ -227,6 +230,7 @@
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -234,6 +238,7 @@
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -394,7 +399,8 @@
 
   /* Premium Glass-morphism Effects */
   .premium-glass-card {
-    @apply backdrop-blur-xl;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 
@@ -413,7 +419,8 @@
   }
 
   .premium-glass-input {
-    @apply backdrop-blur-sm;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
@@ -425,12 +432,16 @@
   }
 
   .premium-glass-input:focus {
-    @apply ring-2 ring-primary/50 border-primary/50;
+    border-width: 2px;
+    border-color: var(--color-primary);
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
   }
 
   .premium-glass-button {
-    @apply backdrop-blur-sm bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
   }
 
@@ -1425,7 +1436,7 @@
   }
   
   * {
-    color-adjust: exact !important;
+    print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
   
