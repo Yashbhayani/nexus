@@ -45,7 +45,7 @@ import {
   Sun
 } from "lucide-react";
 import NexusLogo from "../../Common/NexusLogo";
-
+// import React from "react"; // Not needed for React 17+ JSX transform
 
 interface StartPageProps {
   onLogin: () => void;
