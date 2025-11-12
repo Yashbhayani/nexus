@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-/* Removed invalid @custom-variant dark (&:is(.dark *)); */
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --font-size: 16px;
@@ -15,7 +15,7 @@
   --secondary: oklch(0.95 0.0058 264.53);
   --secondary-foreground: #030213;
   --muted: #f8f9fb;
-  --muted-foreground: #6b7280;
+  --muted-foreground: #57606a;
   --accent: #e9ebef;
   --accent-foreground: #030213;
   --destructive: #ef4444;
@@ -59,7 +59,7 @@
   --secondary: #27272a;
   --secondary-foreground: #fafafa;
   --muted: #1c1c1e;
-  --muted-foreground: #9ca3af;
+  --muted-foreground: #a8adb4;
   --accent: #27272a;
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
@@ -88,7 +88,7 @@
   --logo-inner-shadow: rgba(0, 0, 0, 0.1);
 }
 
-:root {
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -135,38 +135,60 @@
 
 @layer base {
   * {
-    border-color: var(--color-border);
-    outline: 1px solid var(--color-ring);
+    @apply border-border outline-ring/50;
+  }
+
+  /* Enhanced focus indicators for accessibility - WCAG 2.1 compliant */
+  *:focus-visible {
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
 
+  /* Skip link styles for screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
   body {
-    background: var(--color-background);
-    color: var(--color-foreground);
+    @apply bg-background text-foreground;
     position: relative;
   }
 
-  /* Unicorn watermark background */
+  /* Subtle gradient watermark background - alternative to SVG */
   body::before {
     content: '';
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
-    height: 300px;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg' fill='%235b6cf5'%3E%3Cellipse cx='100' cy='130' rx='45' ry='35' fill='%235b6cf5' /%3E%3Cellipse cx='100' cy='80' rx='35' ry='30' fill='%235b6cf5' /%3E%3Cpolygon points='100,35 95,65 105,65' fill='%23ffd700' /%3E%3Cpath d='M 97 40 Q 103 45 97 50 Q 103 55 97 60' stroke='%23ff69b4' stroke-width='2' fill='none' /%3E%3Cellipse cx='85' cy='70' rx='8' ry='15' fill='%235b6cf5' transform='rotate(-30 85 70)' /%3E%3Cellipse cx='115' cy='70' rx='8' ry='15' fill='%235b6cf5' transform='rotate(30 115 70)' /%3E%3Ccircle cx='90' cy='80' r='4' fill='%23ffffff' /%3E%3Ccircle cx='110' cy='80' r='4' fill='%23ffffff' /%3E%3Ccircle cx='91' cy='81' r='2' fill='%23000000' /%3E%3Ccircle cx='111' cy='81' r='2' fill='%23000000' /%3E%3Cellipse cx='95' cy='90' rx='2' ry='1' fill='%23ff69b4' /%3E%3Cellipse cx='105' cy='90' rx='2' ry='1' fill='%23ff69b4' /%3E%3Cpath d='M 70 60 Q 60 50 65 40 Q 75 45 80 55' fill='%23ff69b4' /%3E%3Cpath d='M 75 50 Q 65 35 70 25 Q 80 30 85 45' fill='%239d4edd' /%3E%3Cpath d='M 125 50 Q 135 35 130 25 Q 120 30 115 45' fill='%23ff69b4' /%3E%3Cpath d='M 130 60 Q 140 50 135 40 Q 125 45 120 55' fill='%239d4edd' /%3E%3Crect x='75' y='155' width='8' height='25' fill='%235b6cf5' /%3E%3Crect x='90' y='155' width='8' height='25' fill='%235b6cf5' /%3E%3Crect x='102' y='155' width='8' height='25' fill='%235b6cf5' /%3E%3Crect x='117' y='155' width='8' height='25' fill='%235b6cf5' /%3E%3Cellipse cx='79' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cellipse cx='94' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cellipse cx='106' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cellipse cx='121' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cpath d='M 145 120 Q 165 115 170 130 Q 160 140 150 135 Q 155 125 145 125' fill='%23ff69b4' /%3E%3Cpath d='M 150 125 Q 170 120 175 135 Q 165 145 155 140 Q 160 130 150 130' fill='%239d4edd' /%3E%3Cg fill='%23ffd700' opacity='0.7'%3E%3Cpolygon points='40,40 42,46 48,44 42,50 40,56 38,50 32,44 38,46' /%3E%3Cpolygon points='160,50 162,56 168,54 162,60 160,66 158,60 152,54 158,56' /%3E%3Cpolygon points='170,100 171,104 175,103 171,107 170,111 169,107 165,103 169,104' /%3E%3Cpolygon points='30,120 31,124 35,123 31,127 30,131 29,127 25,123 29,124' /%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.03;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(91, 108, 245, 0.02) 0%, transparent 70%);
     pointer-events: none;
     z-index: -1;
   }
 
   .dark body::before {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg' fill='%236366f1'%3E%3Cellipse cx='100' cy='130' rx='45' ry='35' fill='%236366f1' /%3E%3Cellipse cx='100' cy='80' rx='35' ry='30' fill='%236366f1' /%3E%3Cpolygon points='100,35 95,65 105,65' fill='%23ffd700' /%3E%3Cpath d='M 97 40 Q 103 45 97 50 Q 103 55 97 60' stroke='%23ff69b4' stroke-width='2' fill='none' /%3E%3Cellipse cx='85' cy='70' rx='8' ry='15' fill='%236366f1' transform='rotate(-30 85 70)' /%3E%3Cellipse cx='115' cy='70' rx='8' ry='15' fill='%236366f1' transform='rotate(30 115 70)' /%3E%3Ccircle cx='90' cy='80' r='4' fill='%23ffffff' /%3E%3Ccircle cx='110' cy='80' r='4' fill='%23ffffff' /%3E%3Ccircle cx='91' cy='81' r='2' fill='%23000000' /%3E%3Ccircle cx='111' cy='81' r='2' fill='%23000000' /%3E%3Cellipse cx='95' cy='90' rx='2' ry='1' fill='%23ff69b4' /%3E%3Cellipse cx='105' cy='90' rx='2' ry='1' fill='%23ff69b4' /%3E%3Cpath d='M 70 60 Q 60 50 65 40 Q 75 45 80 55' fill='%23ff69b4' /%3E%3Cpath d='M 75 50 Q 65 35 70 25 Q 80 30 85 45' fill='%239d4edd' /%3E%3Cpath d='M 125 50 Q 135 35 130 25 Q 120 30 115 45' fill='%23ff69b4' /%3E%3Cpath d='M 130 60 Q 140 50 135 40 Q 125 45 120 55' fill='%239d4edd' /%3E%3Crect x='75' y='155' width='8' height='25' fill='%236366f1' /%3E%3Crect x='90' y='155' width='8' height='25' fill='%236366f1' /%3E%3Crect x='102' y='155' width='8' height='25' fill='%236366f1' /%3E%3Crect x='117' y='155' width='8' height='25' fill='%236366f1' /%3E%3Cellipse cx='79' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cellipse cx='94' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cellipse cx='106' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cellipse cx='121' cy='183' rx='6' ry='3' fill='%23333333' /%3E%3Cpath d='M 145 120 Q 165 115 170 130 Q 160 140 150 135 Q 155 125 145 125' fill='%23ff69b4' /%3E%3Cpath d='M 150 125 Q 170 120 175 135 Q 165 145 155 140 Q 160 130 150 130' fill='%239d4edd' /%3E%3Cg fill='%23ffd700' opacity='0.7'%3E%3Cpolygon points='40,40 42,46 48,44 42,50 40,56 38,50 32,44 38,46' /%3E%3Cpolygon points='160,50 162,56 168,54 162,60 160,66 158,60 152,54 158,56' /%3E%3Cpolygon points='170,100 171,104 175,103 171,107 170,111 169,107 165,103 169,104' /%3E%3Cpolygon points='30,120 31,124 35,123 31,127 30,131 29,127 25,123 29,124' /%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.05;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
   }
 }
 
@@ -230,7 +252,6 @@
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -238,7 +259,6 @@
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
-    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -399,8 +419,7 @@
 
   /* Premium Glass-morphism Effects */
   .premium-glass-card {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    @apply backdrop-blur-xl;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 
@@ -419,8 +438,7 @@
   }
 
   .premium-glass-input {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    @apply backdrop-blur-sm;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
@@ -432,16 +450,12 @@
   }
 
   .premium-glass-input:focus {
-    border-width: 2px;
-    border-color: var(--color-primary);
+    @apply ring-2 ring-primary/50 border-primary/50;
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
   }
 
   .premium-glass-button {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    @apply backdrop-blur-sm bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30;
     transition: all 0.3s ease;
   }
 
@@ -1436,7 +1450,7 @@
   }
   
   * {
-    print-color-adjust: exact !important;
+    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
   
@@ -1451,4 +1465,56 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* Mobile Compact Mode - Smaller text and tighter spacing */
+@media (max-width: 768px) {
+  :root {
+    --font-size: 14px;
+  }
+
+  /* Reduce all typography sizes on mobile */
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: 1.5rem;
+      line-height: 1.4;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      line-height: 1.4;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      line-height: 1.4;
+    }
+
+    h4 {
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    p {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    label {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    button {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    input {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+  }
+
+
 }

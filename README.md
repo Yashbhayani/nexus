@@ -1,70 +1,84 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Nexus Campus Portal 🎓
 
-## Available Scripts
+**A Modern Social Media Platform for Campus Events and Student Engagement**
 
-In the project directory, you can run:
+Nexus Campus Portal is a comprehensive React-based web application designed to revolutionize how students discover, engage with, and participate in campus events. Built with modern web technologies, this platform creates a vibrant digital ecosystem that connects students, organizations, and campus activities in one intuitive space.
 
-### `npm start`
+## 🧑‍🎓 Team Members
+- **Badgujar, Sanket (1002233360)**
+- **Bhayani, Yashbhai Bhaveshbai (1002287434)**
+- **Desai, Utsav Ashokbhai (1002240489)**
+- **Khan, Zaid Kaleem (1002271780)**
+- **Kotari, Jayanth (1002279756)**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Getting Started
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Website hosted on
 
-### `npm test`
+- **[sxb3360@uta.cloud](https://sxb3360.uta.cloud)**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
 
-### `npm run build`
+- Node.js (version 16 or higher)
+- npm or yarn package manager
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Version tested on
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Node: 24.9.0
+- React: 18.3.1
+- npm version: 11.6.0
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Installation
 
-### `npm run eject`
+1. Unzip the **Badgujar_Bhayani_Desai_Khan_Kotari.zip** file and go the **nexus** folder:
+```bash
+cd nexus
+```
+OR
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Clone the repository:
+```bash
+git clone https://github.com/sanket1001/nexus-campus-portal.git
+cd nexus-campus-portal
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Install dependencies:
+```bash
+npm install
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+4. Open your browser and navigate to `http://localhost:3000`
 
-## Learn More
+## 📝 Available Scripts
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📱 Project Structure
 
-### Code Splitting
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ai/              # AI assistant components
+│   ├── common/          # Shared components (cards, logos)
+│   ├── navigation/      # Navigation components
+│   ├── screens/         # Main application screens
+│   └── ui/              # Base UI component library
+└── styles/              # Global styles and CSS
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🎨 External reference
 
-### Analyzing the Bundle Size
+- https://www.figma.com
+- [shadcn/ui](https://ui.shadcn.com/) used under [MIT license](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md).
+- Photos from [Unsplash](https://unsplash.com) used under [license](https://unsplash.com/license).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Built with ❤️ for the campus community**  
