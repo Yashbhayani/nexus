@@ -35,11 +35,18 @@ import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 interface UserProfileProps {
   selectedProfileId?: string;
+<<<<<<< HEAD
   activeTab?: string;
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function UserProfile({ selectedProfileId = "student", activeTab = "about", onNavigate }: UserProfileProps) {
+=======
+  onNavigate?: (screen: string, data?: any) => void;
+}
+
+export function UserProfile({ selectedProfileId = "student", onNavigate }: UserProfileProps) {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     bio: "",
@@ -280,6 +287,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       phone: "(555) 123-4567"
     },
     upcomingEvents: [
+<<<<<<< HEAD
       {
         id: "1",
         title: "CS Study Group for Finals",
@@ -298,6 +306,32 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
         attendees: 289,
         image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop"
       }
+=======
+         {
+      id: "1",
+      title: "CS Study Group for Finals",
+      description: "Group study session for CS students",
+      date: "Dec 18",
+      time: "6:00 PM",
+      location: "Library Room 204",
+      category: "Study",
+      capacity: 30,
+      attendees: 23,
+      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop"
+    },
+    {
+      id: "2",
+      title: "Tech Innovation Showcase",
+      description: "Showcase of student projects and innovations",
+      date: "May 20",
+      time: "4:00 PM",
+      location: "Engineering Building Atrium",
+      category: "Event",
+      capacity: 300,
+      attendees: 289,
+      image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop"
+    }
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     ],
 
     members: [
@@ -465,7 +499,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   };
 
   // Handle open edit event dialog
+<<<<<<< HEAD
   const handleOpenEditEvent = (event) => {
+=======
+  const handleOpenEditEvent = (event: any) => {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // Pre-populate the form with the event's current data
     setEditEventFormData({
       id: event.id,
@@ -497,7 +535,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
         time: editEventFormData.time,
         location: editEventFormData.location,
         category: editEventFormData.category,
+<<<<<<< HEAD
         capacity: editEventFormData.capacity,
+=======
+        capacity: Number(editEventFormData.capacity), // ✅ convert to number
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
         image: editEventFormData.imageUrl
       };
     }
@@ -522,7 +564,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     alert(`Invitation sent to ${inviteEmail}!`);
   };
 
+<<<<<<< HEAD
   const handleApproveRequest = (requestId) => {
+=======
+  const handleApproveRequest = (requestId: any) => {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // In a real app, this would approve the request in the database
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
@@ -532,7 +578,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     }
   };
 
+<<<<<<< HEAD
   const handleRejectRequest = (requestId) => {
+=======
+  const handleRejectRequest = (requestId: any) => {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // In a real app, this would reject the request in the database
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
@@ -542,15 +592,25 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     }
   };
 
+<<<<<<< HEAD
   const handleRemoveMember = (memberId, memberName) => {
     // In a real app, this would remove the member from the database
     if (confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
+=======
+  const handleRemoveMember = (memberId:any, memberName: any) => {
+    // In a real app, this would remove the member from the database
+    if (window.confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
       console.log("Removing member:", memberId);
       alert(`${memberName} has been removed from the organization.`);
     }
   };
 
+<<<<<<< HEAD
   const handleUpdateMemberRole = (memberId, memberName, newRole) => {
+=======
+  const handleUpdateMemberRole = (memberId: any, memberName: any, newRole: any) => {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // In a real app, this would update the member's role in the database
     console.log("Updating role for member:", memberId, "to:", newRole);
     alert(`${memberName}'s role has been updated to ${newRole}.`);
@@ -580,7 +640,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     alert("Post created successfully!");
   };
 
+<<<<<<< HEAD
   const handleEditPost = (post) => {
+=======
+  const handleEditPost = (post:any) => {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -612,9 +676,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     alert("Post updated successfully!");
   };
 
+<<<<<<< HEAD
   const handleDeletePost = (postId, postTitle) => {
     // In a real app, this would delete the post from the database
     if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
+=======
+  const handleDeletePost = (postId: any, postTitle: string) => {
+    // In a real app, this would delete the post from the database
+    if (window.confirm(`Are you sure you want to delete "${postTitle}"?`)) {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
       setOrganizationPosts(organizationPosts.filter(post => post.id !== postId));
       alert("Post deleted successfully!");
     }
@@ -643,7 +713,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     alert("Post created successfully!");
   };
 
+<<<<<<< HEAD
   const handleEditStudentPost = (post) => {
+=======
+  const handleEditStudentPost = (post: any) => {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -675,9 +749,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     alert("Post updated successfully!");
   };
 
+<<<<<<< HEAD
   const handleDeleteStudentPost = (postId, postTitle) => {
     // In a real app, this would delete the post from the database
     if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
+=======
+  const handleDeleteStudentPost = (postId: any, postTitle: any) => {
+    // In a real app, this would delete the post from the database
+    if (window.confirm(`Are you sure you want to delete "${postTitle}"?`)) {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
       setStudentPosts(studentPosts.filter(post => post.id !== postId));
       alert("Post deleted successfully!");
     }
@@ -725,9 +805,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit Profile
                   </Button>
+<<<<<<< HEAD
                   {/* <Button variant="ghost" size="sm">
                     <Settings className="h-4 w-4" />
                   </Button> */}
+=======
+                  <Button variant="ghost" size="sm">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                 </div>
               </div>
 
@@ -770,7 +856,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       <div className="max-w-5xl mx-auto px-4 mt-6">
         {profileType === "student" ? (
           /* STUDENT PROFILE VIEW */
+<<<<<<< HEAD
           <Tabs defaultValue={activeTab} className="space-y-6">
+=======
+          <Tabs defaultValue="about" className="space-y-6">
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -961,7 +1051,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                               {org.role}
                             </Badge>
                           </div>
+<<<<<<< HEAD
                           <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => onNavigate?.("profile", { profileId: org.id, activeTab: "about" })}>
+=======
+                          <Button variant="ghost" size="sm" className="h-7 px-2">
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                             View Profile
                           </Button>
                         </div>
@@ -995,7 +1089,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
           </Tabs>
         ) : (
           /* ORGANIZATION PROFILE VIEW */
+<<<<<<< HEAD
           <Tabs defaultValue={activeTab} className="space-y-6">
+=======
+          <Tabs defaultValue="about" className="space-y-6">
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>

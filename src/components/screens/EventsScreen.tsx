@@ -4,7 +4,11 @@ import { Input } from "../ui/input";
 import { EventCard } from "../common/EventCard";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+<<<<<<< HEAD
 import { Search, Grid3X3, List, Calendar, MapPin, Filter, Check, CheckCheck } from "lucide-react";
+=======
+import { Search, Grid3X3, List, Calendar, MapPin, Filter } from "lucide-react";
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
 
 export function EventsScreen() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");

@@ -38,11 +38,18 @@ import {
 import { NexusLogo } from "../common/NexusLogo";
 
 interface StartPageProps {
+<<<<<<< HEAD
   onLogin: (isAdmin: boolean) => void;
   onForgotPassword: () => void;
 }
 
 export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
+=======
+  onLogin: () => void;
+}
+
+export function StartPage({ onLogin }: StartPageProps) {
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
@@ -74,6 +81,7 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
     e.preventDefault();
     setIsLoading(true);
     
+<<<<<<< HEAD
     // Get form data
     const formData = new FormData(e.target as HTMLFormElement);
     const username = formData.get('username') as string;
@@ -84,6 +92,11 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
       // Check if admin credentials
       const isAdmin = username === 'admin' && password === 'admin';
       onLogin(isAdmin);
+=======
+    setTimeout(() => {
+      setIsLoading(false);
+      onLogin();
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     }, 1500);
   };
 
@@ -178,7 +191,10 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
                       </Label>
                       <Input
                         id="username"
+<<<<<<< HEAD
                         name="username"
+=======
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                         type="text"
                         placeholder="Enter your username"
                         required
@@ -193,7 +209,10 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
                       <div className="relative">
                         <Input
                           id="password"
+<<<<<<< HEAD
                           name="password"
+=======
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
                           required
@@ -205,12 +224,20 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-muted/20"
                           onClick={() => setShowPassword(!showPassword)}
+<<<<<<< HEAD
                           aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                           {showPassword ? (
                             <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                           ) : (
                             <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+=======
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                           )}
                         </Button>
                       </div>
@@ -236,7 +263,10 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
                     <div className="text-center">
                       <button
                         type="button"
+<<<<<<< HEAD
                         onClick={onForgotPassword}
+=======
+>>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                         className="text-sm text-primary hover:text-primary/80 transition-colors font-medium underline-offset-4 hover:underline"
                       >
                         Forgot password?
