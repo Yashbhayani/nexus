@@ -1,0 +1,270 @@
+const { request } = require("express");
+const User = require("../models/user");
+const Staus = require("../models/status");
+const UserInfo = require("../models/userinfo");
+
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Images = require("../models/images");
+
+module.exports.login = async (req, res) => {
+  try {
+    console.log("Login request body:", req.body);
+    const { Email, Password } = req.body;
+    let success = true;
+
+    if (!Email || !Password) {
+      return res
+        .status(200)
+        .json({ error: "Please enter all the fields", success });
+    }
+
+    // Fetch password too for comparison
+    const Userdata = await User.findOne({
+      attributes: [
+        "ID",
+        "FirstName",
+        "LastName",
+        "MobileNumber",
+        "Email",
+        "Password",
+      ],
+      where: { Email },
+    });
+
+    if (!Userdata) {
+      return res
+        .status(404)
+        .json({ error: "Your account is not found", success });
+    }
+
+    // Compare password properly (case-sensitive key)
+    const passwordCompare = await bcrypt.compare(Password, Userdata.Password);
+    if (!passwordCompare) {
+      return res.status(400).json({
+        error: "Please try to login with correct credentials.",
+        success: false,
+      });
+    }
+
+    const data = {
+      user: {
+        id: Userdata.ID,
+        email: Userdata.Email,
+        mobile: Userdata.MobileNumber,
+        name: `${Userdata.FirstName} ${Userdata.LastName}`,
+      },
+    };
+
+    const authToken = jwt.sign(
+      data,
+      process.env.JWT_SCERET || "Yashisagoodboy"
+    );
+    return res.status(200).json({ success, authToken, data, message: "Login successful"  });
+  } catch (e) {
+    console.error("Login error:", e);
+    return res.status(500).json({ error: e.message, success });
+  }
+};
+
+module.exports.createaccount = async (req, res) => {
+  try {
+    const {
+      FirstName,
+      LastName,
+      MobileNumber,
+      Email,
+      Password,
+      StudentType,
+      Majors,
+    } = req.body;
+    let success = true;
+
+    // Check required fields
+    if (
+      !FirstName ||
+      !LastName ||
+      !MobileNumber ||
+      !Email ||
+      !Password ||
+      !StudentType ||
+      !Majors
+    ) {
+      success = false;
+      return res
+        .status(200)
+        .json({ error: "Please enter all the fields", success });
+    }
+
+    // Email validation
+    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(Email)) {
+      success = false;
+      return res
+        .status(200)
+        .json({ error: "Please enter a valid email", success });
+    }
+
+    // ✅ Global mobile number validation (E.164 format)
+    if (!/^\+?[1-9]\d{1,14}$/.test(MobileNumber)) {
+      success = false;
+      return res.status(200).json({
+        error:
+          "Please enter a valid mobile number in international format (e.g., +14155552671)",
+        success,
+      });
+    }
+
+    // Password validation (combined)
+    let errors = [];
+
+    if (Password.length < 6) {
+      errors.push("at least 6 characters");
+    }
+    if (!/\d/.test(Password)) {
+      errors.push("at least one number");
+    }
+    if (!/[A-Z]/.test(Password)) {
+      errors.push("at least one uppercase letter");
+    }
+    if (!/[a-z]/.test(Password)) {
+      errors.push("at least one lowercase letter");
+    }
+    if (!/[@#$%^&*]/.test(Password)) {
+      errors.push("at least one special character (@, #, $, %, ^, &, *)");
+    }
+    if (/\s/.test(Password)) {
+      errors.push("no spaces allowed");
+    }
+
+    if (errors.length > 0) {
+      success = false;
+      return res.status(200).json({
+        error: "Password must contain " + errors.join(", "),
+        success,
+      });
+    }
+
+    if (await User.findOne({ where: { Email } })) {
+      success = false;
+      return res.status(200).json({
+        error: "Sorry a user with this email already exists.",
+        success,
+      });
+    }
+
+    if (await User.findOne({ where: { MobileNumber } })) {
+      success = false;
+      return res.status(200).json({
+        error: "Sorry a user with this mobile number already exists.",
+        success,
+      });
+    }
+
+    const secPass = await bcrypt.hash(req.body.Password, 10);
+
+    let UserData = await User.create({
+      FirstName: FirstName,
+      LastName: LastName,
+      MobileNumber: MobileNumber,
+      Email: Email,
+      Password: secPass,
+    });
+
+    let STID = await Staus.findOne({ where: { Code: StudentType } });
+    let MID = await Staus.findOne({ where: { Code: Majors } });
+
+    if (!STID || !MID) {
+      return res
+        .status(500)
+        .json({ error: "Invalid StudentType or Majors", success: false });
+    }
+
+    let UInfo = await UserInfo.create({
+      UID: UserData.ID,
+      StudentType: STID,
+      Majors: MID,
+    });
+
+    if (!UInfo) {
+      return res
+        .status(500)
+        .json({ error: "Failed to create user info", success: false });
+    }
+
+    const data = {
+      user: {
+        id: UserData.id,
+        email: UserData.Email,
+        mobile: UserData.MobileNumber,
+        name: `${UserData.FirstName} ${UserData.LastName}`,
+      },
+    };
+
+    // ✅ All validations passed
+    success = true;
+    const authToken = jwt.sign(data, JWT_SCERET);
+    return res.status(200).json({ success, authToken, message: "User registered successfully" });
+  } catch (e) {
+    return res.status(500).json({ error: e.message, success: false });
+  }
+};
+
+module.exports.userinfo = async (req, res) => {
+  try {
+    const { BIO, Gender } = req.body;
+    const { path } = req.file;
+
+    let Userdata = await User.findById(req.user.id);
+    let success = true;
+
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    if (!BIO || !Gender) {
+      return res
+        .status(400)
+        .json({ error: "Please enter all the fields", success });
+    }
+
+    let GID = await Staus.findOne({ where: { Userdata: false, Code: Gender } });
+    if (!GID) {
+      return res
+        .status(400)
+        .json({ error: "Please enter a valid gender", success });
+    }
+
+    let ImagesData = await Images.create({
+      UID: Userdata.ID,
+      ImageURL: path,
+    });
+
+    if (!ImagesData) {
+      return res
+        .status(500)
+        .json({ error: "Failed to upload image", success: false });
+    }
+
+    let UInfo = await UserInfo.update(
+      {
+        BIO: BIO,
+        Gender: GID,
+        ProfileImage: ImagesData.ID,
+      },
+      { where: { UID: Userdata.ID } }
+    );
+
+    if (!UInfo) {
+      return res
+        .status(500)
+        .json({ error: "Failed to update user info", success: false });
+    }
+
+    res.json({
+      success: true,
+      message: "User info updated successfully",
+    });
+  } catch (e) {
+    return res.status(500).json({ error: e.message, success: false });
+  }
+};
