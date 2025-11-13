@@ -113,8 +113,10 @@ module.exports.put = async (req, res) => {
       where: { Code: Code, ID: { [Op.ne]: ID } },
     });
 
-    if(verifyCode){
-      return res.status(400).json({ error: "Building with this code already exists", success });
+    if (verifyCode) {
+      return res
+        .status(400)
+        .json({ error: "Building with this code already exists", success });
     }
 
     const building = await Building.findById(ID);
@@ -141,6 +143,11 @@ module.exports.put = async (req, res) => {
 
 module.exports.removebd = async (req, res) => {
   try {
+    const { ID } = req.body;
+    if (!ID) {
+      return res.status(400).json({ error: "ID is required" });
+    }
+
     const adminCheck = await verifyUsers.verifyAdmin(req);
     if (!adminCheck.allowed) {
       return res.status(403).json({ error: adminCheck.message });
