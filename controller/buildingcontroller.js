@@ -3,31 +3,34 @@ const { Op } = require("sequelize");
 const Building = require("../models/building");
 const User = require("../models/user");
 const verifyUsers = require("../midlewere/userferification");
+const { encryptedData, decrypt } = require("../config/crypto");
 
 module.exports.get = async (req, res) => {
+  let success = false;
   try {
     let Userdata = await User.findById(req.user.id);
-    let success = false;
-
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
 
-    const data = await Building.findAll({
+    let data = await Building.findAll({
       attributes: ["ID", "Code", "BuildingName"],
       where: { IsDeleted: false },
     });
+
+    data = encryptedData(data);
 
     success = true;
     res
       .status(200)
       .json({ data, message: "Buildings retrieved successfully", success });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, success });
   }
 };
 
 module.exports.post = async (req, res) => {
+  let success = false;
   try {
     const { Code, BuildingName, Location } = req.body;
     const { path } = req.file;
@@ -38,7 +41,6 @@ module.exports.post = async (req, res) => {
     }
 
     let Userdata = await User.findById(req.user.id);
-    let success = false;
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
@@ -76,11 +78,12 @@ module.exports.post = async (req, res) => {
       .status(201)
       .json({ newBuilding, message: "Building created successfully", success });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, success });
   }
 };
 
 module.exports.put = async (req, res) => {
+  let success = false;
   try {
     const { ID, Code, BuildingName, Location } = req.body;
     const { path } = req.file;
@@ -103,7 +106,6 @@ module.exports.put = async (req, res) => {
     }
 
     let Userdata = await User.findById(req.user.id);
-    let success = false;
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
@@ -137,11 +139,12 @@ module.exports.put = async (req, res) => {
       .status(200)
       .json({ building, message: "Building updated successfully", success });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, success });
   }
 };
 
 module.exports.removebd = async (req, res) => {
+  let success = false;
   try {
     const { ID } = req.body;
     if (!ID) {
@@ -154,12 +157,28 @@ module.exports.removebd = async (req, res) => {
     }
 
     let Userdata = await User.findById(req.user.id);
-    let success = false;
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
+
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const decryptID = decrypt(ID);
+
+    const BuildingData = await Building.findById(decryptID);
+
+    if (!BuildingData) {
+      return res.status(404).json({ error: "Building not found", success });
+    }
+
+    BuildingData.IsDeleted = true;
+    await BuildingData.save();
+    success = true;
+    res.status(200).json({ message: "Building deleted successfully", success });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, success });
   }
 };

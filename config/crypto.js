@@ -36,4 +36,14 @@ const decrypt = (text) => {
   return decrypted.toString();
 };
 
-module.exports = { encrypt, decrypt };
+const encryptedData = data.map((item) => {
+  const record = { ...item.dataValues };
+  for (const key in record) {
+    if (key.toUpperCase().includes("ID") && record[key]) {
+      record[key] = encrypt(record[key].toString());
+    }
+  }
+  return record;
+});
+
+module.exports = { encryptedData, decrypt };
