@@ -34,6 +34,7 @@ module.exports.get = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 module.exports.post = async (req, res) => {
   let success = false;
   try {
@@ -52,7 +53,26 @@ module.exports.post = async (req, res) => {
       res.status(400).json({ error: "Building is not valid", success });
     }
     // Your code for handling POST request goes here
+
+    if (await Room.findOne({ where: { Code: Code } })) {
+      return res
+        .status(400)
+        .json({ error: "Room code already exists", success });
+    }
+
+    const newRoom = await Room.create({
+      BuildingID: decryptBid,
+      Code,
+      RoomName,
+      Capacity,
+      ImagePath: path,
+    });
+
+    const encryptedRoom = encryptedData(newRoom);
+    success = true;
+    res.status(201).json({ room: encryptedRoom, success });
   } catch (error) {
     res.status(500).json({ error: error.message, success });
   }
 };
+

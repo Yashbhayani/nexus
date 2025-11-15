@@ -10,15 +10,6 @@ const Organization = sequelize.define('Organization', {
     autoIncrement: true,
     primaryKey: true
   },
-  Name: {
-    type: DataTypes.STRING(100),
-    allowNull: false
-  },
-  Code: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    unique: true
-  },
   OrganizationUserName: {
     type: DataTypes.STRING(100),
     allowNull: false,
