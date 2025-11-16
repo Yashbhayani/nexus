@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const getStorage = require("../config/multer");
 const { get, post } = require("../controller/buildingcontroller");
 const fetchUser = require("../midlewere/fetchuser");
 
@@ -30,10 +32,10 @@ router.put(
     const upload = multer({ storage: getStorage("building", req) }).single(
       "image"
     );
-    upload(req, res, function (err) {
-      if (err) {
+    upload(req, res, (err) => {
+      if (err)
         return res.status(400).json({ success: false, error: err.message });
-      }
+      // ❇ No file? No problem.
       next();
     });
   },

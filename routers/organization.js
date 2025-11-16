@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { get, post, put } = require("../controller/organizationcontroller");
+const multer = require("multer");
+const { get, post, put, join } = require("../controller/organizationcontroller");
 const fetchUser = require("../midlewere/fetchuser");
+const getStorage = require("../config/multer");
 
 // Get all user types
 router.get("/", fetchUser, get);
@@ -22,6 +24,23 @@ router.post(
   },
   post
 );
-router.put("/", fetchUser, put);
+router.put(
+  "/",
+  fetchUser,
+  (req, res, next) => {
+    const upload = multer({ storage: getStorage("organization", req) }).single(
+      "image"
+    );
+    upload(req, res, function (err) {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+      next();
+    });
+  },
+  put
+);
+router.post("/join", fetchUser, join);
+router.post("/view-organization", fetchUser, join);
 
 module.exports = router;

@@ -2,9 +2,15 @@ const { request } = require("express");
 const UserType = require("../models/usertype");
 const User = require("../models/user");
 const Organization = require("../models/organization");
+const OrganizationsType = require("../models/organizationtype");
+const OrganizationInfo = require("../models/organizationinfo");
 const verifyUsers = require("../midlewere/userferification");
 const Images = require("../models/images");
 const { encryptedData } = require("../config/crypto");
+const Status = require("../models/status");
+const StatusType = require("../models/statustype");
+const { MasterTypes, OrgDeptTypes } = require("../enums/codes");
+const Room = require("../models/rooms");
 
 module.exports.get = async (req, res) => {
   let success = false;
@@ -56,10 +62,18 @@ module.exports.post = async (req, res) => {
       });
     }
 
+    if (
+      await Organization.findOne({ OrganizationUserName: OrganizationUserName })
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OrganizationUserName already exists",
+      });
+    }
+
     let createdOrganization = await Organization.create({
       OrganizationUserName,
       OrganizationName,
-      OrganizationType,
       CreatedByID: req.user.id,
       IsApproved: true,
     });
@@ -86,6 +100,34 @@ module.exports.post = async (req, res) => {
 
     createdOrganization.ImgID = Image.ID;
     await createdOrganization.save();
+
+    OrganizationType.forEach(async (type) => {
+      let STyID = await StatusType.findOne({
+        where: { Code: MasterTypes.Or.toUpperCase() },
+      });
+
+      let SID = await Status.findOne({ where: { STID: STyID.ID, Code: type } });
+
+      if (!SID) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid status code: ${type}`,
+        });
+      }
+
+      // Additional logic can be added here if needed
+      if (
+        !(await OrganizationsType.findOne({
+          where: { OID: createdOrganization.ID, OTID: SID.ID },
+        }))
+      ) {
+        await OrganizationsType.create({
+          SID: SID,
+          OID: createdOrganization.ID,
+          CreatedByID: req.user.id,
+        });
+      }
+    });
 
     res
       .status(200)
@@ -109,49 +151,168 @@ module.exports.put = async (req, res) => {
 
     if (!Array.isArray(OrganizationType)) {
       return res.status(400).json({
-        success: false,
+        success,
         message: "OrganizationType must be an array",
       });
     }
 
-    const updatedOrganization = await Organization.findByPk(ID);
+    let updatedOrganization = await Organization.findOne({ where: { ID } });
 
-
-    let createdOrganization = await Organization.create({
-      OrganizationUserName,
-      OrganizationName,
-      OrganizationType,
-      CreatedByID: req.user.id,
-      IsApproved: true,
-    });
-
-    if (!createdOrganization) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to create organization",
-      });
+    if (!updatedOrganization) {
+      return res
+        .status(400)
+        .json({ message: "Organization not found", success });
     }
 
-    const Image = await Images.create({
-      ImageUrl: path,
-      OID: createdOrganization.ID,
-      CreatedByID: req.user.id,
-    });
-
-    if (!Image) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to create image",
+    if (path) {
+      const UopdatedImage = await Images.findOne({
+        where: { OID: updatedOrganization.ID },
       });
+
+      if (!UopdatedImage) {
+        res.status(200).json({
+          success: false,
+          message: "Image not found",
+        });
+      }
+
+      UopdatedImage.IsDeleted = true;
+      await UopdatedImage.save();
+
+      const Image = await Images.create({
+        ImageUrl: path,
+        OID: updatedOrganization.ID,
+        CreatedByID: req.user.id,
+      });
+
+      if (!Image) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to create image",
+        });
+      }
+      updatedOrganization.ImgID = Image.ID;
     }
 
-    createdOrganization.ImgID = Image.ID;
-    await createdOrganization.save();
+    updatedOrganization.OrganizationUserName = OrganizationUserName;
+    updatedOrganization.OrganizationName = OrganizationName;
+    updatedOrganization.UpdatedByID = req.user.id;
+    updatedOrganization.save();
+
+    if (!updatedOrganization) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to update organization",
+      });
+    }
 
     res
       .status(200)
       .json({ message: "Organization created successfully!", success });
   } catch (err) {
     res.status(500).json({ error: err.message, success });
+  }
+};
+
+module.exports.join = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findById(req.user.id);
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { OID } = req.body;
+
+    if (!OID) {
+      return res.status(400).json({
+        success,
+        message: "Organization is required",
+      });
+    }
+
+    if (!(await Organization.findById({ ID: OID }))) {
+      return res.status(404).json({
+        success,
+        message: "Organization not found",
+      });
+    }
+
+    let Organizationinfo = await OrganizationInfo.findById({
+      where: { ID: OID, UID: req.user.id },
+    });
+
+    if (Organizationinfo) {
+      res.status(404).json({
+        success,
+        message: "User already joined this organization",
+      });
+    }
+
+    let SID = await SID.findOne({
+      where: { Code: OrgDeptTypes.organizations.toUpperCase() },
+    });
+
+    if (!SID) {
+      return res.status(404).json({
+        success,
+        message: "Organization department type not found",
+      });
+    }
+
+    Organizationinfo = await OrganizationInfo.create({
+      OID: OID,
+      UID: req.user.id,
+      Role: SID.ID,
+    });
+
+    if (!Organizationinfo) {
+      return res.status(500).json({
+        success,
+        message: "Failed to join organization",
+      });
+    }
+
+    success = true;
+    res.status(200).json({
+      message: "You Join Organization Successfully",
+      success,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message, success });
+  }
+};
+
+module.exports.vieworganization = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findById(req.user.id);
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { OID } = req.body;
+
+    if (!OID) {
+      return res.status(400).json({
+        success,
+        message: "Organization is required",
+      });
+    }
+
+    let organization = await Organization.findOne({ where: { ID: OID } });
+
+    if (!organization) {
+      return res.status(404).json({
+        success,
+        message: "Organization not found",
+      });
+    }
+
+
+
+
+  } catch (error) {
+    res.status(500).json({ error: error.message, success });
   }
 };
