@@ -67,9 +67,4 @@ const Room = sequelize.define('Room', {
   timestamps: false
 });
 
-// 🔗 Associations
-Room.belongsTo(Building, { foreignKey: 'BID', as: 'Building' });
-Room.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Room.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
-
 module.exports = Room;

@@ -58,8 +58,4 @@ const Building = sequelize.define('Building', {
   timestamps: false
 });
 
-// 🔗 Associations
-Building.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Building.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
-
 module.exports = Building;

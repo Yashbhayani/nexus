@@ -4,7 +4,7 @@ const {
   get,
   post,
   put,
-  deletecode,
+  removeut
 } = require("../controller/usetypercontroller");
 const fetchUser = require("../midlewere/fetchuser");
 

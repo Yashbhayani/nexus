@@ -13,11 +13,12 @@ const fetchUser = (req, res, next) => {
 
   try {
     const data = jwt.verify(token, JWT_SECRET);
+    console.log("Token verified. User data:", data);
     req.user = data.user;
     next(); // ✅ only if token is valid
   } catch (e) {
     // same here — return after sending the response
-    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+    return res.status(401).json({ success: false, error: e.message });
   }
 };
 

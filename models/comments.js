@@ -71,14 +71,4 @@ const Comments = sequelize.define('Comments', {
   timestamps: false
 });
 
-// 🔗 Associations
-Comments.belongsTo(EventsAndActivities, { foreignKey: 'EAAID', as: 'EventActivity' });
-Comments.belongsTo(User, { foreignKey: 'UID', as: 'User' });
-Comments.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Comments.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
-
-// 🧩 Self-referencing relationship for threaded comments
-Comments.belongsTo(Comments, { foreignKey: 'ParentCommentID', as: 'ParentComment', onDelete: 'CASCADE' });
-Comments.hasMany(Comments, { foreignKey: 'ParentCommentID', as: 'Replies' });
-
 module.exports = Comments;

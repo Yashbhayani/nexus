@@ -159,21 +159,4 @@ const EventsAndActivities = sequelize.define('EventsAndActivities', {
   tableName: 'eventsandactivities',
   timestamps: false
 });
-
-// 🔗 Associations
-EventsAndActivities.belongsTo(User, { foreignKey: 'UID', as: 'User' });
-EventsAndActivities.belongsTo(Organization, { foreignKey: 'OID', as: 'Organization' });
-
-EventsAndActivities.belongsTo(User, { foreignKey: 'ApproverByID', as: 'Approver' });
-EventsAndActivities.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-EventsAndActivities.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
-
-EventsAndActivities.belongsTo(Status, { foreignKey: 'EventActivityStatusType', as: 'StatusType' });
-EventsAndActivities.belongsTo(Status, { foreignKey: 'EventActivityType', as: 'ActivityType' });
-
-EventsAndActivities.belongsTo(Building, { foreignKey: 'BuildingID', as: 'Building' });
-EventsAndActivities.belongsTo(Room, { foreignKey: 'RoomID', as: 'Room' });
-
-EventsAndActivities.belongsTo(Images, { foreignKey: 'ImgID', as: 'Image' });
-
 module.exports = EventsAndActivities;
