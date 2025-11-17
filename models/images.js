@@ -12,18 +12,6 @@ const Images = sequelize.define('Images', {
     primaryKey: true,
     autoIncrement: true
   },
-  UIID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  OID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  EAID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
   ImageURL: {
     type: DataTypes.STRING(500),
     allowNull: false

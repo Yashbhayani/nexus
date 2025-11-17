@@ -464,24 +464,6 @@ EventsAndActivities.belongsTo(User, {
 // ⭐ ASSOCIATIONS
 // --------------------------------------------------------
 
-// UserInfo
-Images.belongsTo(UserInfo, {
-  foreignKey: "UIID",
-  as: "UserInfo",
-});
-
-// Organization
-Images.belongsTo(Organization, {
-  foreignKey: "OID",
-  as: "Organization",
-});
-
-// EventsAndActivities
-Images.belongsTo(EventsAndActivities, {
-  foreignKey: "EAID",
-  as: "Event",
-});
-
 // Created By User
 Images.belongsTo(User, {
   foreignKey: "CreatedByID",

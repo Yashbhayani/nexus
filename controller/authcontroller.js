@@ -9,7 +9,6 @@ const Images = require("../models/images");
 
 module.exports.login = async (req, res) => {
   try {
-    console.log("Login request body:", req.body);
     const { Email, Password } = req.body;
     let success = true;
 
@@ -64,7 +63,6 @@ module.exports.login = async (req, res) => {
       .status(200)
       .json({ success, authToken, message: "Login successful" });
   } catch (e) {
-    console.error("Login error:", e);
     return res.status(500).json({ error: e.message, success });
   }
 };
@@ -181,8 +179,6 @@ module.exports.createaccount = async (req, res) => {
       where: { Code: Majors.toUpperCase() },
     });
 
-    console.log(STID.ID, MID.ID);
-
     if (!STID || !MID) {
       return res
         .status(500)
@@ -203,7 +199,7 @@ module.exports.createaccount = async (req, res) => {
 
     const data = {
       user: {
-        id: UserData.id,
+        id: UserData.ID,
         email: UserData.Email,
         mobile: UserData.MobileNumber,
         name: `${UserData.FirstName} ${UserData.LastName}`,
@@ -225,21 +221,21 @@ module.exports.createaccount = async (req, res) => {
 };
 
 module.exports.userinfo = async (req, res) => {
+  let success = false;
   try {
-    const { BIO, Gender } = req.body;
+    const { BIO, Gender, Minor, GraduationYear } = req.body;
     const { path } = req.file;
 
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
     });
-    let success = true;
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
 
-    if (!BIO || !Gender) {
+    if (!BIO || !Gender || !Minor || !GraduationYear) {
       return res
         .status(400)
         .json({ error: "Please enter all the fields", success });
@@ -257,8 +253,8 @@ module.exports.userinfo = async (req, res) => {
     }
 
     let ImagesData = await Images.create({
-      UIID: Userdata.ID,
       ImageURL: path,
+      CreatedByID: Userdata.ID,
     });
 
     if (!ImagesData) {
@@ -271,7 +267,9 @@ module.exports.userinfo = async (req, res) => {
       {
         BIO: BIO,
         Gender: GID.ID,
-        ProfileImage: ImagesData.ID,
+        ImgID: ImagesData.ID,
+        Minor: Minor, 
+        GraduationYear: GraduationYear
       },
       { where: { UID: Userdata.ID } }
     );
