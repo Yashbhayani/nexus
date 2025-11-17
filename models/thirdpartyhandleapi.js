@@ -1,12 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 
-const ThirdPartyHandleAPI = sequelize.define('ThirdPartyHandleAPI', {
+const ThirdPartyHandleApi = sequelize.define('ThirdPartyHandleApi', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   Code: {
     type: DataTypes.STRING(100),
@@ -39,31 +40,22 @@ const ThirdPartyHandleAPI = sequelize.define('ThirdPartyHandleAPI', {
   },
   CreatedID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'thirdpartyhandleapi',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
 
-// 🔗 Associations
-ThirdPartyHandleAPI.belongsTo(User, { foreignKey: 'CreatedID', as: 'CreatedBy' });
-ThirdPartyHandleAPI.belongsTo(User, { foreignKey: 'UpdatedID', as: 'UpdatedBy' });
 
-module.exports = ThirdPartyHandleAPI;
+module.exports = ThirdPartyHandleApi;

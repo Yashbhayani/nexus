@@ -1,21 +1,18 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const User = require('./user');
+
 const Building = require('./building');
+const User = require('./user');
 
 const Room = sequelize.define('Room', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   BID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Building,
-      key: 'ID'
-    }
+    allowNull: false
   },
   Code: {
     type: DataTypes.STRING(50),
@@ -36,19 +33,11 @@ const Room = sequelize.define('Room', {
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -59,12 +48,16 @@ const Room = sequelize.define('Room', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'rooms',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
+
+
 
 module.exports = Room;

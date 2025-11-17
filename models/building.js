@@ -1,12 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 
 const Building = sequelize.define('Building', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   Code: {
     type: DataTypes.STRING(50),
@@ -27,19 +28,11 @@ const Building = sequelize.define('Building', {
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -50,12 +43,15 @@ const Building = sequelize.define('Building', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'building',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
+
 
 module.exports = Building;

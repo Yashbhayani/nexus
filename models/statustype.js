@@ -1,12 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const User = require('./user'); // Assuming you already have the User model
+
+const User = require('./user');
 
 const StatusType = sequelize.define('StatusType', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   Code: {
     type: DataTypes.STRING(50),
@@ -18,25 +19,16 @@ const StatusType = sequelize.define('StatusType', {
     allowNull: false
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -52,11 +44,11 @@ const StatusType = sequelize.define('StatusType', {
   }
 }, {
   tableName: 'statustype',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
 
-// 🔗 Associations
-StatusType.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-StatusType.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
+
 
 module.exports = StatusType;

@@ -2,161 +2,99 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
 const User = require('./user');
-const Status = require('./status');
 const Building = require('./building');
-const Room = require('./rooms');
+const Rooms = require('./rooms');
 const Images = require('./images');
 const Organization = require('./organization');
+const Status = require('./status');
 
 const EventsAndActivities = sequelize.define('EventsAndActivities', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
-
-  // 🔹 New fields
-  UID: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
-  },
-
   OID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Organization,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   EventActivityName: {
     type: DataTypes.STRING(150),
     allowNull: false
   },
-
   BuildingID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Building,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   RoomID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Room,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   ImgID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Images,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   StartingTime: {
     type: DataTypes.DATE,
     allowNull: false
   },
-
   EndingTime: {
     type: DataTypes.DATE,
     allowNull: false
   },
-
   Capacity: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-
   ApproverByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   UploadDocument: {
     type: DataTypes.STRING(255),
     allowNull: true
   },
-
   Overview: {
     type: DataTypes.TEXT,
     allowNull: true
   },
-
   EstimatedCostAverage: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL(10,2),
     allowNull: true
   },
-
   EventActivityStatusType: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Status,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   EventActivityType: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Status,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
-
   CreatedByDate: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
   },
-
   UpdatedByDate: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
   },
-
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'eventsandactivities',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
+
 module.exports = EventsAndActivities;

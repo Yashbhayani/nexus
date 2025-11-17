@@ -1,21 +1,18 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const UserType = require('./usertype'); // Assuming you already created this
+
+const UserType = require('./usertype');
 
 const User = sequelize.define('User', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   UTID: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 5,
-    references: {
-      model: UserType,
-      key: 'ID'
-    }
+    defaultValue: 5
   },
   FirstName: {
     type: DataTypes.STRING(100),
@@ -48,10 +45,13 @@ const User = sequelize.define('User', {
   }
 }, {
   tableName: 'user',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
 
-// Define association
-User.belongsTo(UserType, { foreignKey: 'UTID', as: 'UserType' });
+// ----------------------------------------
+// ⭐ ASSOCIATION
+// ----------------------------------------
 
 module.exports = User;

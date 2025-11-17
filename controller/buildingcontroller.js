@@ -8,7 +8,10 @@ const { encryptedData, decrypt } = require("../config/crypto");
 module.exports.get = async (req, res) => {
   let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
@@ -40,7 +43,10 @@ module.exports.post = async (req, res) => {
       return res.status(403).json({ error: adminCheck.message });
     }
 
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
@@ -105,7 +111,10 @@ module.exports.put = async (req, res) => {
         .json({ error: "Building with this code already exists", success });
     }
 
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
@@ -121,7 +130,7 @@ module.exports.put = async (req, res) => {
         .json({ error: "Building with this code already exists", success });
     }
 
-    const building = await Building.findById(ID);
+    const building = await Building.findByPk(ID);
 
     if (!building) {
       return res.status(404).json({ error: "Building not found", success });
@@ -156,7 +165,10 @@ module.exports.removebd = async (req, res) => {
       return res.status(403).json({ error: adminCheck.message });
     }
 
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
@@ -168,7 +180,7 @@ module.exports.removebd = async (req, res) => {
 
     const decryptID = decrypt(ID);
 
-    const BuildingData = await Building.findById(decryptID);
+    const BuildingData = await Building.findByPk(decryptID);
 
     if (!BuildingData) {
       return res.status(404).json({ error: "Building not found", success });

@@ -1,38 +1,26 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 const EventsAndActivities = require('./eventsandactivities');
 
 const Comments = sequelize.define('Comments', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   EAAID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: EventsAndActivities,
-      key: 'ID'
-    }
+    allowNull: false
   },
   UID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: false
   },
   ParentCommentID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'comments',
-      key: 'ID'
-    },
-    onDelete: 'CASCADE'
+    allowNull: true
   },
   CommentText: {
     type: DataTypes.TEXT,
@@ -40,19 +28,11 @@ const Comments = sequelize.define('Comments', {
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -63,12 +43,15 @@ const Comments = sequelize.define('Comments', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'comments',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
+
 
 module.exports = Comments;

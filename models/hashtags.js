@@ -1,12 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 
 const Hashtags = sequelize.define('Hashtags', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   Tag: {
     type: DataTypes.STRING(100),
@@ -15,19 +16,11 @@ const Hashtags = sequelize.define('Hashtags', {
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -38,16 +31,14 @@ const Hashtags = sequelize.define('Hashtags', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'hashtags',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
-
-// 🔗 Associations
-Hashtags.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Hashtags.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
 
 module.exports = Hashtags;

@@ -15,7 +15,10 @@ const Room = require("../models/rooms");
 module.exports.get = async (req, res) => {
   let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
@@ -46,7 +49,10 @@ module.exports.get = async (req, res) => {
 module.exports.post = async (req, res) => {
   let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
@@ -140,7 +146,10 @@ module.exports.post = async (req, res) => {
 module.exports.put = async (req, res) => {
   let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
@@ -217,7 +226,10 @@ module.exports.put = async (req, res) => {
 module.exports.join = async (req, res) => {
   let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
@@ -231,14 +243,14 @@ module.exports.join = async (req, res) => {
       });
     }
 
-    if (!(await Organization.findById({ ID: OID }))) {
+    if (!(await Organization.findByPk({ ID: OID }))) {
       return res.status(404).json({
         success,
         message: "Organization not found",
       });
     }
 
-    let Organizationinfo = await OrganizationInfo.findById({
+    let Organizationinfo = await OrganizationInfo.findByPk({
       where: { ID: OID, UID: req.user.id },
     });
 
@@ -286,7 +298,10 @@ module.exports.join = async (req, res) => {
 module.exports.vieworganization = async (req, res) => {
   let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }

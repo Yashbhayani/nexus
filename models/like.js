@@ -1,45 +1,30 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 const EventsAndActivities = require('./eventsandactivities');
 
 const Like = sequelize.define('Like', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   EAAID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: EventsAndActivities,
-      key: 'ID'
-    }
+    allowNull: false
   },
   UID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: false
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -50,24 +35,22 @@ const Like = sequelize.define('Like', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'like',
   timestamps: false,
+  createdAt: false,
+  updatedAt: false,
   indexes: [
     {
       unique: true,
+      name: 'UQ_Likes_EventUser',
       fields: ['EAAID', 'UID']
     }
   ]
 });
 
-// 🔗 Associations
-Like.belongsTo(EventsAndActivities, { foreignKey: 'EAAID', as: 'EventActivity' });
-Like.belongsTo(User, { foreignKey: 'UID', as: 'User' });
-Like.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Like.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
 
 module.exports = Like;

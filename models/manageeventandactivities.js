@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 const Status = require('./status');
 const EventsAndActivities = require('./eventsandactivities');
@@ -7,48 +8,28 @@ const EventsAndActivities = require('./eventsandactivities');
 const ManageEventAndActivities = sequelize.define('ManageEventAndActivities', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   EAAID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: EventsAndActivities,
-      key: 'ID'
-    }
+    allowNull: false
   },
   UID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: false
   },
   StatusID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Status,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -59,19 +40,15 @@ const ManageEventAndActivities = sequelize.define('ManageEventAndActivities', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'manageeventandactivities',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
 
-// 🔗 Associations
-ManageEventAndActivities.belongsTo(EventsAndActivities, { foreignKey: 'EAAID', as: 'EventActivity' });
-ManageEventAndActivities.belongsTo(User, { foreignKey: 'UID', as: 'User' });
-ManageEventAndActivities.belongsTo(Status, { foreignKey: 'StatusID', as: 'Status' });
-ManageEventAndActivities.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-ManageEventAndActivities.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
 
 module.exports = ManageEventAndActivities;

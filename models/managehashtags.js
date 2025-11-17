@@ -64,9 +64,5 @@ const ManageHashtags = sequelize.define('ManageHashtags', {
   ]
 });
 
-// 🔗 Associations
-ManageHashtags.belongsTo(Hashtag, { foreignKey: 'HashtagID', as: 'Hashtag' });
-ManageHashtags.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-ManageHashtags.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
 
 module.exports = ManageHashtags;

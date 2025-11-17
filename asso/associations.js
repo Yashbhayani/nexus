@@ -8,7 +8,8 @@ module.exports = ({
   EventsAndActivities,
   Building,
   Room,
-  Comments
+  Comments,
+  BlogTable,
 }) => {
   // Organization → User
   Organization.belongsTo(User, { foreignKey: "ApproverByID", as: "Approver" });
@@ -24,12 +25,19 @@ module.exports = ({
   // Organization → Images
   Organization.belongsTo(Images, { foreignKey: "ImgID", as: "Image" });
 
+  BlogTable.belongsTo(User, { foreignKey: "UID", as: "User" });
+
+  BlogTable.belongsTo(User, { foreignKey: "CreatedByID", as: "CreatedBy" });
+
+  BlogTable.belongsTo(User, { foreignKey: "UpdatedByID", as: "UpdatedBy" });
+
+  BlogTable.belongsTo(Status, { foreignKey: "CategoryID", as: "Category" });
+
   Room.belongsTo(Building, { foreignKey: "BID", as: "Building" });
   Room.belongsTo(User, { foreignKey: "CreatedByID", as: "CreatedBy" });
   Room.belongsTo(User, { foreignKey: "UpdatedByID", as: "UpdatedBy" });
 
   // 🔗 Associations
-  EventsAndActivities.belongsTo(User, { foreignKey: "UID", as: "User" });
   EventsAndActivities.belongsTo(Organization, {
     foreignKey: "OID",
     as: "Organization",

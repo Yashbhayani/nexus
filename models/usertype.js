@@ -1,11 +1,11 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../db'); 
+const sequelize = require('../db'); // adjust path if needed
 
 const UserType = sequelize.define('UserType', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   Code: {
     type: DataTypes.STRING(50),
@@ -16,8 +16,8 @@ const UserType = sequelize.define('UserType', {
     allowNull: false
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -29,7 +29,9 @@ const UserType = sequelize.define('UserType', {
   }
 }, {
   tableName: 'usertype',
-  timestamps: false
+  timestamps: false, // You are already managing your own timestamps
+  createdAt: false,
+  updatedAt: false
 });
 
 module.exports = UserType;

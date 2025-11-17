@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 const Status = require('./status');
 const EventsAndActivities = require('./eventsandactivities');
@@ -7,32 +8,20 @@ const EventsAndActivities = require('./eventsandactivities');
 const Feedback = sequelize.define('Feedback', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   EAAID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: EventsAndActivities,
-      key: 'ID'
-    }
+    allowNull: false
   },
   UID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: false
   },
   Response: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Status,
-      key: 'ID'
-    }
+    allowNull: true
   },
   Feedback: {
     type: DataTypes.TEXT,
@@ -40,19 +29,11 @@ const Feedback = sequelize.define('Feedback', {
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -63,19 +44,15 @@ const Feedback = sequelize.define('Feedback', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   }
 }, {
   tableName: 'feedback',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
 
-// 🔗 Associations
-Feedback.belongsTo(EventsAndActivities, { foreignKey: 'EAAID', as: 'EventActivity' });
-Feedback.belongsTo(User, { foreignKey: 'UID', as: 'User' });
-Feedback.belongsTo(Status, { foreignKey: 'Response', as: 'ResponseStatus' });
-Feedback.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Feedback.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
 
 module.exports = Feedback;

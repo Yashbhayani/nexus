@@ -1,59 +1,57 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-const UserInfo = require('./userinfo');
-const Organization = require('./organization');
-const EventsAndActivities = require('./eventsandactivities');
 const User = require('./user');
+const Status = require('./status');
 
-const Images = sequelize.define('Images', {
+const BlogTable = sequelize.define('BlogTable', {
   ID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  UIID: {
+  UID: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: false
   },
-  OID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
+  PostTitle: {
+    type: DataTypes.STRING(255),
+    allowNull: false
   },
-  EAID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
+  Content: {
+    type: DataTypes.TEXT,
+    allowNull: false
   },
-  ImageURL: {
+  Image: {
     type: DataTypes.STRING(500),
+    allowNull: true
+  },
+  CategoryID: {
+    type: DataTypes.INTEGER,
     allowNull: false
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: false
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  CreatedByDate: {
+  CreatedDate: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
   },
-  UpdatedByDate: {
+  UpdatedDate: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  IsDeleted: {
-    type: DataTypes.TINYINT,
-    defaultValue: 0
+    allowNull: true
   }
 }, {
-  tableName: 'images',
+  tableName: 'blogtable',
   timestamps: false,
   createdAt: false,
   updatedAt: false
 });
 
 
-module.exports = Images;
+module.exports = BlogTable;

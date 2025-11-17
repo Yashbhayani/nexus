@@ -1,21 +1,18 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+
 const User = require('./user');
 const StatusType = require('./statustype');
 
 const Status = sequelize.define('Status', {
   ID: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   STID: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: StatusType,
-      key: 'ID'
-    }
+    allowNull: false
   },
   Code: {
     type: DataTypes.STRING(50),
@@ -28,19 +25,11 @@ const Status = sequelize.define('Status', {
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   UpdatedByID: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'ID'
-    }
+    allowNull: true
   },
   CreatedByDate: {
     type: DataTypes.DATE,
@@ -51,8 +40,8 @@ const Status = sequelize.define('Status', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    type: DataTypes.TINYINT,
+    defaultValue: 0
   },
   Description: {
     type: DataTypes.TEXT,
@@ -60,12 +49,11 @@ const Status = sequelize.define('Status', {
   }
 }, {
   tableName: 'status',
-  timestamps: false
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false
 });
 
-// 🔗 Associations
-Status.belongsTo(StatusType, { foreignKey: 'STID', as: 'StatusType' });
-Status.belongsTo(User, { foreignKey: 'CreatedByID', as: 'CreatedBy' });
-Status.belongsTo(User, { foreignKey: 'UpdatedByID', as: 'UpdatedBy' });
+
 
 module.exports = Status;

@@ -4,9 +4,13 @@ const User = require("../models/user");
 const verifyUsers = require("../midlewere/userferification");
 
 module.exports.get = async (req, res) => {
+  let success = false;
   try {
-    let Userdata = await User.findById(req.user.id);
-    let success = false;
+    console.log("Get user types request by user:", req.user.id);
+    const Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
 
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
@@ -20,7 +24,7 @@ module.exports.get = async (req, res) => {
       .status(200)
       .json({ data, message: "User types retrieved successfully", success });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, success });
   }
 };
 
@@ -34,7 +38,10 @@ module.exports.post = async (req, res) => {
       return res.status(403).json({ error: adminCheck.message });
     }
 
-    Userdata = await User.findById(req.user.id);
+    Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     let success = false;
 
     if (!Userdata) {
@@ -68,12 +75,15 @@ module.exports.put = async (req, res) => {
   try {
     const { Id, Code, Name } = req.body;
 
-    const adminCheck = await verifyUsers.verifyAdmin(req);
+    const adminCheck = await verifyUsers.verifyAdmin(req, );
     if (!adminCheck.allowed) {
       return res.status(403).json({ error: adminCheck.message });
     }
 
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     let success = false;
 
     if (!Userdata) {
@@ -114,8 +124,11 @@ module.exports.removeut = async (req, res) => {
     if (!adminCheck.allowed) {
       return res.status(403).json({ error: adminCheck.message });
     }
-    
-    let Userdata = await User.findById(req.user.id);
+
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     let success = false;
 
     if (!Userdata) {

@@ -60,7 +60,9 @@ module.exports.login = async (req, res) => {
       data,
       process.env.JWT_SCERET || "Yashisagoodboy"
     );
-    return res.status(200).json({ success, authToken, data, message: "Login successful"  });
+    return res
+      .status(200)
+      .json({ success, authToken, message: "Login successful" });
   } catch (e) {
     console.error("Login error:", e);
     return res.status(500).json({ error: e.message, success });
@@ -170,8 +172,16 @@ module.exports.createaccount = async (req, res) => {
       Password: secPass,
     });
 
-    let STID = await Staus.findOne({ where: { Code: StudentType } });
-    let MID = await Staus.findOne({ where: { Code: Majors } });
+    let STID = await Staus.findOne({
+      attributes: ["ID"],
+      where: { Code: StudentType.toUpperCase() },
+    });
+    let MID = await Staus.findOne({
+      attributes: ["ID"],
+      where: { Code: Majors.toUpperCase() },
+    });
+
+    console.log(STID.ID, MID.ID);
 
     if (!STID || !MID) {
       return res
@@ -181,8 +191,8 @@ module.exports.createaccount = async (req, res) => {
 
     let UInfo = await UserInfo.create({
       UID: UserData.ID,
-      StudentType: STID,
-      Majors: MID,
+      StudentType: STID.ID,
+      Majors: MID.ID,
     });
 
     if (!UInfo) {
@@ -202,8 +212,13 @@ module.exports.createaccount = async (req, res) => {
 
     // ✅ All validations passed
     success = true;
-    const authToken = jwt.sign(data, JWT_SCERET);
-    return res.status(200).json({ success, authToken, message: "User registered successfully" });
+    const authToken = jwt.sign(
+      data,
+      process.env.JWT_SCERET || "Yashisagoodboy"
+    );
+    return res
+      .status(200)
+      .json({ success, authToken, message: "User registered successfully" });
   } catch (e) {
     return res.status(500).json({ error: e.message, success: false });
   }
@@ -214,7 +229,10 @@ module.exports.userinfo = async (req, res) => {
     const { BIO, Gender } = req.body;
     const { path } = req.file;
 
-    let Userdata = await User.findById(req.user.id);
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
     let success = true;
 
     if (!Userdata) {
@@ -227,7 +245,11 @@ module.exports.userinfo = async (req, res) => {
         .json({ error: "Please enter all the fields", success });
     }
 
-    let GID = await Staus.findOne({ where: { Userdata: false, Code: Gender } });
+    let GID = await Staus.findOne({
+      attributes: ["ID"],
+      where: { IsDeleted: false, Code: Gender.toUpperCase() },
+    });
+
     if (!GID) {
       return res
         .status(400)
@@ -235,7 +257,7 @@ module.exports.userinfo = async (req, res) => {
     }
 
     let ImagesData = await Images.create({
-      UID: Userdata.ID,
+      UIID: Userdata.ID,
       ImageURL: path,
     });
 
@@ -248,7 +270,7 @@ module.exports.userinfo = async (req, res) => {
     let UInfo = await UserInfo.update(
       {
         BIO: BIO,
-        Gender: GID,
+        Gender: GID.ID,
         ProfileImage: ImagesData.ID,
       },
       { where: { UID: Userdata.ID } }

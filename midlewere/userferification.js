@@ -8,7 +8,7 @@ const verifyAdmin = async (req) => {
     attributes: [],
   });
 
-  if (!Userdata || !Userdata.UserType) {
+  if (!Userdata || !Userdata.UserType.Code) {
     return { allowed: false, message: "UserType not found" };
   }
 
@@ -24,7 +24,7 @@ const verifyUD = async (req) => {
     attributes: [],
   });
 
-  if (!Userdata || !Userdata.UserType) {
+  if (!Userdata || !Userdata.UserType.Code) {
     return { allowed: false, message: "UserType not found" };
   }
 
@@ -40,7 +40,7 @@ const verifyEventMagAdmin = async (req) => {
     attributes: [],
   });
 
-  if (!Userdata || !Userdata.UserType) {
+  if (!Userdata || !Userdata.UserType.Code) {
     return { allowed: false, message: "UserType not found" };
   }
 
@@ -56,7 +56,7 @@ const verifyEventMagStaff = async (req) => {
     attributes: [],
   });
 
-  if (!Userdata || !Userdata.UserType) {
+  if (!Userdata || !Userdata.UserType.Code) {
     return { allowed: false, message: "UserType not found" };
   }
 
