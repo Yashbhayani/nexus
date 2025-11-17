@@ -23,4 +23,19 @@ router.post(
   userinfo
 );
 
+router.put(
+  '/user-info',
+  fetchUser,
+  (req, res, next) => {
+    const upload = multer({ storage: getStorage('User', req) }).single('image');
+    upload(req, res, function (err) {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+      next();
+    });
+  },
+  userinfo
+);
+
 module.exports = router;

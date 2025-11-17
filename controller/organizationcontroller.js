@@ -37,7 +37,7 @@ module.exports.get = async (req, res) => {
       return res.status(404).json({ error: "No organizations found", success });
     }
 
-    organizations = encryptedData(organizations);
+    //organizations = encryptedData(organizations);
 
     success = true;
     res.status(200).json({ organizations, success });

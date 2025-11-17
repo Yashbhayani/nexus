@@ -19,6 +19,9 @@ const Feedback = require("../models/feedback");
 const Comments = require("../models/comments");
 const Building = require("../models/building");
 const BlogTable = require("../models/blogtable");
+const SkillsTable = require("../models/skillstable");
+const InterestTable = require("../models/interesttable");
+const UserType = require("../models/usertype");
 
 // ... all other models
 
@@ -82,7 +85,8 @@ Room.belongsTo(User, {
   as: "UpdatedBy",
 });
 
-User.belongsTo(UserType, { foreignKey: "UTID", as: "UserType" });
+// (Optional) UserType has many Users
+UserType.hasMany(User, { foreignKey: "UTID", as: "Users" });
 
 UserInfo.belongsTo(User, { foreignKey: "UID", as: "User" });
 UserInfo.belongsTo(User, { foreignKey: "CreatedByID", as: "CreatedBy" });
@@ -174,7 +178,7 @@ OrganizationInfo.belongsTo(User, {
 });
 
 // 🔗 Associations
-ManageHashtags.belongsTo(Hashtag, { foreignKey: "HashtagID", as: "Hashtag" });
+ManageHashtags.belongsTo(Hashtags, { foreignKey: "HashtagID", as: "Hashtag" });
 ManageHashtags.belongsTo(User, { foreignKey: "CreatedByID", as: "CreatedBy" });
 ManageHashtags.belongsTo(User, { foreignKey: "UpdatedByID", as: "UpdatedBy" });
 
@@ -419,7 +423,7 @@ EventsAndActivities.belongsTo(Building, {
 });
 
 // Room
-EventsAndActivities.belongsTo(Rooms, {
+EventsAndActivities.belongsTo(Room, {
   foreignKey: "RoomID",
   as: "Room",
 });
@@ -492,8 +496,16 @@ ThirdPartyHandleApi.belongsTo(User, {
   as: "UpdatedBy",
 });
 
+SkillsTable.belongsTo(User, { foreignKey: "UID", as: "User" });
+SkillsTable.belongsTo(Status, { foreignKey: "SID", as: "SkillStatus" });
+
+// Associations
+InterestTable.belongsTo(User, { foreignKey: "UID", as: "User" });
+InterestTable.belongsTo(Status, { foreignKey: "SID", as: "InterestStatus" });
+
 module.exports = {
   User,
+  UserType,
   UserInfo,
   Status,
   Images,
@@ -513,4 +525,6 @@ module.exports = {
   Comments,
   Building,
   BlogTable,
+  SkillsTable,
+  InterestTable,
 };

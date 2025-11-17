@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const getStorage = require("../config/multer");
-const { get, post } = require("../controller/buildingcontroller");
+const { get, post, removebd, put } = require("../controller/buildingcontroller");
 const fetchUser = require("../midlewere/fetchuser");
 
 // Get all user types

@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const Building = require("../models/building");
 const User = require("../models/user");
 const verifyUsers = require("../midlewere/userferification");
-const { encryptedData, decrypt } = require("../config/crypto");
+//const { encryptedData, decrypt } = require("../config/crypto");
 
 module.exports.get = async (req, res) => {
   let success = false;
@@ -21,7 +21,7 @@ module.exports.get = async (req, res) => {
       where: { IsDeleted: false },
     });
 
-    data = encryptedData(data);
+    //data = encryptedData(data);
 
     success = true;
     res
@@ -52,7 +52,7 @@ module.exports.post = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    if (!Code || !BuildingName || !Location) {
+    if (!Code || !BuildingName || !Location || !path) {
       return res
         .status(400)
         .json({ error: "Please enter all the fields", success });
@@ -178,9 +178,9 @@ module.exports.removebd = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    const decryptID = decrypt(ID);
+    //const decryptID = decrypt(ID);
 
-    const BuildingData = await Building.findByPk(decryptID);
+    const BuildingData = await Building.findByPk(ID);
 
     if (!BuildingData) {
       return res.status(404).json({ error: "Building not found", success });
@@ -194,3 +194,4 @@ module.exports.removebd = async (req, res) => {
     res.status(500).json({ error: err.message, success });
   }
 };
+

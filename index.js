@@ -3,6 +3,7 @@ const cors = require("cors");
 require("./db");
 // Load associations (VERY IMPORTANT)
 const Organization  = require('./models/organization');
+const UserType  = require('./models/usertype');
 const User  = require('./models/user');
 const Status  = require('./models/status');
 const Images   = require('./models/images');
@@ -22,8 +23,8 @@ const Feedback   = require('./models/feedback');
 const Comments   = require('./models/comments');
 const Building   = require('./models/building');
 const BlogTable   = require('./models/blogtable');
+const SkillsTable   = require('./models/skillstable');
 
-  
   
   
 
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/usertype", require("./routers/usertype"));
+app.use("/api/building", require("./routers/building"));
 app.use("/api/auth", require("./routers/auth"));
 
 const PORT = process.env.PORT;

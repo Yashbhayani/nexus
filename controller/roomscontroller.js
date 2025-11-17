@@ -27,9 +27,9 @@ module.exports.get = async (req, res) => {
       return res.status(404).json({ error: "No rooms found", success });
     }
 
-    const encryptedRooms = encryptedData(rooms);
+  //  const encryptedRooms = encryptedData(rooms);
     success = true;
-    res.status(200).json({ rooms: encryptedRooms, success });
+    res.status(200).json({ rooms: rooms, success });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -68,9 +68,9 @@ module.exports.post = async (req, res) => {
       ImagePath: path,
     });
 
-    const encryptedRoom = encryptedData(newRoom);
+    //const encryptedRoom = encryptedData(newRoom);
     success = true;
-    res.status(201).json({ room: encryptedRoom, success });
+    res.status(201).json({ room: newRoom, success });
   } catch (error) {
     res.status(500).json({ error: error.message, success });
   }

@@ -53,5 +53,7 @@ const User = sequelize.define('User', {
 // ----------------------------------------
 // ⭐ ASSOCIATION
 // ----------------------------------------
+User.belongsTo(UserType, { foreignKey: "UTID", as: "UserType" });
+
 
 module.exports = User;

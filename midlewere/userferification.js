@@ -3,16 +3,17 @@ const User = require("../models/user");
 const EnumsCode = require("../enums/codes");
 
 const verifyAdmin = async (req) => {
-  let Userdata = await User.findByPk(req.user.id, {
+  let Userdata = await User.findOne({
+    where: { ID: req.user.id },
     include: [{ model: UserType, as: "UserType", attributes: ["Code"] }],
-    attributes: [],
+    includes: [],
   });
 
   if (!Userdata || !Userdata.UserType.Code) {
     return { allowed: false, message: "UserType not found" };
   }
 
-  if (Userdata.UserType.Code !== EnumsCode.Useres.Useres.ADMIN.toUpperCase()) {
+  if (Userdata.UserType.Code !== EnumsCode.Useres.ADMIN.toUpperCase()) {
     return { allowed: false, message: "Access denied — not admin" };
   }
   return { allowed: true };
