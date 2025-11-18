@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const getStorage = require("../config/multer");
 const { get, post } = require("../controller/roomscontroller");
 const fetchUser = require("../midlewere/fetchuser");
+
 
 // Get all user types
 router.get("/", fetchUser, get);
@@ -10,7 +13,7 @@ router.post(
   "/",
   fetchUser,
   (req, res, next) => {
-    const upload = multer({ storage: getStorage("building", req) }).single(
+    const upload = multer({ storage: getStorage("rooms", req) }).single(
       "image"
     );
     upload(req, res, function (err) {

@@ -35,7 +35,7 @@ module.exports.get = async (req, res) => {
 module.exports.post = async (req, res) => {
   let success = false;
   try {
-    const { Code, BuildingName, Location } = req.body;
+    let { Code, BuildingName, Location } = req.body;
     const { path } = req.file;
 
     const adminCheck = await verifyUsers.verifyAdmin(req);
@@ -64,6 +64,8 @@ module.exports.post = async (req, res) => {
         .json({ error: "Building with this code already exists", success });
     }
 
+    Code = Code.toUpperCase();
+
     const newBuilding = await Building.create({
       Code,
       BuildingName,
@@ -91,9 +93,12 @@ module.exports.post = async (req, res) => {
 module.exports.put = async (req, res) => {
   let success = false;
   try {
-    const { ID, Code, BuildingName, Location } = req.body;
-    const { path } = req.file;
+    const { ID, Code, BuildingName, Location, image } = req.body;
 
+    let path = null;
+    if (image) {
+      path = req.file;
+    }
     const adminCheck = await verifyUsers.verifyAdmin(req);
     if (!adminCheck.allowed) {
       return res.status(403).json({ error: adminCheck.message });
@@ -131,16 +136,17 @@ module.exports.put = async (req, res) => {
     }
 
     const building = await Building.findByPk(ID);
-
     if (!building) {
       return res.status(404).json({ error: "Building not found", success });
     }
 
-    building.Code = Code;
+    building.Code = Code.toUpperCase();
     building.BuildingName = BuildingName;
     building.Location = Location;
-    building.Image = path;
-
+    if (path) {
+      building.Image = path;
+    }
+    building.UpdatedByID = req.user.id;
     await building.save();
 
     success = true;
@@ -194,4 +200,3 @@ module.exports.removebd = async (req, res) => {
     res.status(500).json({ error: err.message, success });
   }
 };
-

@@ -39,6 +39,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/usertype", require("./routers/usertype"));
 app.use("/api/building", require("./routers/building"));
+app.use("/api/rooms", require("./routers/rooms"));
 app.use("/api/auth", require("./routers/auth"));
 
 const PORT = process.env.PORT;

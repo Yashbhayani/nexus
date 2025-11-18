@@ -7,6 +7,9 @@ const cloudinary = require('./cloudinary');
  * @param {object} req - Request object (optional)
  */
 const getStorage = (folderName, req = {}) => {
+
+  console.log('Generating storage for folder:', folderName, req.body);
+
   return new CloudinaryStorage({
     cloudinary,
     params: {
