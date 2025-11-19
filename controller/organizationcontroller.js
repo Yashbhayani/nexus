@@ -188,11 +188,15 @@ module.exports.post = async (req, res) => {
     OrganizationType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Or.toUpperCase() },
+        attributes: ["ID"],
       });
 
-      let SID = await Status.findOne({ where: { STID: STyID.ID, Code: type } });
+      let SID = await Status.findOne({
+        where: { STID: STyID.ID, Code: type },
+        attributes: ["ID"],
+      });
 
-      if (!SID) {
+      if (!SID.ID) {
         return res.status(400).json({
           success: false,
           message: `Invalid status code: ${type}`,
@@ -202,11 +206,11 @@ module.exports.post = async (req, res) => {
       // Additional logic can be added here if needed
       if (
         !(await OrganizationsType.findOne({
-          where: { OID: createdOrganization.ID, OTID: SID.ID },
+          where: { OID: createdOrganization.ID, SID: SID.ID },
         }))
       ) {
         let createdOrganizationType = await OrganizationsType.create({
-          SID: SID,
+          SID: SID.ID,
           OID: createdOrganization.ID,
           CreatedByID: req.user.id,
         });
@@ -219,6 +223,7 @@ module.exports.post = async (req, res) => {
       }
     });
 
+    success = true;
     res
       .status(200)
       .json({ message: "Organization created successfully!", success });
@@ -238,10 +243,17 @@ module.exports.put = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    const { ID, OrganizationUserName, OrganizationName, OrganizationType } =
-      req.body;
-    const { path } = req.file;
-
+    const {
+      ID,
+      OrganizationUserName,
+      OrganizationName,
+      OrganizationType,
+      image,
+    } = req.body;
+    let path = null;
+    if (image) {
+      path = req.file;
+    }
     if (!Array.isArray(OrganizationType)) {
       return res.status(400).json({
         success,

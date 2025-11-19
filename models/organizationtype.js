@@ -1,10 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-const User = require('./user');
-const Status = require('./status');
-const Organization = require('./organization');
-
 const OrganizationType = sequelize.define('OrganizationType', {
   ID: {
     type: DataTypes.INTEGER,
