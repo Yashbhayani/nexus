@@ -4,13 +4,13 @@ const User = require("../models/user");
 const Organization = require("../models/organization");
 const OrganizationsType = require("../models/organizationtype");
 const OrganizationInfo = require("../models/organizationinfo");
-const verifyUsers = require("../midlewere/userferification");
 const Images = require("../models/images");
-const { encryptedData } = require("../config/crypto");
+//const { encryptedData } = require("../config/crypto");
 const Status = require("../models/status");
 const StatusType = require("../models/statustype");
 const { MasterTypes, OrgDeptTypes } = require("../enums/codes");
 const Room = require("../models/rooms");
+const Building = require("../models/building");
 
 module.exports.get = async (req, res) => {
   let success = false;
@@ -57,9 +57,43 @@ module.exports.post = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    const { OrganizationUserName, OrganizationName, OrganizationType } =
-      req.body;
+    let {
+      OrganizationUserName,
+      OrganizationName,
+      OrganizationType,
+      Email,
+      Phone,
+      BID,
+      RID,
+    } = req.body;
     const { path } = req.file;
+
+    if (typeof OrganizationType === "string") {
+      try {
+        OrganizationType = JSON.parse(OrganizationType); // convert to real array
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "OrganizationType must be a valid JSON array",
+        });
+      }
+    }
+
+    if (
+      !OrganizationUserName ||
+      !OrganizationName ||
+      !OrganizationType ||
+      !Email ||
+      !Phone ||
+      !BID ||
+      !RID ||
+      !path
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter all the fields",
+      });
+    }
 
     if (!Array.isArray(OrganizationType)) {
       return res.status(400).json({
@@ -77,7 +111,36 @@ module.exports.post = async (req, res) => {
       });
     }
 
+    if (await OrganizationInfo.findOne({ where: { Email: Email } })) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists in organization info",
+      });
+    }
+
+    if (await OrganizationInfo.findOne({ where: { Phone: Phone } })) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number already exists in organization info",
+      });
+    }
+
+    if (!(await Building.findOne({ where: { ID: BID } }))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Building ID",
+      });
+    }
+
+    if (!(await Room.findOne({ where: { ID: RID, BID: BID } }))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Room ID or Building ID",
+      });
+    }
+
     let createdOrganization = await Organization.create({
+      UID: req.user.id,
       OrganizationUserName,
       OrganizationName,
       CreatedByID: req.user.id,
@@ -91,9 +154,24 @@ module.exports.post = async (req, res) => {
       });
     }
 
-    const Image = await Images.create({
-      ImageUrl: path,
+    let createdOrganizationInfo = await OrganizationInfo.create({
       OID: createdOrganization.ID,
+      email: Email,
+      phone: Phone,
+      BID: BID,
+      RID: RID,
+      CreatedByID: req.user.id,
+    });
+
+    if (!createdOrganizationInfo) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create organization info",
+      });
+    }
+
+    const Image = await Images.create({
+      ImageURL: path,
       CreatedByID: req.user.id,
     });
 
@@ -127,11 +205,17 @@ module.exports.post = async (req, res) => {
           where: { OID: createdOrganization.ID, OTID: SID.ID },
         }))
       ) {
-        await OrganizationsType.create({
+        let createdOrganizationType = await OrganizationsType.create({
           SID: SID,
           OID: createdOrganization.ID,
           CreatedByID: req.user.id,
         });
+        if (!createdOrganizationType) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to create organization type",
+          });
+        }
       }
     });
 
@@ -323,10 +407,6 @@ module.exports.vieworganization = async (req, res) => {
         message: "Organization not found",
       });
     }
-
-
-
-
   } catch (error) {
     res.status(500).json({ error: error.message, success });
   }

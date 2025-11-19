@@ -13,6 +13,7 @@ router.post(
   "/",
   fetchUser,
   (req, res, next) => {
+    console.log(req);
     const upload = multer({ storage: getStorage("rooms", req) }).single(
       "image"
     );

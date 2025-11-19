@@ -1,54 +1,77 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../db");
 
-const User = require('./user');
-const Organization = require('./organization');
-const Status = require('./status');
+// Import related models
+const Organization = require("./organization");
+const User = require("./user");
+const Building = require("./building");
+const Rooms = require("./rooms");
 
-const OrganizationInfo = sequelize.define('OrganizationInfo', {
-  ID: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+const OrganizationInfo = sequelize.define(
+  "OrganizationInfo",
+  {
+    ID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+
+    OID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      unique: true,
+    },
+
+    phone: {
+      type: DataTypes.STRING(45),
+      allowNull: false,
+      unique: true,
+    },
+
+    BID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    RID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    CreatedByID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    UpdatedByID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    CreatedByDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+
+    UpdatedByDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+
+    IsDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
-  OID: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  UID: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  Role: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  CreatedByID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  UpdatedByID: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  CreatedByDate: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  UpdatedByDate: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  IsDeleted: {
-    type: DataTypes.TINYINT,
-    defaultValue: 0
+  {
+    tableName: "organizationinfo",
+    timestamps: false, // since you're using custom timestamps
   }
-}, {
-  tableName: 'organizationinfo',
-  timestamps: false,
-  createdAt: false,
-  updatedAt: false
-});
-
+);
 
 module.exports = OrganizationInfo;

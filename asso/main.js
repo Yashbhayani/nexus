@@ -102,6 +102,10 @@ UserInfo.belongsTo(Status, {
 UserInfo.belongsTo(Images, { foreignKey: "ImgID", as: "Image" });
 
 // Organization associations
+Organization.belongsTo(User, {
+  foreignKey: "UID",
+  as: "Owner",
+});
 Organization.belongsTo(Images, { foreignKey: "ImgID", as: "Image" });
 Organization.belongsTo(User, { foreignKey: "ApproverByID", as: "Approver" });
 Organization.belongsTo(User, { foreignKey: "CreatedByID", as: "CreatedBy" });
@@ -153,16 +157,16 @@ OrganizationInfo.belongsTo(Organization, {
   as: "Organization",
 });
 
-// OrganizationInfo belongs to User (main user)
-OrganizationInfo.belongsTo(User, {
-  foreignKey: "UID",
-  as: "User",
+// OrganizationInfo → Building
+OrganizationInfo.belongsTo(Building, {
+  foreignKey: "BID",
+  as: "Building",
 });
 
-// Role → Status table
-OrganizationInfo.belongsTo(Status, {
-  foreignKey: "Role",
-  as: "RoleStatus",
+// OrganizationInfo → Room
+OrganizationInfo.belongsTo(Room, {
+  foreignKey: "RID",
+  as: "Room",
 });
 
 // Created By User

@@ -11,7 +11,7 @@ const router = require("../routers/usertype");
 module.exports.get = async (req, res) => {
   let success = false;
   try {
-    const { BID } = req.body;
+    const { BID } = req.query;
 
     if (!BID) {
       return res.status(400).json({ error: "BID is required", success });
@@ -19,8 +19,8 @@ module.exports.get = async (req, res) => {
 
     // Your code for handling GET request goes here
     const rooms = await Room.findAll({
-      where: { BuildingID: BID, IsDeleted: false },
-      attributes: ["ID", "Code", "RoomNumber"],
+      where: { BID: BID, IsDeleted: false },
+      attributes: ["ID", "Code", "RoomName"],
     });
 
     if (rooms.length === 0) {
@@ -40,8 +40,6 @@ module.exports.post = async (req, res) => {
   try {
     let { BID, Code, RoomName, Capacity } = req.body;
     const { path } = req.file;
-    console.log(BID, Code, RoomName, Capacity, path);
-
     const imagePath = req.file ? req.file.path : null;
 
     if (!BID || !Code || !RoomName || !Capacity) {
@@ -63,13 +61,11 @@ module.exports.post = async (req, res) => {
         .json({ error: "Room code already exists", success });
     }
 
-    // console.log(
-    //   await Building.findOne({ where: { ID: BID }, attributes: ["Code"] })
-    // );
+    let BCode =await Building.findOne({ where: { ID: BID }, attributes: ["Code"] });
 
     const newRoom = await Room.create({
       BID,
-      Code,
+      Code: `${BCode.Code}${Code}`,
       RoomName,
       Capacity,
       Image: imagePath,
