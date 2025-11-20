@@ -110,11 +110,11 @@ module.exports.put = async (req, res) => {
         .json({ error: "Please enter all the fields", success });
     }
 
-    if (await Building.findOne({ where: { Code } })) {
-      return res
-        .status(400)
-        .json({ error: "Building with this code already exists", success });
-    }
+    // if (await Building.findOne({ where: { Code } })) {
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Building with this code already exists", success });
+    // }
 
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],

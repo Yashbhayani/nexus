@@ -103,7 +103,9 @@ module.exports.post = async (req, res) => {
     }
 
     if (
-      await Organization.findOne({ OrganizationUserName: OrganizationUserName })
+      await Organization.findOne({
+        where: { OrganizationUserName: OrganizationUserName },
+      })
     ) {
       return res.status(400).json({
         success: false,
@@ -192,18 +194,38 @@ module.exports.post = async (req, res) => {
       });
 
       let SID = await Status.findOne({
-        where: { STID: STyID.ID, Code: type },
+        where: {
+          STID: STyID.ID,
+          Code: type.trim().replace(/\s+/g, "").toUpperCase(),
+        },
         attributes: ["ID"],
       });
 
-      if (!SID.ID) {
-        return res.status(400).json({
-          success: false,
-          message: `Invalid status code: ${type}`,
+      if (!SID) {
+        let CreatedStatus = await Status.create({
+          STID: STyID.ID,
+          Code: type.trim().replace(/\s+/g, "").toUpperCase(),
+          Name: type
+            .trim()
+            .replace(/\s+/g, "")
+            .split(" ")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" "),
+          CreatedByID: req.user.id,
         });
+
+        if (!CreatedStatus) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to create status type",
+          });
+        }
+
+        SID = CreatedStatus;
       }
 
       // Additional logic can be added here if needed
+      //createdOrganization.ID
       if (
         !(await OrganizationsType.findOne({
           where: { OID: createdOrganization.ID, SID: SID.ID },
@@ -243,17 +265,49 @@ module.exports.put = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    const {
+    let {
       ID,
       OrganizationUserName,
       OrganizationName,
       OrganizationType,
+      Email,
+      Phone,
+      BID,
+      RID,
       image,
     } = req.body;
     let path = null;
     if (image) {
       path = req.file;
     }
+
+    if (typeof OrganizationType === "string") {
+      try {
+        OrganizationType = JSON.parse(OrganizationType); // convert to real array
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "OrganizationType must be a valid JSON array",
+        });
+      }
+    }
+
+    if (
+      !ID ||
+      !OrganizationUserName ||
+      !OrganizationName ||
+      !OrganizationType ||
+      !Email ||
+      !Phone ||
+      !BID ||
+      !RID
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter all the fields",
+      });
+    }
+
     if (!Array.isArray(OrganizationType)) {
       return res.status(400).json({
         success,
@@ -261,7 +315,50 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    let updatedOrganization = await Organization.findOne({ where: { ID } });
+    if (
+      await Organization.findOne({
+        where: { OrganizationUserName, ID: { [Op.ne]: ID } },
+      })
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OrganizationUserName already exists",
+      });
+    }
+
+    if (
+      await OrganizationInfo.findOne({ where: { Email, ID: { [Op.ne]: ID } } })
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists in organization info",
+      });
+    }
+
+    if (
+      await OrganizationInfo.findOne({ where: { Phone, ID: { [Op.ne]: ID } } })
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number already exists in organization info",
+      });
+    }
+
+    if (!(await Building.findOne({ where: { ID: BID } }))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Building ID",
+      });
+    }
+
+    if (!(await Room.findOne({ where: { ID: RID, BID: BID } }))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Room ID or Building ID",
+      });
+    }
+
+    let updatedOrganization = await Organization.findByPk({ where: { ID } });
 
     if (!updatedOrganization) {
       return res
@@ -302,7 +399,7 @@ module.exports.put = async (req, res) => {
     updatedOrganization.OrganizationUserName = OrganizationUserName;
     updatedOrganization.OrganizationName = OrganizationName;
     updatedOrganization.UpdatedByID = req.user.id;
-    updatedOrganization.save();
+    //    updatedOrganization.save();
 
     if (!updatedOrganization) {
       return res.status(400).json({
