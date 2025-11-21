@@ -1,5 +1,5 @@
 const { request } = require("express");
-const UserType = require("../models/usertype");
+const { Op } = require("sequelize");
 const User = require("../models/user");
 const Organization = require("../models/organization");
 const OrganizationsType = require("../models/organizationtype");
@@ -317,7 +317,10 @@ module.exports.put = async (req, res) => {
 
     if (
       await Organization.findOne({
-        where: { OrganizationUserName, ID: { [Op.ne]: ID } },
+        where: {
+          OrganizationUserName: OrganizationUserName,
+          ID: { [Op.ne]: ID },
+        },
       })
     ) {
       return res.status(400).json({
