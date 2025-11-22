@@ -5,6 +5,7 @@ const Organization = require("../models/organization");
 const OrganizationsType = require("../models/organizationtype");
 const OrganizationInfo = require("../models/organizationinfo");
 const Images = require("../models/images");
+const { findSimilarStatus } = require("../config/findSimilarStatus");
 //const { encryptedData } = require("../config/crypto");
 const Status = require("../models/status");
 const StatusType = require("../models/statustype");
@@ -113,14 +114,14 @@ module.exports.post = async (req, res) => {
       });
     }
 
-    if (await OrganizationInfo.findOne({ where: { Email: Email } })) {
+    if (await OrganizationInfo.findOne({ where: { email: Email } })) {
       return res.status(400).json({
         success: false,
         message: "Email already exists in organization info",
       });
     }
 
-    if (await OrganizationInfo.findOne({ where: { Phone: Phone } })) {
+    if (await OrganizationInfo.findOne({ where: { phone: Phone } })) {
       return res.status(400).json({
         success: false,
         message: "Phone number already exists in organization info",
@@ -330,7 +331,9 @@ module.exports.put = async (req, res) => {
     }
 
     if (
-      await OrganizationInfo.findOne({ where: { Email, ID: { [Op.ne]: ID } } })
+      await OrganizationInfo.findOne({
+        where: { email: Email, ID: { [Op.ne]: ID } },
+      })
     ) {
       return res.status(400).json({
         success: false,
@@ -339,7 +342,9 @@ module.exports.put = async (req, res) => {
     }
 
     if (
-      await OrganizationInfo.findOne({ where: { Phone, ID: { [Op.ne]: ID } } })
+      await OrganizationInfo.findOne({
+        where: { phone: Phone, ID: { [Op.ne]: ID } },
+      })
     ) {
       return res.status(400).json({
         success: false,
@@ -361,7 +366,9 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    let updatedOrganization = await Organization.findByPk({ where: { ID } });
+    let updatedOrganization = await Organization.findByPk({
+      where: { ID: ID },
+    });
 
     if (!updatedOrganization) {
       return res
@@ -411,6 +418,70 @@ module.exports.put = async (req, res) => {
       });
     }
 
+    OrganizationType.forEach(async (type) => {
+      let STyID = await StatusType.findOne({
+        where: { Code: MasterTypes.Or.toUpperCase() },
+        attributes: ["ID"],
+      });
+
+      let similar = await findSimilarStatus(type, STyID.ID);
+      let SID = null;
+      if (similar) {
+      } else {
+        SID = await Status.findOne({
+          where: {
+            STID: STyID.ID,
+            Code: type.trim().replace(/\s+/g, "").toUpperCase(),
+          },
+          attributes: ["ID"],
+        });
+      }
+
+      if (!SID) {
+        let CreatedStatus = await Status.create({
+          STID: STyID.ID,
+          Code: type.trim().replace(/\s+/g, "").toUpperCase(),
+          Name: type
+            .trim()
+            .replace(/\s+/g, "")
+            .split(" ")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" "),
+          CreatedByID: req.user.id,
+        });
+
+        if (!CreatedStatus) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to create status type",
+          });
+        }
+
+        SID = CreatedStatus;
+      }
+
+      // Additional logic can be added here if needed
+      //createdOrganization.ID
+      if (
+        !(await OrganizationsType.findOne({
+          where: { OID: updatedOrganization.ID, SID: SID.ID },
+        }))
+      ) {
+        let createdOrganizationType = await OrganizationsType.create({
+          SID: SID.ID,
+          OID: updatedOrganization.ID,
+          CreatedByID: req.user.id,
+        });
+        if (!createdOrganizationType) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to create organization type",
+          });
+        }
+      }
+    });
+
+    success = true;
     res
       .status(200)
       .json({ message: "Organization created successfully!", success });
