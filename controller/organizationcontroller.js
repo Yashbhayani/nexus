@@ -332,7 +332,7 @@ module.exports.put = async (req, res) => {
 
     if (
       await OrganizationInfo.findOne({
-        where: { email: Email, ID: { [Op.ne]: ID } },
+        where: { email: Email, OID: { [Op.ne]: ID } },
       })
     ) {
       return res.status(400).json({
@@ -343,7 +343,7 @@ module.exports.put = async (req, res) => {
 
     if (
       await OrganizationInfo.findOne({
-        where: { phone: Phone, ID: { [Op.ne]: ID } },
+        where: { phone: Phone, OID: { [Op.ne]: ID } },
       })
     ) {
       return res.status(400).json({
@@ -366,9 +366,7 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    let updatedOrganization = await Organization.findByPk({
-      where: { ID: ID },
-    });
+    let updatedOrganization = await Organization.findByPk(ID);
 
     if (!updatedOrganization) {
       return res
@@ -427,6 +425,7 @@ module.exports.put = async (req, res) => {
       let similar = await findSimilarStatus(type, STyID.ID);
       let SID = null;
       if (similar) {
+        SID = similar;
       } else {
         SID = await Status.findOne({
           where: {
@@ -436,6 +435,8 @@ module.exports.put = async (req, res) => {
           attributes: ["ID"],
         });
       }
+
+      //console.log("Similar Status Found: ", SID);
 
       if (!SID) {
         let CreatedStatus = await Status.create({
@@ -460,8 +461,14 @@ module.exports.put = async (req, res) => {
         SID = CreatedStatus;
       }
 
+      console.log(
+        "Status ID to be used: ",
+        await OrganizationsType.findOne({
+          where: { OID: updatedOrganization.ID, SID: SID.ID },
+        })
+      );
+
       // Additional logic can be added here if needed
-      //createdOrganization.ID
       if (
         !(await OrganizationsType.findOne({
           where: { OID: updatedOrganization.ID, SID: SID.ID },
@@ -484,7 +491,7 @@ module.exports.put = async (req, res) => {
     success = true;
     res
       .status(200)
-      .json({ message: "Organization created successfully!", success });
+      .json({ message: "Organization updated successfully!", success });
   } catch (err) {
     res.status(500).json({ error: err.message, success });
   }

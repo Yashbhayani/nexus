@@ -4,7 +4,6 @@ const Status = require("../models/status"); // <-- ADD THIS
 module.exports.findSimilarStatus = async (inputName, STID) => {
   const allStatuses = await Status.findAll({
     where: { STID: STID },
-    attributes: ["ID", "Name"],
   });
 
   let bestMatch = null;
