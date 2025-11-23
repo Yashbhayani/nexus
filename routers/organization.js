@@ -10,9 +10,7 @@ const {
 const fetchUser = require("../midlewere/fetchuser");
 const getStorage = require("../config/multer");
 
-// Get all user types
 router.get("/", fetchUser, get);
-// Create new user type
 router.post(
   "/",
   fetchUser,
