@@ -145,10 +145,23 @@ module.exports.post = async (req, res) => {
       });
     }
 
+    const Image = await Images.create({
+      ImageURL: path,
+      CreatedByID: req.user.id,
+    });
+
+    if (!Image) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create image",
+      });
+    }
+
     let createdOrganization = await Organization.create({
       UID: req.user.id,
       OrganizationUserName,
       OrganizationName,
+      ImgID : Image.ID,
       CreatedByID: req.user.id,
       IsApproved: true,
     });
@@ -176,21 +189,6 @@ module.exports.post = async (req, res) => {
         message: "Failed to create organization info",
       });
     }
-
-    const Image = await Images.create({
-      ImageURL: path,
-      CreatedByID: req.user.id,
-    });
-
-    if (!Image) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to create image",
-      });
-    }
-
-    createdOrganization.ImgID = Image.ID;
-    await createdOrganization.save();
 
     OrganizationType.forEach(async (type) => {
       let STyID = await StatusType.findOne({

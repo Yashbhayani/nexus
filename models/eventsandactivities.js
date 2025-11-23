@@ -1,11 +1,12 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-const User = require('./user');
+// Import associated models
+const Organization = require('./organization');
 const Building = require('./building');
 const Rooms = require('./rooms');
 const Images = require('./images');
-const Organization = require('./organization');
+const User = require('./user');
 const Status = require('./status');
 
 const EventsAndActivities = sequelize.define('EventsAndActivities', {
@@ -46,6 +47,10 @@ const EventsAndActivities = sequelize.define('EventsAndActivities', {
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  EventDate: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
   ApproverByID: {
     type: DataTypes.INTEGER,
     allowNull: true
@@ -60,14 +65,6 @@ const EventsAndActivities = sequelize.define('EventsAndActivities', {
   },
   EstimatedCostAverage: {
     type: DataTypes.DECIMAL(10,2),
-    allowNull: true
-  },
-  EventActivityStatusType: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  EventActivityType: {
-    type: DataTypes.INTEGER,
     allowNull: true
   },
   CreatedByID: {
@@ -87,14 +84,12 @@ const EventsAndActivities = sequelize.define('EventsAndActivities', {
     defaultValue: DataTypes.NOW
   },
   IsDeleted: {
-    type: DataTypes.TINYINT,
+    type: DataTypes.BOOLEAN,
     defaultValue: 0
   }
 }, {
   tableName: 'eventsandactivities',
-  timestamps: false,
-  createdAt: false,
-  updatedAt: false
+  timestamps: false
 });
 
 module.exports = EventsAndActivities;

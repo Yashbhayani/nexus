@@ -23,6 +23,7 @@ const SkillsTable = require("../models/skillstable");
 const InterestTable = require("../models/interesttable");
 const UserType = require("../models/usertype");
 const ManageOrganization = require("../models/manageorganization");
+const EventsAndActivitiesType = require("../models/eventsandactivitiestype");
 
 // ... all other models
 
@@ -432,58 +433,59 @@ BlogTable.belongsTo(Status, {
 // ⭐ EventsAndActivities
 // --------------------------------------------------------
 
-// Organization
-EventsAndActivities.belongsTo(Organization, {
-  foreignKey: "OID",
-  as: "Organization",
-});
+// ------------------------
+//      ASSOCIATIONS
+// ------------------------
 
-// Building
-EventsAndActivities.belongsTo(Building, {
-  foreignKey: "BuildingID",
-  as: "Building",
-});
-
-// Room
-EventsAndActivities.belongsTo(Room, {
-  foreignKey: "RoomID",
-  as: "Room",
-});
-
-// Image
-EventsAndActivities.belongsTo(Images, {
-  foreignKey: "ImgID",
-  as: "Image",
-});
-
-// Approver
+EventsAndActivities.belongsTo(Organization, { foreignKey: "OID" });
+EventsAndActivities.belongsTo(Building, { foreignKey: "BuildingID" });
+EventsAndActivities.belongsTo(Room, { foreignKey: "RoomID" });
+EventsAndActivities.belongsTo(Images, { foreignKey: "ImgID" });
 EventsAndActivities.belongsTo(User, {
-  foreignKey: "ApproverByID",
   as: "Approver",
+  foreignKey: "ApproverByID",
 });
-
-// Status Type
-EventsAndActivities.belongsTo(Status, {
-  foreignKey: "EventActivityStatusType",
-  as: "StatusType",
-});
-
-// Event Type
-EventsAndActivities.belongsTo(Status, {
-  foreignKey: "EventActivityType",
-  as: "EventType",
-});
-
-// Created By User
 EventsAndActivities.belongsTo(User, {
+  as: "Creator",
   foreignKey: "CreatedByID",
-  as: "CreatedBy",
+});
+EventsAndActivities.belongsTo(User, {
+  as: "Updater",
+  foreignKey: "UpdatedByID",
 });
 
-// Updated By User
-EventsAndActivities.belongsTo(User, {
+// ======================
+// 🔗 ASSOCIATIONS
+// ======================
+
+// Status FK (SID)
+EventsAndActivitiesType.belongsTo(Status, {
+  foreignKey: "SID",
+  onDelete: "RESTRICT",
+  onUpdate: "CASCADE",
+});
+
+// Event FK (EID)
+EventsAndActivitiesType.belongsTo(EventsAndActivities, {
+  foreignKey: "EID",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
+
+// CreatedBy FK
+EventsAndActivitiesType.belongsTo(User, {
+  as: "Creator",
+  foreignKey: "CreatedByID",
+  onDelete: "SET NULL",
+  onUpdate: "CASCADE",
+});
+
+// UpdatedBy FK
+EventsAndActivitiesType.belongsTo(User, {
+  as: "Updater",
   foreignKey: "UpdatedByID",
-  as: "UpdatedBy",
+  onDelete: "SET NULL",
+  onUpdate: "CASCADE",
 });
 
 // --------------------------------------------------------
@@ -550,4 +552,5 @@ module.exports = {
   SkillsTable,
   InterestTable,
   ManageOrganization,
+  EventsAndActivitiesType,
 };

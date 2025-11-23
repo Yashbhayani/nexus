@@ -25,7 +25,7 @@ const Building   = require('./models/building');
 const BlogTable   = require('./models/blogtable');
 const SkillsTable   = require('./models/skillstable');
 const ManageOrganization   = require('./models/manageorganization');
-  
+const EventsAndActivitiesType   = require('./models/eventsandactivitiestype');  
   
 
 const app = express();
