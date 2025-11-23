@@ -12,6 +12,7 @@ const StatusType = require("../models/statustype");
 const { MasterTypes, OrgDeptTypes } = require("../enums/codes");
 const Room = require("../models/rooms");
 const Building = require("../models/building");
+const ManageOrganization = require("../models/manageorganization");
 
 module.exports.get = async (req, res) => {
   let success = false;
@@ -66,6 +67,7 @@ module.exports.post = async (req, res) => {
       Phone,
       BID,
       RID,
+      Mission,
     } = req.body;
     const { path } = req.file;
 
@@ -88,6 +90,7 @@ module.exports.post = async (req, res) => {
       !Phone ||
       !BID ||
       !RID ||
+      !Mission ||
       !path
     ) {
       return res.status(400).json({
@@ -163,6 +166,7 @@ module.exports.post = async (req, res) => {
       phone: Phone,
       BID: BID,
       RID: RID,
+      Mission: Mission,
       CreatedByID: req.user.id,
     });
 
@@ -275,6 +279,7 @@ module.exports.put = async (req, res) => {
       Phone,
       BID,
       RID,
+      Mission,
       image,
     } = req.body;
     let path = null;
@@ -301,6 +306,7 @@ module.exports.put = async (req, res) => {
       !Email ||
       !Phone ||
       !BID ||
+      !Mission ||
       !RID
     ) {
       return res.status(400).json({
@@ -416,6 +422,25 @@ module.exports.put = async (req, res) => {
       });
     }
 
+    let updatedOrganizationInfo = await OrganizationInfo.findOne({
+      where: { OID: updatedOrganization.ID },
+    });
+
+    updatedOrganizationInfo.email = Email;
+    updatedOrganizationInfo.phone = Phone;
+    updatedOrganizationInfo.BID = BID;
+    updatedOrganizationInfo.RID = RID;
+    updatedOrganizationInfo.Mission = Mission;
+    updatedOrganizationInfo.UpdatedByID = req.user.id;
+    await updatedOrganizationInfo.save();
+
+    if (!updatedOrganizationInfo) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update organization info",
+      });
+    }
+
     OrganizationType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Or.toUpperCase() },
@@ -504,11 +529,12 @@ module.exports.join = async (req, res) => {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
     });
+
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
 
-    const { OID } = req.body;
+    const { OID } = req.query;
 
     if (!OID) {
       return res.status(400).json({
@@ -517,26 +543,28 @@ module.exports.join = async (req, res) => {
       });
     }
 
-    if (!(await Organization.findByPk({ ID: OID }))) {
+    if (!(await Organization.findOne({ where: { ID: OID } }))) {
       return res.status(404).json({
         success,
         message: "Organization not found",
       });
     }
 
-    let Organizationinfo = await OrganizationInfo.findByPk({
-      where: { ID: OID, UID: req.user.id },
+    let ManageOrganizations = await ManageOrganization.findOne({
+      where: { OID: OID, UID: req.user.id, IsRemove: 0 },
+      attributes: ["ID"],
     });
 
-    if (Organizationinfo) {
+    if (ManageOrganizations) {
       res.status(404).json({
         success,
         message: "User already joined this organization",
       });
     }
 
-    let SID = await SID.findOne({
-      where: { Code: OrgDeptTypes.organizations.toUpperCase() },
+    let SID = await Status.findOne({
+      where: { Code: OrgDeptTypes.OdU.toUpperCase() },
+      attributes: ["ID"],
     });
 
     if (!SID) {
@@ -546,13 +574,13 @@ module.exports.join = async (req, res) => {
       });
     }
 
-    Organizationinfo = await OrganizationInfo.create({
+    ManageOrganizations = await ManageOrganization.create({
       OID: OID,
       UID: req.user.id,
-      Role: SID.ID,
+      SID: SID.ID,
     });
 
-    if (!Organizationinfo) {
+    if (!ManageOrganizations) {
       return res.status(500).json({
         success,
         message: "Failed to join organization",

@@ -161,7 +161,7 @@ module.exports.put = async (req, res) => {
 module.exports.removebd = async (req, res) => {
   let success = false;
   try {
-    const { ID } = req.body;
+    const { ID } = req.query;
     if (!ID) {
       return res.status(400).json({ error: "ID is required" });
     }

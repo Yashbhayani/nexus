@@ -33,7 +33,5 @@ module.exports.OrgDeptTypes = Object.freeze({
   Odadmin: "odadministration",
   Odvp: "odvicepresident",
   Odp: "odpresident",
+  OdU: "oduser",
 });
-
-
-

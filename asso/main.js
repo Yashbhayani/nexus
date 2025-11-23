@@ -22,6 +22,7 @@ const BlogTable = require("../models/blogtable");
 const SkillsTable = require("../models/skillstable");
 const InterestTable = require("../models/interesttable");
 const UserType = require("../models/usertype");
+const ManageOrganization = require("../models/manageorganization");
 
 // ... all other models
 
@@ -186,6 +187,23 @@ ManageHashtags.belongsTo(Hashtags, { foreignKey: "HashtagID", as: "Hashtag" });
 ManageHashtags.belongsTo(User, { foreignKey: "CreatedByID", as: "CreatedBy" });
 ManageHashtags.belongsTo(User, { foreignKey: "UpdatedByID", as: "UpdatedBy" });
 
+// --------------------------------------------------------
+
+// Associations
+ManageOrganization.belongsTo(Organization, {
+  foreignKey: "OID",
+  as: "Organization",
+});
+
+ManageOrganization.belongsTo(User, {
+  foreignKey: "UID",
+  as: "User",
+});
+
+ManageOrganization.belongsTo(Status, {
+  foreignKey: "SID",
+  as: "Status",
+});
 // --------------------------------------------------------
 // ⭐ ASSOCIATIONS
 // --------------------------------------------------------
@@ -531,4 +549,5 @@ module.exports = {
   BlogTable,
   SkillsTable,
   InterestTable,
+  ManageOrganization,
 };

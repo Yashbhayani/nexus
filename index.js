@@ -24,7 +24,7 @@ const Comments   = require('./models/comments');
 const Building   = require('./models/building');
 const BlogTable   = require('./models/blogtable');
 const SkillsTable   = require('./models/skillstable');
-
+const ManageOrganization   = require('./models/manageorganization');
   
   
 
