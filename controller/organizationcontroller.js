@@ -407,7 +407,7 @@ module.exports.put = async (req, res) => {
     updatedOrganization.OrganizationUserName = OrganizationUserName;
     updatedOrganization.OrganizationName = OrganizationName;
     updatedOrganization.UpdatedByID = req.user.id;
-    //    updatedOrganization.save();
+    updatedOrganization.save();
 
     if (!updatedOrganization) {
       return res.status(400).json({
