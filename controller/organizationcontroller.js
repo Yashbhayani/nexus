@@ -386,7 +386,7 @@ module.exports.put = async (req, res) => {
 
     if (path) {
       const UopdatedImage = await Images.findOne({
-        where: { OID: updatedOrganization.ID },
+        where: { ID: updatedOrganization.ImgID },
       });
 
       if (!UopdatedImage) {
@@ -395,7 +395,7 @@ module.exports.put = async (req, res) => {
           message: "Image not found",
         });
       }
-
+      UopdatedImage.UpdatedByID = req.user.id;
       UopdatedImage.IsDeleted = true;
       await UopdatedImage.save();
 
