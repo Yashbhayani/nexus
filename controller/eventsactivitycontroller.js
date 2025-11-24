@@ -101,6 +101,54 @@ module.exports.post = async (req, res) => {
       });
     }
 
+    const start = new Date(`${EventDate} ${StartingTime}`);
+    const end = new Date(`${EventDate} ${EndingTime}`);
+
+    // Validate start < end
+    if (start >= end) {
+      return res.status(400).json({
+        success: false,
+        error: "EndingTime must be greater than StartingTime",
+      });
+    }
+
+    // Create 12-hour restricted window
+    const before12 = new Date(start.getTime() - 12 * 60 * 60 * 1000);
+    const after12 = new Date(end.getTime() + 12 * 60 * 60 * 1000);
+
+    // Check for conflicting event
+    const conflictingEvent = await EventsAndActivities.findOne({
+      where: {
+        BuildingID: BID,
+        RoomID: RID,
+        EventDate: EventDate,
+
+        // Overlap logic:
+        // ExistingStart < ProposedEnd AND ExistingEnd > ProposedStart
+        [Op.or]: [
+          {
+            StartingTime: { [Op.lt]: end },
+            EndingTime: { [Op.gt]: start },
+          },
+          // 12 hours before/after restriction
+          {
+            StartingTime: { [Op.between]: [before12, after12] },
+          },
+          {
+            EndingTime: { [Op.between]: [before12, after12] },
+          },
+        ],
+      },
+    });
+
+    if (conflictingEvent) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Room is not available (conflict or 12-hour buffer rule violated)",
+      });
+    }
+
     let Image = await Images.create({
       ImagePath: path,
       UploadedByID: req.user.id,
@@ -284,6 +332,54 @@ module.exports.put = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid Room ID or Building ID",
+      });
+    }
+
+    const start = new Date(`${EventDate} ${StartingTime}`);
+    const end = new Date(`${EventDate} ${EndingTime}`);
+
+    // Validate start < end
+    if (start >= end) {
+      return res.status(400).json({
+        success: false,
+        error: "EndingTime must be greater than StartingTime",
+      });
+    }
+
+    // Create 12-hour restricted window
+    const before12 = new Date(start.getTime() - 12 * 60 * 60 * 1000);
+    const after12 = new Date(end.getTime() + 12 * 60 * 60 * 1000);
+
+    // Check for conflicting event
+    const conflictingEvent = await EventsAndActivities.findOne({
+      where: {
+        BuildingID: BID,
+        RoomID: RID,
+        EventDate: EventDate,
+
+        // Overlap logic:
+        // ExistingStart < ProposedEnd AND ExistingEnd > ProposedStart
+        [Op.or]: [
+          {
+            StartingTime: { [Op.lt]: end },
+            EndingTime: { [Op.gt]: start },
+          },
+          // 12 hours before/after restriction
+          {
+            StartingTime: { [Op.between]: [before12, after12] },
+          },
+          {
+            EndingTime: { [Op.between]: [before12, after12] },
+          },
+        ],
+      },
+    });
+
+    if (conflictingEvent) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Room is not available (conflict or 12-hour buffer rule violated)",
       });
     }
 
