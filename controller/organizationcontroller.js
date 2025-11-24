@@ -161,7 +161,7 @@ module.exports.post = async (req, res) => {
       UID: req.user.id,
       OrganizationUserName,
       OrganizationName,
-      ImgID : Image.ID,
+      ImgID: Image.ID,
       CreatedByID: req.user.id,
       IsApproved: true,
     });
@@ -196,13 +196,19 @@ module.exports.post = async (req, res) => {
         attributes: ["ID"],
       });
 
-      let SID = await Status.findOne({
-        where: {
-          STID: STyID.ID,
-          Code: type.trim().replace(/\s+/g, "").toUpperCase(),
-        },
-        attributes: ["ID"],
-      });
+      let similar = await findSimilarStatus(type, STyID.ID);
+      let SID = null;
+      if (similar) {
+        SID = similar;
+      } else {
+        SID = await Status.findOne({
+          where: {
+            STID: STyID.ID,
+            Code: type.trim().replace(/\s+/g, "").toUpperCase(),
+          },
+          attributes: ["ID"],
+        });
+      }
 
       if (!SID) {
         let CreatedStatus = await Status.create({
@@ -483,13 +489,6 @@ module.exports.put = async (req, res) => {
 
         SID = CreatedStatus;
       }
-
-      console.log(
-        "Status ID to be used: ",
-        await OrganizationsType.findOne({
-          where: { OID: updatedOrganization.ID, SID: SID.ID },
-        })
-      );
 
       // Additional logic can be added here if needed
       if (
