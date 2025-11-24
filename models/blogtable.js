@@ -28,7 +28,7 @@ const BlogTable = sequelize.define('BlogTable', {
   },
   CategoryID: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   CreatedByID: {
     type: DataTypes.INTEGER,
