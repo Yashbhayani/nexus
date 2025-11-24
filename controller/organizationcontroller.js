@@ -71,7 +71,7 @@ module.exports.post = async (req, res) => {
     } = req.body;
     const { path } = req.file;
 
-    if (typeof OrganizationType === "string") {
+    /*if (typeof OrganizationType === "string") {
       try {
         OrganizationType = JSON.parse(OrganizationType); // convert to real array
       } catch (err) {
@@ -80,7 +80,7 @@ module.exports.post = async (req, res) => {
           message: "OrganizationType must be a valid JSON array",
         });
       }
-    }
+    }*/
 
     if (
       !OrganizationUserName ||
@@ -91,6 +91,7 @@ module.exports.post = async (req, res) => {
       !BID ||
       !RID ||
       !Mission ||
+      !OrganizationType ||
       !path
     ) {
       return res.status(400).json({
@@ -99,12 +100,12 @@ module.exports.post = async (req, res) => {
       });
     }
 
-    if (!Array.isArray(OrganizationType)) {
+    /*if (!Array.isArray(OrganizationType)) {
       return res.status(400).json({
         success: false,
         message: "OrganizationType must be an array",
       });
-    }
+    }*/
 
     if (
       await Organization.findOne({
@@ -163,6 +164,7 @@ module.exports.post = async (req, res) => {
       OrganizationName,
       ImgID: Image.ID,
       CreatedByID: req.user.id,
+      OrganizationType: OrganizationType,
       IsApproved: true,
     });
 
@@ -190,7 +192,7 @@ module.exports.post = async (req, res) => {
       });
     }
 
-    OrganizationType.forEach(async (type) => {
+    /*OrganizationType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Or.toUpperCase() },
         attributes: ["ID"],
@@ -252,7 +254,7 @@ module.exports.post = async (req, res) => {
           });
         }
       }
-    });
+    });*/
 
     success = true;
     res
@@ -291,7 +293,7 @@ module.exports.put = async (req, res) => {
       path = req.file;
     }
 
-    if (typeof OrganizationType === "string") {
+    /*if (typeof OrganizationType === "string") {
       try {
         OrganizationType = JSON.parse(OrganizationType); // convert to real array
       } catch (err) {
@@ -300,7 +302,7 @@ module.exports.put = async (req, res) => {
           message: "OrganizationType must be a valid JSON array",
         });
       }
-    }
+    }*/
 
     if (
       !ID ||
@@ -319,12 +321,12 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    if (!Array.isArray(OrganizationType)) {
+    /*if (!Array.isArray(OrganizationType)) {
       return res.status(400).json({
         success,
         message: "OrganizationType must be an array",
       });
-    }
+    }*/
 
     if (
       await Organization.findOne({
@@ -445,7 +447,7 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    OrganizationType.forEach(async (type) => {
+    /*OrganizationType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Or.toUpperCase() },
         attributes: ["ID"],
@@ -508,7 +510,7 @@ module.exports.put = async (req, res) => {
           });
         }
       }
-    });
+    });*/
 
     success = true;
     res

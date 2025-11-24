@@ -45,7 +45,7 @@ const Organization = sequelize.define(
     OrganizationType: {
       type: DataTypes.INTEGER,
       allowNull: true,
-    },
+    },  
     CreatedByID: {
       type: DataTypes.INTEGER,
       allowNull: true,

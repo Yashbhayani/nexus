@@ -20,6 +20,15 @@ const ManageEventAndActivities = require("../models/manageeventandactivities");
 module.exports.get = async (req, res) => {
   let success = false;
   try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    return res.status(200).json({ success: true });
   } catch (error) {
     console.error(error.message);
     return res.status(500).json({ success, error: "Internal Server Error" });
@@ -53,7 +62,7 @@ module.exports.post = async (req, res) => {
 
     const { path } = req.file;
 
-    if (typeof EventActivityType === "string") {
+    /*if (typeof EventActivityType === "string") {
       try {
         EventActivityType = JSON.parse(EventActivityType);
       } catch (err) {
@@ -61,7 +70,7 @@ module.exports.post = async (req, res) => {
           .status(400)
           .json({ success, error: "Invalid EventActivityType format" });
       }
-    }
+    }*/
 
     if (
       !OID ||
@@ -81,12 +90,12 @@ module.exports.post = async (req, res) => {
         .json({ success, error: "Please fill all required fields" });
     }
 
-    if (!Array.isArray(EventActivityType) || EventActivityType.length === 0) {
+    /*if (!Array.isArray(EventActivityType) || EventActivityType.length === 0) {
       return res.status(400).json({
         success,
         error: "EventActivityType must be a non-empty array",
       });
-    }
+    }*/
     if (!(await Building.findOne({ where: { ID: BID } }))) {
       return res.status(400).json({
         success: false,
@@ -161,6 +170,7 @@ module.exports.post = async (req, res) => {
     let createdEvent = await EventsAndActivities.create({
       OID,
       EventActivityName,
+      EventType: EventActivityType,
       BuildingID: BID,
       RoomID: RID,
       ImgID: Image.ID,
@@ -179,7 +189,7 @@ module.exports.post = async (req, res) => {
         .json({ success, error: "Failed to create event/activity" });
     }
 
-    EventActivityType.forEach(async (type) => {
+    /* EventActivityType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Ev.toUpperCase() },
         attributes: ["ID"],
@@ -242,7 +252,7 @@ module.exports.post = async (req, res) => {
           .status(500)
           .json({ success, error: "Failed to create event/activity type" });
       }
-    }
+    }*/
 
     success = true;
     return res
@@ -285,7 +295,7 @@ module.exports.put = async (req, res) => {
       path = req.file;
     }
 
-    if (typeof EventActivityType === "string") {
+    /*if (typeof EventActivityType === "string") {
       try {
         EventActivityType = JSON.parse(EventActivityType); // convert to real array
       } catch (err) {
@@ -294,7 +304,7 @@ module.exports.put = async (req, res) => {
           message: "OrganizationType must be a valid JSON array",
         });
       }
-    }
+    }*/
 
     if (
       !Id ||
@@ -315,12 +325,12 @@ module.exports.put = async (req, res) => {
         .json({ success, error: "Please fill all required fields" });
     }
 
-    if (!Array.isArray(EventActivityType) || EventActivityType.length === 0) {
+    /* if (!Array.isArray(EventActivityType) || EventActivityType.length === 0) {
       return res.status(400).json({
         success,
         error: "EventActivityType must be a non-empty array",
       });
-    }
+    }*/
     if (!(await Building.findOne({ where: { ID: BID } }))) {
       return res.status(400).json({
         success: false,
@@ -419,6 +429,7 @@ module.exports.put = async (req, res) => {
 
     updateEvent.OID = OID;
     updateEvent.EventActivityName = EventActivityName;
+    updateEvent.EventType = EventActivityType;
     updateEvent.BuildingID = BID;
     updateEvent.RoomID = RID;
     updateEvent.StartingTime = StartingTime;
@@ -429,7 +440,7 @@ module.exports.put = async (req, res) => {
     updateEvent.EstimatedCostAverage = EstimatedCostAverage;
     updateEvent.UpdatedByID = req.user.id;
 
-    EventActivityType.forEach(async (type) => {
+   /* EventActivityType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Ev.toUpperCase() },
         attributes: ["ID"],
@@ -492,7 +503,7 @@ module.exports.put = async (req, res) => {
           .status(500)
           .json({ success, error: "Failed to create event/activity type" });
       }
-    }
+    }*/
     await updateEvent.save();
 
     if (!updateEvent) {

@@ -454,6 +454,11 @@ EventsAndActivities.belongsTo(User, {
   foreignKey: "UpdatedByID",
 });
 
+EventsAndActivities.belongsTo(Status, {
+  foreignKey: "EventType",
+  as: "EventStatus",
+});
+
 // ======================
 // 🔗 ASSOCIATIONS
 // ======================
