@@ -90,6 +90,7 @@ export function EventDetail({ eventId, onBack }: EventDetailProps) {
             src={event.image}
             alt={event.title}
             className="w-full h-64 object-cover"
+            fallbackType="event"
           />
           <div className="absolute top-4 left-4">
             <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">

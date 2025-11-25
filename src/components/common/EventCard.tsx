@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Users, Heart } from "lucide-react";
+import { Calendar, MapPin, Users, Heart, Building2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -17,13 +17,15 @@ interface EventCardProps {
     price: string;
     isBookmarked: boolean;
     isRSVPd?: boolean;
+    organizer?: string;
   };
   onBookmark?: (eventId: string) => void;
   onRSVP?: (eventId: string) => void;
+  onOrganizerClick?: (organizerName: string) => void;
   variant?: "grid" | "list" | "feed";
 }
 
-export function EventCard({ event, onBookmark, onRSVP, variant = "grid" }: EventCardProps) {
+export function EventCard({ event, onBookmark, onRSVP, onOrganizerClick, variant = "grid" }: EventCardProps) {
   if (variant === "feed") {
     return (
       <Card className="mb-3 border-0 shadow-sm">
@@ -34,6 +36,7 @@ export function EventCard({ event, onBookmark, onRSVP, variant = "grid" }: Event
                 src={event.image}
                 alt={event.title}
                 className="w-20 h-20 rounded-lg object-cover"
+                fallbackType="event"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -43,6 +46,15 @@ export function EventCard({ event, onBookmark, onRSVP, variant = "grid" }: Event
                   {event.category}
                 </Badge>
               </div>
+              {event.organizer && (
+                <button 
+                  onClick={() => onOrganizerClick?.(event.organizer!)}
+                  className="flex items-center gap-2 mb-1 hover:bg-muted/50 rounded px-1 -mx-1 py-0.5 transition-colors group"
+                >
+                  <Building2 className="h-3 w-3 text-primary" />
+                  <span className="text-xs text-primary group-hover:underline cursor-pointer">{event.organizer}</span>
+                </button>
+              )}
               <div className="flex items-center gap-2 mb-1">
                 <Calendar className="h-3 w-3 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">{event.date} • {event.time}</span>
@@ -68,6 +80,7 @@ export function EventCard({ event, onBookmark, onRSVP, variant = "grid" }: Event
                 src={event.image}
                 alt={event.title}
                 className="w-20 h-20 rounded-lg object-cover"
+                fallbackType="event"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -90,6 +103,15 @@ export function EventCard({ event, onBookmark, onRSVP, variant = "grid" }: Event
                   </Button>
                 )}
               </div>
+              {event.organizer && (
+                <button 
+                  onClick={() => onOrganizerClick?.(event.organizer!)}
+                  className="flex items-center gap-2 mb-1 hover:bg-muted/50 rounded px-1 -mx-1 py-0.5 transition-colors group"
+                >
+                  <Building2 className="h-3 w-3 text-primary" />
+                  <span className="text-xs text-primary group-hover:underline cursor-pointer">{event.organizer}</span>
+                </button>
+              )}
               <div className="flex items-center gap-2 mb-1">
                 <Calendar className="h-3 w-3 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">{event.date} • {event.time}</span>
@@ -125,32 +147,27 @@ export function EventCard({ event, onBookmark, onRSVP, variant = "grid" }: Event
             src={event.image}
             alt={event.title}
             className="w-full h-48 object-cover"
+            fallbackType="event"
           />
           <div className="absolute top-3 left-3">
             <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
               {event.category}
             </Badge>
           </div>
-          {onBookmark && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-3 right-3 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm hover:bg-background/90"
-              onClick={() => onBookmark(event.id)}
-              aria-label={event.isBookmarked ? "Remove bookmark" : "Add bookmark"}
-            >
-              <Heart
-                className={`h-4 w-4 ${
-                  event.isBookmarked ? "fill-red-500 text-red-500" : "text-foreground"
-                }`}
-                aria-hidden="true"
-              />
-            </Button>
-          )}
         </div>
         
         <div className="p-4">
           <h3 className="font-medium mb-2 line-clamp-2">{event.title}</h3>
+          
+          {event.organizer && (
+            <button 
+              onClick={() => onOrganizerClick?.(event.organizer!)}
+              className="flex items-center gap-2 mb-2 hover:bg-muted/50 rounded px-1 -mx-1 py-0.5 transition-colors group w-fit"
+            >
+              <Building2 className="h-4 w-4 text-primary" />
+              <span className="text-sm text-primary group-hover:underline cursor-pointer">{event.organizer}</span>
+            </button>
+          )}
           
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />

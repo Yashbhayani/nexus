@@ -17,10 +17,11 @@ interface StudentCardProps {
     isFollowing: boolean;
   };
   onFollow?: (studentId: string) => void;
+  onNavigate?: (studentId: string) => void;
   variant?: "grid" | "list";
 }
 
-export function StudentCard({ student, onFollow, variant = "grid" }: StudentCardProps) {
+export function StudentCard({ student, onFollow, onNavigate, variant = "grid" }: StudentCardProps) {
   if (variant === "list") {
     return (
       <Card className="mb-3 border-0 shadow-sm">
@@ -35,7 +36,12 @@ export function StudentCard({ student, onFollow, variant = "grid" }: StudentCard
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-1">
-                <h3 className="font-medium truncate pr-2">{student.name}</h3>
+                <h3 
+                  className="font-medium truncate pr-2 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => onNavigate?.(student.id)}
+                >
+                  {student.name}
+                </h3>
                 <Badge variant="outline" className="text-xs">
                   {student.year}
                 </Badge>
@@ -97,7 +103,12 @@ export function StudentCard({ student, onFollow, variant = "grid" }: StudentCard
         </div>
         
         <div className="p-4 pt-10">
-          <h3 className="font-medium mb-1">{student.name}</h3>
+          <h3 
+            className="font-medium mb-1 cursor-pointer hover:text-primary transition-colors"
+            onClick={() => onNavigate?.(student.id)}
+          >
+            {student.name}
+          </h3>
           
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="h-4 w-4 text-muted-foreground" />

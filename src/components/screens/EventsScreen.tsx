@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { EventCard } from "../common/EventCard";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-<<<<<<< HEAD
 import { Search, Grid3X3, List, Calendar, MapPin, Filter, Check, CheckCheck } from "lucide-react";
-=======
-import { Search, Grid3X3, List, Calendar, MapPin, Filter } from "lucide-react";
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
+import { SkeletonEventCard } from "../common/SkeletonCard";
 
-export function EventsScreen() {
+interface EventsScreenProps {
+  onNavigate?: (screen: string, data?: any) => void;
+}
+
+export function EventsScreen({ onNavigate }: EventsScreenProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -36,7 +38,8 @@ export function EventsScreen() {
       isBookmarked: false,
       isRSVPd: false,
       organizer: "Computer Science Club",
-      description: "Join us for a collaborative study session as we prepare for final exams. Bring your questions and let's tackle them together!"
+      description: "Join us for a collaborative study session as we prepare for final exams. Bring your questions and let's tackle them together!",
+      status: "approved"
     },
     {
       id: "evt2",
@@ -51,7 +54,8 @@ export function EventsScreen() {
       isBookmarked: true,
       isRSVPd: true,
       organizer: "Campus Basketball League",
-      description: "Annual basketball tournament open to all skill levels. Form your team or join as a free agent!"
+      description: "Annual basketball tournament open to all skill levels. Form your team or join as a free agent!",
+      status: "approved"
     },
     {
       id: "evt3",
@@ -66,7 +70,8 @@ export function EventsScreen() {
       isBookmarked: false,
       isRSVPd: false,
       organizer: "Art & Design Society",
-      description: "Celebrate student creativity at our winter exhibition featuring paintings, sculptures, and digital art."
+      description: "Celebrate student creativity at our winter exhibition featuring paintings, sculptures, and digital art.",
+      status: "approved"
     },
     {
       id: "evt4",
@@ -81,7 +86,8 @@ export function EventsScreen() {
       isBookmarked: false,
       isRSVPd: false,
       organizer: "Alpha Beta Gamma",
-      description: "Meet representatives from various fraternities and sororities. Learn about opportunities for leadership and service."
+      description: "Meet representatives from various fraternities and sororities. Learn about opportunities for leadership and service.",
+      status: "approved"
     },
     {
       id: "evt5",
@@ -96,7 +102,8 @@ export function EventsScreen() {
       isBookmarked: true,
       isRSVPd: false,
       organizer: "Volunteer Corps",
-      description: "Help maintain our campus community garden. We'll be planting, weeding, and harvesting fresh produce."
+      description: "Help maintain our campus community garden. We'll be planting, weeding, and harvesting fresh produce.",
+      status: "approved"
     },
     {
       id: "evt6",
@@ -175,6 +182,14 @@ export function EventsScreen() {
     }
   ]);
 
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Helper function to check if event matches date filter
   const matchesDateFilter = (event: any) => {
     if (selectedDate === "all") return true;
@@ -231,6 +246,14 @@ export function EventsScreen() {
         ? { ...event, isRSVPd: !event.isRSVPd }
         : event
     ));
+  };
+
+  const handleOrganizerClick = (organizerName: string) => {
+    // Navigate to organization profile
+    // We'll use the existing profile system but pass the organization name
+    if (onNavigate) {
+      onNavigate('organizationProfile', { organizationName: organizerName });
+    }
   };
 
   return (
@@ -373,7 +396,13 @@ export function EventsScreen() {
           </div>
         </div>
 
-        {viewMode === "grid" ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-4">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonEventCard key={index} />
+            ))}
+          </div>
+        ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 gap-4">
             {filteredEvents.map((event) => (
               <EventCard
@@ -381,6 +410,7 @@ export function EventsScreen() {
                 event={event}
                 onBookmark={handleBookmark}
                 onRSVP={handleRSVP}
+                onOrganizerClick={handleOrganizerClick}
                 variant="grid"
               />
             ))}
@@ -393,6 +423,7 @@ export function EventsScreen() {
                 event={event}
                 onBookmark={handleBookmark}
                 onRSVP={handleRSVP}
+                onOrganizerClick={handleOrganizerClick}
                 variant="list"
               />
             ))}

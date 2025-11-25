@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PostCard } from "../common/PostCard";
 import { EventCard } from "../common/EventCard";
 import { Search, Bell, Star } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import { LoadingSpinner } from "../common/LoadingSpinner";
+import { SkeletonPostCard, SkeletonBigEventCard } from "../common/SkeletonCard";
 
 interface HomeFeedProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function HomeFeed({ onNavigate }: HomeFeedProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([
     {
       id: "1",
@@ -24,7 +27,29 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
       timestamp: "2h",
       likes: 156,
       comments: 23,
-      isLiked: false
+      isLiked: false,
+      commentsList: [
+        {
+          id: "c1",
+          user: {
+            name: "Emily Rodriguez",
+            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
+            username: "emily_r"
+          },
+          content: "This is amazing! Finally can study late 🙏",
+          timestamp: "1h ago"
+        },
+        {
+          id: "c2",
+          user: {
+            name: "David Kim",
+            avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop",
+            username: "david_kim"
+          },
+          content: "Best news all week! Thank you Student Gov! 📚",
+          timestamp: "45m ago"
+        }
+      ]
     },
     {
       id: "2",
@@ -37,7 +62,29 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
       timestamp: "3h",
       likes: 89,
       comments: 31,
-      isLiked: true
+      isLiked: true,
+      commentsList: [
+        {
+          id: "c3",
+          user: {
+            name: "Marcus Johnson",
+            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop",
+            username: "marcus_j"
+          },
+          content: "You got this Sarah! 🚀",
+          timestamp: "2h ago"
+        },
+        {
+          id: "c4",
+          user: {
+            name: "Jessica Taylor",
+            avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop",
+            username: "jess_t"
+          },
+          content: "Good luck! Let us know how it goes!",
+          timestamp: "2h ago"
+        }
+      ]
     },
     {
       id: "3", 
@@ -50,7 +97,19 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
       timestamp: "4h",
       likes: 142,
       comments: 28,
-      isLiked: false
+      isLiked: false,
+      commentsList: [
+        {
+          id: "c5",
+          user: {
+            name: "Alex Thompson",
+            avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop",
+            username: "alex_t"
+          },
+          content: "Can't wait for this! Tesla is doing amazing work 🚗⚡",
+          timestamp: "3h ago"
+        }
+      ]
     },
     {
       id: "4",
@@ -64,7 +123,8 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
       timestamp: "6h",
       likes: 234,
       comments: 45,
-      isLiked: true
+      isLiked: true,
+      commentsList: []
     },
     {
       id: "5",
@@ -77,7 +137,8 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
       timestamp: "8h",
       likes: 67,
       comments: 18,
-      isLiked: false
+      isLiked: false,
+      commentsList: []
     }
   ]);
 
@@ -173,8 +234,66 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
     console.log("Comment on post:", postId);
   };
 
+  const handleAddComment = (postId: string, commentText: string) => {
+    setPosts(prev => prev.map(post => {
+      if (post.id === postId) {
+        const newComment = {
+          id: `c${Date.now()}`,
+          user: {
+            name: "Alex Johnson",
+            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
+            username: "alex_j"
+          },
+          content: commentText,
+          timestamp: "Just now"
+        };
+        return {
+          ...post,
+          comments: post.comments + 1,
+          commentsList: [...(post.commentsList || []), newComment]
+        };
+      }
+      return post;
+    }));
+  };
+
   const handleShare = (postId: string) => {
     console.log("Share post:", postId);
+  };
+
+  const handleUserClick = (username: string, userType: 'student' | 'organization') => {
+    // Check if this is the current user or an organization they manage
+    const ownProfiles = ['studentgov', 'engsociety', 'campusrec'];  // Organizations the user manages
+    
+    if (userType === 'organization') {
+      // Navigate to organization profile - map username to organizationId
+      const orgIdMapping: Record<string, string> = {
+        'studentgov': 'org1',        // Computer Science Club / Student Government
+        'engsociety': 'org2',        // Engineering Society
+        'campusrec': 'org3',         // Campus Recreation
+      };
+      
+      const organizationId = orgIdMapping[username] || 'org1';
+      onNavigate?.("organizationProfile", { organizationId });
+    } else {
+      // Check if clicking on own profile
+      if (username === 'alex_j' || username === 'alexjohnson') {
+        // Navigate to own profile
+        onNavigate?.("profile", { profileId: 'student' });
+      } else {
+        // Navigate to other user's profile - map username to userId
+        const userIdMapping: Record<string, string> = {
+          'sarahc_22': '1',  // Sarah Chen
+          'emily_r': '2',    // Emily Rodriguez
+          'marcus_j': '3',   // Marcus Johnson
+          'david_kim': '4',  // David Kim
+          'jess_t': '5'      // Jessica Taylor
+        };
+        
+        const userId = userIdMapping[username] || '1';
+        onNavigate?.("otherUserProfile", { userId });
+      }
+    }
   };
 
   const handleRSVP = (eventId: string) => {
@@ -196,6 +315,14 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
   const handleBigEventClick = (eventId: string) => {
     onNavigate?.("event-detail", { eventId });
   };
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -268,15 +395,25 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
         {/* Campus Feed */}
         <div className="p-4 space-y-6">
           {/* Recent Posts */}
-          {posts.slice(0, 2).map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onLike={handleLike}
-              onComment={handleComment}
-              onShare={handleShare}
-            />
-          ))}
+          {isLoading ? (
+            <>
+              <SkeletonPostCard />
+              <SkeletonPostCard />
+            </>
+          ) : (
+            posts.slice(0, 2).map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onLike={handleLike}
+                onComment={handleComment}
+                onAddComment={handleAddComment}
+                onShare={handleShare}
+                onUserClick={handleUserClick}
+                onCommentUserClick={handleUserClick}
+              />
+            ))
+          )}
 
           {/* Recommended Events Section */}
           <div className="space-y-4">
@@ -301,15 +438,25 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
           </div>
 
           {/* More Posts */}
-          {posts.slice(2).map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onLike={handleLike}
-              onComment={handleComment}
-              onShare={handleShare}
-            />
-          ))}
+          {isLoading ? (
+            <>
+              <SkeletonPostCard />
+              <SkeletonPostCard />
+            </>
+          ) : (
+            posts.slice(2).map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onLike={handleLike}
+                onComment={handleComment}
+                onAddComment={handleAddComment}
+                onShare={handleShare}
+                onUserClick={handleUserClick}
+                onCommentUserClick={handleUserClick}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

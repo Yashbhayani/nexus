@@ -136,15 +136,12 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-<<<<<<< HEAD
   }
 
   /* Enhanced focus indicators for accessibility - WCAG 2.1 compliant */
   *:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
-=======
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
   }
 
   /* Skip link styles for screen readers */
@@ -1519,69 +1516,5 @@ html {
     }
   }
 
-<<<<<<< HEAD
 
-=======
-  /* Compact spacing utilities for mobile */
-  .space-y-6 > * + * {
-    margin-top: 1rem !important;
-  }
-
-  .space-y-4 > * + * {
-    margin-top: 0.75rem !important;
-  }
-
-  .gap-6 {
-    gap: 1rem !important;
-  }
-
-  .gap-4 {
-    gap: 0.75rem !important;
-  }
-
-  /* Compact padding for cards and containers on mobile */
-  .p-6 {
-    padding: 1rem !important;
-  }
-
-  .p-4 {
-    padding: 0.75rem !important;
-  }
-
-  .px-4 {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-  }
-
-  .py-4 {
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
-  }
-
-  /* Reduce avatar sizes on mobile */
-  .h-12 {
-    height: 2.5rem !important;
-  }
-
-  .w-12 {
-    width: 2.5rem !important;
-  }
-
-  .h-16 {
-    height: 3rem !important;
-  }
-
-  .w-16 {
-    width: 3rem !important;
-  }
-
-  /* Compact mobile cards */
-  [class*="CardContent"] {
-    padding: 0.75rem;
-  }
-
-  [class*="CardHeader"] {
-    padding: 0.75rem;
-  }
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
 }

@@ -124,13 +124,6 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
               </Button>
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="pt-4 border-t border-border">
-            <p className="text-center text-xs text-muted-foreground flex flex-wrap items-center justify-center gap-1.5">
-              Made with <Heart className="w-3 h-3 text-destructive fill-destructive flex-shrink-0" aria-label="love" /> for the campus community
-            </p>
-          </div>
         </div>
 
         <div className="flex justify-end pt-2">

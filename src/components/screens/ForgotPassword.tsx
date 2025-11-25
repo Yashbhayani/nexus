@@ -8,9 +8,10 @@ import { NexusLogo } from "../common/NexusLogo";
 
 interface ForgotPasswordProps {
   onBack: () => void;
+  onResetLink?: () => void;
 }
 
-export function ForgotPassword({ onBack }: ForgotPasswordProps) {
+export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,6 +24,9 @@ export function ForgotPassword({ onBack }: ForgotPasswordProps) {
     setTimeout(() => {
       setIsLoading(false);
       setIsSubmitted(true);
+      if (onResetLink) {
+        onResetLink();
+      }
     }, 1500);
   };
 
@@ -139,6 +143,20 @@ export function ForgotPassword({ onBack }: ForgotPasswordProps) {
                   <p className="text-sm text-muted-foreground">
                     Didn't receive the email? Check your spam folder or try again with a different email address.
                   </p>
+                  
+                  {/* Demo Reset Link */}
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-xs text-muted-foreground mb-3">
+                      For demo purposes, click below to simulate the reset link:
+                    </p>
+                    <Button
+                      onClick={onResetLink}
+                      variant="default"
+                      className="w-full h-10"
+                    >
+                      Open Reset Link
+                    </Button>
+                  </div>
                 </CardContent>
 
                 <CardFooter className="flex flex-col space-y-3 pt-6">

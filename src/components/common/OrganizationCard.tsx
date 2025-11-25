@@ -16,10 +16,11 @@ interface OrganizationCardProps {
     isJoined: boolean;
   };
   onJoin?: (orgId: string) => void;
+  onNavigate?: (orgId: string) => void;
   variant?: "grid" | "list";
 }
 
-export function OrganizationCard({ organization, onJoin, variant = "grid" }: OrganizationCardProps) {
+export function OrganizationCard({ organization, onJoin, onNavigate, variant = "grid" }: OrganizationCardProps) {
   if (variant === "list") {
     return (
       <Card className="mb-3 border-0 shadow-sm">
@@ -34,7 +35,12 @@ export function OrganizationCard({ organization, onJoin, variant = "grid" }: Org
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-1">
-                <h3 className="font-medium truncate pr-2">{organization.name}</h3>
+                <h3 
+                  className="font-medium truncate pr-2 cursor-pointer hover:text-primary transition-colors" 
+                  onClick={() => onNavigate?.(organization.id)}
+                >
+                  {organization.name}
+                </h3>
                 <Badge variant="outline" className="text-xs">
                   {organization.category}
                 </Badge>
@@ -93,7 +99,12 @@ export function OrganizationCard({ organization, onJoin, variant = "grid" }: Org
         </div>
         
         <div className="p-4">
-          <h3 className="font-medium mb-2 line-clamp-2">{organization.name}</h3>
+          <h3 
+            className="font-medium mb-2 line-clamp-2 cursor-pointer hover:text-primary transition-colors"
+            onClick={() => onNavigate?.(organization.id)}
+          >
+            {organization.name}
+          </h3>
           
           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
             {organization.description}

@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { OrganizationCard } from "../common/OrganizationCard";
 import { StudentCard } from "../common/StudentCard";
 import { Badge } from "../ui/badge";
 import { Search, Grid3X3, List } from "lucide-react";
+import { LoadingSpinner } from "../common/LoadingSpinner";
+import { SkeletonOrganizationCard, SkeletonStudentCard } from "../common/SkeletonCard";
 
-export function EventDiscovery() {
+interface EventDiscoveryProps {
+  onNavigate?: (screen: string, data?: any) => void;
+}
+
+export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -193,6 +200,23 @@ export function EventDiscovery() {
     ));
   };
 
+  const handleNavigateToOrganization = (orgId: string) => {
+    onNavigate?.("organizationProfile", { organizationId: orgId });
+  };
+
+  const handleNavigateToStudent = (studentId: string) => {
+    onNavigate?.("otherUserProfile", { userId: studentId });
+  };
+
+  useEffect(() => {
+    // Simulate a delay to mimic data fetching
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
@@ -259,65 +283,79 @@ export function EventDiscovery() {
 
       {/* Content */}
       <div className="max-w-md mx-auto p-4">
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {allFiltered.length} results found
-            {selectedType === "organizations" && ` (${filteredOrganizations.length} organizations)`}
-            {selectedType === "students" && ` (${filteredStudents.length} students)`}
-            {selectedType === "all" && ` (${filteredOrganizations.length} organizations, ${filteredStudents.length} students)`}
-          </p>
-        </div>
-
-        {viewMode === "grid" ? (
-          <div className="grid grid-cols-1 gap-4">
-            {filteredOrganizations.map((org) => (
-              <OrganizationCard
-                key={org.id}
-                organization={org}
-                onJoin={handleJoinOrganization}
-                variant="grid"
-              />
-            ))}
-            {filteredStudents.map((student) => (
-              <StudentCard
-                key={student.id}
-                student={student}
-                onFollow={handleFollowStudent}
-                variant="grid"
-              />
-            ))}
+        {isLoading ? (
+          <div className="space-y-4">
+            <SkeletonOrganizationCard />
+            <SkeletonOrganizationCard />
+            <SkeletonOrganizationCard />
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredOrganizations.map((org) => (
-              <OrganizationCard
-                key={org.id}
-                organization={org}
-                onJoin={handleJoinOrganization}
-                variant="list"
-              />
-            ))}
-            {filteredStudents.map((student) => (
-              <StudentCard
-                key={student.id}
-                student={student}
-                onFollow={handleFollowStudent}
-                variant="list"
-              />
-            ))}
-          </div>
-        )}
-
-        {allFiltered.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-              <Search className="h-8 w-8 text-muted-foreground" />
+          <>
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">
+                {allFiltered.length} results found
+                {selectedType === "organizations" && ` (${filteredOrganizations.length} organizations)`}
+                {selectedType === "students" && ` (${filteredStudents.length} students)`}
+                {selectedType === "all" && ` (${filteredOrganizations.length} organizations, ${filteredStudents.length} students)`}
+              </p>
             </div>
-            <h3 className="font-medium mb-2">No results found</h3>
-            <p className="text-sm text-muted-foreground">
-              Try adjusting your search or filters
-            </p>
-          </div>
+
+            {viewMode === "grid" ? (
+              <div className="grid grid-cols-1 gap-4">
+                {filteredOrganizations.map((org) => (
+                  <OrganizationCard
+                    key={org.id}
+                    organization={org}
+                    onJoin={handleJoinOrganization}
+                    variant="grid"
+                    onNavigate={handleNavigateToOrganization}
+                  />
+                ))}
+                {filteredStudents.map((student) => (
+                  <StudentCard
+                    key={student.id}
+                    student={student}
+                    onFollow={handleFollowStudent}
+                    variant="grid"
+                    onNavigate={handleNavigateToStudent}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredOrganizations.map((org) => (
+                  <OrganizationCard
+                    key={org.id}
+                    organization={org}
+                    onJoin={handleJoinOrganization}
+                    variant="list"
+                    onNavigate={handleNavigateToOrganization}
+                  />
+                ))}
+                {filteredStudents.map((student) => (
+                  <StudentCard
+                    key={student.id}
+                    student={student}
+                    onFollow={handleFollowStudent}
+                    variant="list"
+                    onNavigate={handleNavigateToStudent}
+                  />
+                ))}
+              </div>
+            )}
+
+            {allFiltered.length === 0 && (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                  <Search className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="font-medium mb-2">No results found</h3>
+                <p className="text-sm text-muted-foreground">
+                  Try adjusting your search or filters
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

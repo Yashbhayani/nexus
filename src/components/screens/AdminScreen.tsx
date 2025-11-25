@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 import { 
   Search, 
   Trash2, 
@@ -35,6 +36,7 @@ interface AdminScreenProps {
 }
 
 export function AdminScreen({ onNavigate }: AdminScreenProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("posts");
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: string; id: string; name: string }>({ 
@@ -187,6 +189,14 @@ export function AdminScreen({ onNavigate }: AdminScreenProps) {
     }
   ]);
 
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Stats calculation
   const stats = {
     totalPosts: posts.length,
@@ -253,6 +263,10 @@ export function AdminScreen({ onNavigate }: AdminScreenProps) {
   const filteredPosts = filterItems(posts, ['user.name', 'user.username', 'content']);
   const filteredEvents = filterItems(events, ['title', 'organizer', 'category']);
   const filteredAccounts = filterItems(accounts, ['name', 'username', 'email']);
+
+  if (isLoading) {
+    return <LoadingSpinner fullPage message="Loading Admin Panel..." />;
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">

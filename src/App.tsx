@@ -2,11 +2,14 @@ import "./styles/globals.css";
 import { useState, useEffect } from "react";
 import { StartPage } from "./components/screens/StartPage";
 import { ForgotPassword } from "./components/screens/ForgotPassword";
+import { ResetPassword } from "./components/screens/ResetPassword";
 import { HomeFeed } from "./components/screens/HomeFeed";
 import { EventDiscovery } from "./components/screens/EventDiscovery";
 import { EventsScreen } from "./components/screens/EventsScreen";
 import { EventDetail } from "./components/screens/EventDetail";
 import { UserProfile } from "./components/screens/UserProfile";
+import { OtherUserProfile } from "./components/screens/OtherUserProfile";
+import { OrganizationProfile } from "./components/screens/OrganizationProfile";
 import { AdminScreen } from "./components/screens/AdminScreen";
 import { BottomNav } from "./components/navigation/BottomNav";
 import { LeftNav } from "./components/navigation/LeftNav";
@@ -29,15 +32,18 @@ import {
 import { User, Building2, LogOut, Info, Shield } from "lucide-react";
 
 export default function App() {
+  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [showAboutDialog, setShowAboutDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isAIAssistantOpen, setIsAIAssistantOpen] =
     useState(false);
-  const [currentView, setCurrentView] = useState({
+  const [currentView, setCurrentView] = useState<{ screen: string; data?: Record<string, any> }>({
     screen: "home",
+    data: undefined,
   });
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -68,7 +74,7 @@ export default function App() {
     const mediaQuery = window.matchMedia(
       "(prefers-color-scheme: dark)",
     );
-    const handleChange = (e) => {
+    const handleChange = (e: MediaQueryListEvent) => {
       setIsDarkMode(e.matches);
       document.documentElement.classList.toggle(
         "dark",
@@ -81,7 +87,7 @@ export default function App() {
       mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab: string) => {
     setActiveTab(tab);
 
     // Map tabs to screens
@@ -93,7 +99,7 @@ export default function App() {
       admin: "admin",
     };
 
-    setCurrentView({ screen: screenMap[tab] || "home" });
+    setCurrentView({ screen: (screenMap as Record<string, string>)[tab] || "home" });
   };
 
   const handleLogin = (adminStatus: boolean) => {
@@ -113,7 +119,7 @@ export default function App() {
     setCurrentView({ screen: "home" });
   };
 
-  const handleNavigate = (screen, data) => {
+  const handleNavigate = (screen: string, data?: Record<string, any>) => {
     setCurrentView({ screen, data });
   };
 
@@ -153,10 +159,10 @@ export default function App() {
         return <HomeFeed onNavigate={handleNavigate} />;
 
       case "discover":
-        return <EventDiscovery />;
+        return <EventDiscovery onNavigate={handleNavigate} />;
 
       case "events":
-        return <EventsScreen />;
+        return <EventsScreen onNavigate={handleNavigate} />;
 
       case "event-detail":
         return (
@@ -175,6 +181,24 @@ export default function App() {
           />
         );
 
+      case "organizationProfile":
+        return (
+          <OrganizationProfile
+            organizationId={currentView.data?.organizationId || "org1"}
+            onBack={() => handleNavigate("discover")}
+            onNavigate={handleNavigate}
+          />
+        );
+
+      case "otherUserProfile":
+        return (
+          <OtherUserProfile
+            userId={currentView.data?.userId || "1"}
+            onNavigate={handleNavigate}
+            onBack={() => handleNavigate("home")}
+          />
+        );
+
       case "admin":
         return <AdminScreen />;
 
@@ -185,11 +209,35 @@ export default function App() {
 
   // Show start page if not authenticated
   if (!isAuthenticated) {
+    // Show reset password screen
+    if (showResetPassword) {
+      return (
+        <div className="min-h-screen bg-background text-foreground">
+          <ResetPassword 
+            onBack={() => {
+              setShowResetPassword(false);
+              setShowForgotPassword(false);
+            }}
+            onSuccess={() => {
+              setShowResetPassword(false);
+              setShowForgotPassword(false);
+            }}
+          />
+        </div>
+      );
+    }
+    
     // Show forgot password screen
     if (showForgotPassword) {
       return (
         <div className="min-h-screen bg-background text-foreground">
-          <ForgotPassword onBack={() => setShowForgotPassword(false)} />
+          <ForgotPassword 
+            onBack={() => setShowForgotPassword(false)}
+            onResetLink={() => {
+              setShowForgotPassword(false);
+              setShowResetPassword(true);
+            }}
+          />
         </div>
       );
     }
@@ -220,6 +268,7 @@ export default function App() {
       <LeftNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        isAdmin={isAdmin}
       />
 
       {/* Top Right Controls */}
@@ -330,11 +379,12 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation - Mobile only, hide in event detail */}
-      {currentView.screen !== "event-detail" && (
+      {currentView.screen !== "event-detail" && currentView.screen !== "organizationProfile" && (
         <div className="lg:hidden">
           <BottomNav
             activeTab={activeTab}
             onTabChange={handleTabChange}
+            isAdmin={isAdmin}
           />
         </div>
       )}

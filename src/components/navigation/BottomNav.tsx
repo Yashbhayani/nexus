@@ -1,18 +1,24 @@
-import { Home, Search, Calendar, User } from "lucide-react";
+import { Home, Search, Calendar, User, Shield } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface BottomNavProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  isAdmin?: boolean;
 }
 
-export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
+export function BottomNav({ activeTab, onTabChange, isAdmin = false }: BottomNavProps) {
   const tabs = [
     { id: "home", icon: Home, label: "Feed" },
     { id: "discover", icon: Search, label: "Explore" },
     { id: "events", icon: Calendar, label: "Events" },
     { id: "profile", icon: User, label: "My Org" },
   ];
+  
+  // Add admin panel to the top of tabs if user is admin
+  if (isAdmin) {
+    tabs.unshift({ id: "admin", icon: Shield, label: "Admin" });
+  }
 
   return (
     <nav 

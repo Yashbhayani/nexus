@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -10,6 +10,8 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { LoadingSpinner } from "../common/LoadingSpinner";
+import { SkeletonProfileHeader, SkeletonPostCard } from "../common/SkeletonCard";
 import { 
   Settings, 
   MapPin, 
@@ -29,24 +31,20 @@ import {
   Plus,
   Check,
   Trash2,
-  Send
+  Send,
+  Heart,
+  MessageCircle
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 interface UserProfileProps {
   selectedProfileId?: string;
-<<<<<<< HEAD
   activeTab?: string;
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function UserProfile({ selectedProfileId = "student", activeTab = "about", onNavigate }: UserProfileProps) {
-=======
-  onNavigate?: (screen: string, data?: any) => void;
-}
-
-export function UserProfile({ selectedProfileId = "student", onNavigate }: UserProfileProps) {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     bio: "",
@@ -64,6 +62,7 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
   const [orgEditFormData, setOrgEditFormData] = useState({
     description: "",
     mission: "",
+    category: "",
     email: "",
     phone: "",
     website: "",
@@ -71,6 +70,10 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
     instagram: "",
     linkedin: ""
   });
+
+  // Profile image upload states
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string>("");
 
   // Create event dialog state
   const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] = useState(false);
@@ -84,9 +87,18 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
     capacity: "",
     imageUrl: ""
   });
+  
+  // Event image upload states
+  const [eventImageFile, setEventImageFile] = useState<File | null>(null);
+  const [eventImagePreview, setEventImagePreview] = useState<string>("");
 
   // Edit event dialog state
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
+  
+  // Edit event image upload states
+  const [editEventImageFile, setEditEventImageFile] = useState<File | null>(null);
+  const [editEventImagePreview, setEditEventImagePreview] = useState<string>("");
+  
   const [editEventFormData, setEditEventFormData] = useState({
     id: "",
     title: "",
@@ -127,12 +139,37 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
   // Posts management state
   const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] = useState(false);
   const [isEditPostDialogOpen, setIsEditPostDialogOpen] = useState(false);
+  
+  // Create organization state
+  const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
+  const [createOrgFormData, setCreateOrgFormData] = useState({
+    name: "",
+    description: "",
+    mission: "",
+    category: "",
+    email: "",
+    phone: "",
+    website: "",
+    discord: "",
+    instagram: "",
+    linkedin: ""
+  });
+  const [orgLogoFile, setOrgLogoFile] = useState<File | null>(null);
+  const [orgLogoPreview, setOrgLogoPreview] = useState<string>("");
   const [createPostFormData, setCreatePostFormData] = useState({
     title: "",
     content: "",
     category: "",
     imageUrl: ""
   });
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [uploadedEditImage, setUploadedEditImage] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string>("");
+  
+  // Follow state
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(true);
   const [editPostFormData, setEditPostFormData] = useState({
     id: "",
     title: "",
@@ -214,7 +251,8 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
     joinedDate: "Fall 2023",
     stats: {
       enrolledOrgs: 5,
-      eventsAttended: 18
+      eventsAttended: 18,
+      followers: 127
     },
     skills: ["Python", "React", "Machine Learning", "Data Structures", "UI/UX Design"],
     interests: ["Artificial Intelligence", "Web Development", "Hackathons", "Open Source"],
@@ -287,7 +325,6 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       phone: "(555) 123-4567"
     },
     upcomingEvents: [
-<<<<<<< HEAD
       {
         id: "1",
         title: "CS Study Group for Finals",
@@ -295,7 +332,8 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         time: "6:00 PM",
         location: "Library Room 204",
         attendees: 23,
-        image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop"
+        image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop",
+        status: "approved"
       },
       {
         id: "2",
@@ -304,34 +342,9 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         time: "4:00 PM",
         location: "Engineering Building Atrium",
         attendees: 289,
-        image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop"
+        image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop",
+        status: "pending"
       }
-=======
-         {
-      id: "1",
-      title: "CS Study Group for Finals",
-      description: "Group study session for CS students",
-      date: "Dec 18",
-      time: "6:00 PM",
-      location: "Library Room 204",
-      category: "Study",
-      capacity: 30,
-      attendees: 23,
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop"
-    },
-    {
-      id: "2",
-      title: "Tech Innovation Showcase",
-      description: "Showcase of student projects and innovations",
-      date: "May 20",
-      time: "4:00 PM",
-      location: "Engineering Building Atrium",
-      category: "Event",
-      capacity: 300,
-      attendees: 289,
-      image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop"
-    }
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     ],
 
     members: [
@@ -372,6 +385,36 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
   // Get current profile data based on type
   const currentProfile = profileType === "student" ? studentProfile : organizationProfile;
 
+  // Simulate loading delay
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [selectedProfileId]);
+
+  // Profile image upload handlers
+  const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImageFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setProfileImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveProfileImage = () => {
+    setProfileImageFile(null);
+    setProfileImagePreview("");
+  };
+
   // Open edit dialog and populate form with current data
   const handleEditProfile = () => {
     if (profileType === "student") {
@@ -386,10 +429,13 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         newSkill: "",
         newInterest: ""
       });
+      // Set current profile image preview
+      setProfileImagePreview(studentProfile.avatar);
     } else {
       setOrgEditFormData({
         description: organizationProfile.description,
         mission: organizationProfile.mission,
+        category: organizationProfile.category,
         email: organizationProfile.contactInfo.email,
         phone: organizationProfile.contactInfo.phone,
         website: organizationProfile.website,
@@ -397,6 +443,8 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         instagram: organizationProfile.socialMedia.instagram,
         linkedin: organizationProfile.socialMedia.linkedin
       });
+      // Set current profile image preview
+      setProfileImagePreview(organizationProfile.avatar);
     }
     setIsEditDialogOpen(true);
   };
@@ -458,6 +506,11 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       studentProfile.graduationYear = editFormData.graduationYear;
       studentProfile.skills = editFormData.skills;
       studentProfile.interests = editFormData.interests;
+      
+      // Update profile image if a new one was uploaded
+      if (profileImagePreview && profileImagePreview !== studentProfile.avatar) {
+        studentProfile.avatar = profileImagePreview;
+      }
     } else {
       // Save organization profile
       console.log("Saving organization profile:", orgEditFormData);
@@ -465,21 +518,77 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       // Update local data
       organizationProfile.description = orgEditFormData.description;
       organizationProfile.mission = orgEditFormData.mission;
+      organizationProfile.category = orgEditFormData.category;
       organizationProfile.contactInfo.email = orgEditFormData.email;
       organizationProfile.contactInfo.phone = orgEditFormData.phone;
       organizationProfile.website = orgEditFormData.website;
       organizationProfile.socialMedia.discord = orgEditFormData.discord;
       organizationProfile.socialMedia.instagram = orgEditFormData.instagram;
       organizationProfile.socialMedia.linkedin = orgEditFormData.linkedin;
+      
+      // Update profile image if a new one was uploaded
+      if (profileImagePreview && profileImagePreview !== organizationProfile.avatar) {
+        organizationProfile.avatar = profileImagePreview;
+      }
     }
     
+    // Reset profile image upload states
+    setProfileImageFile(null);
+    setProfileImagePreview("");
     setIsEditDialogOpen(false);
+  };
+
+  // Event image upload handlers
+  const handleEventImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEventImageFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setEventImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveEventImage = () => {
+    setEventImageFile(null);
+    setEventImagePreview("");
+  };
+
+  // Edit event image upload handlers
+  const handleEditEventImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditEventImageFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setEditEventImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveEditEventImage = () => {
+    setEditEventImageFile(null);
+    setEditEventImagePreview("");
   };
 
   // Handle create event
   const handleCreateEvent = () => {
     // In a real app, this would send data to the database
-    console.log("Creating event:", createEventFormData);
+    const eventData = {
+      ...createEventFormData,
+      imageUrl: eventImagePreview || createEventFormData.imageUrl,
+      status: "pending" // New events need approval
+    };
+    console.log("Creating event:", eventData);
     
     // Reset form and close dialog
     setCreateEventFormData({
@@ -492,18 +601,16 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       capacity: "",
       imageUrl: ""
     });
+    setEventImageFile(null);
+    setEventImagePreview("");
     setIsCreateEventDialogOpen(false);
     
     // Show success message (in real app, would handle success/error from API)
-    alert("Event created successfully!");
+    alert("Event created successfully! Your event is pending approval and will be visible once approved by an administrator.");
   };
 
   // Handle open edit event dialog
-<<<<<<< HEAD
   const handleOpenEditEvent = (event) => {
-=======
-  const handleOpenEditEvent = (event: any) => {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // Pre-populate the form with the event's current data
     setEditEventFormData({
       id: event.id,
@@ -516,13 +623,26 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       capacity: event.capacity?.toString() || "",
       imageUrl: event.image || ""
     });
+    
+    // Set existing image as preview if available
+    if (event.image) {
+      setEditEventImagePreview(event.image);
+    } else {
+      setEditEventImagePreview("");
+    }
+    setEditEventImageFile(null);
+    
     setIsEditEventDialogOpen(true);
   };
 
   // Handle save edited event
   const handleSaveEditedEvent = () => {
     // In a real app, this would send updated data to the database
-    console.log("Updating event:", editEventFormData);
+    const updatedEventData = {
+      ...editEventFormData,
+      imageUrl: editEventImagePreview || editEventFormData.imageUrl
+    };
+    console.log("Updating event:", updatedEventData);
     
     // Update the event in the local data (in real app, this would be from API response)
     const eventIndex = organizationProfile.upcomingEvents.findIndex(e => e.id === editEventFormData.id);
@@ -535,16 +655,14 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         time: editEventFormData.time,
         location: editEventFormData.location,
         category: editEventFormData.category,
-<<<<<<< HEAD
         capacity: editEventFormData.capacity,
-=======
-        capacity: Number(editEventFormData.capacity), // ✅ convert to number
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
-        image: editEventFormData.imageUrl
+        image: editEventImagePreview || editEventFormData.imageUrl
       };
     }
     
-    // Close dialog
+    // Reset image states and close dialog
+    setEditEventImageFile(null);
+    setEditEventImagePreview("");
     setIsEditEventDialogOpen(false);
     
     // Show success message (in real app, would handle success/error from API)
@@ -564,11 +682,7 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
     alert(`Invitation sent to ${inviteEmail}!`);
   };
 
-<<<<<<< HEAD
   const handleApproveRequest = (requestId) => {
-=======
-  const handleApproveRequest = (requestId: any) => {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // In a real app, this would approve the request in the database
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
@@ -578,11 +692,7 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
     }
   };
 
-<<<<<<< HEAD
   const handleRejectRequest = (requestId) => {
-=======
-  const handleRejectRequest = (requestId: any) => {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // In a real app, this would reject the request in the database
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
@@ -592,28 +702,64 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
     }
   };
 
-<<<<<<< HEAD
   const handleRemoveMember = (memberId, memberName) => {
     // In a real app, this would remove the member from the database
     if (confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
-=======
-  const handleRemoveMember = (memberId:any, memberName: any) => {
-    // In a real app, this would remove the member from the database
-    if (window.confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
       console.log("Removing member:", memberId);
       alert(`${memberName} has been removed from the organization.`);
     }
   };
 
-<<<<<<< HEAD
   const handleUpdateMemberRole = (memberId, memberName, newRole) => {
-=======
-  const handleUpdateMemberRole = (memberId: any, memberName: any, newRole: any) => {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // In a real app, this would update the member's role in the database
     console.log("Updating role for member:", memberId, "to:", newRole);
     alert(`${memberName}'s role has been updated to ${newRole}.`);
+  };
+
+  // Image upload handler
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedImage(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        setCreatePostFormData(prev => ({ ...prev, imageUrl: result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setUploadedImage(null);
+    setImagePreview("");
+    setCreatePostFormData(prev => ({ ...prev, imageUrl: "" }));
+  };
+
+  // Edit image upload handler
+  const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedEditImage(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setEditImagePreview(result);
+        setEditPostFormData(prev => ({ ...prev, imageUrl: result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveEditImage = () => {
+    setUploadedEditImage(null);
+    setEditImagePreview("");
+    setEditPostFormData(prev => ({ ...prev, imageUrl: "" }));
   };
 
   // Post management handlers
@@ -635,16 +781,14 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       category: "",
       imageUrl: ""
     });
+    setUploadedImage(null);
+    setImagePreview("");
     setIsCreatePostDialogOpen(false);
     
     alert("Post created successfully!");
   };
 
-<<<<<<< HEAD
   const handleEditPost = (post) => {
-=======
-  const handleEditPost = (post:any) => {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -653,6 +797,10 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       category: post.category,
       imageUrl: post.imageUrl || ""
     });
+    // Set existing image preview if available
+    if (post.imageUrl) {
+      setEditImagePreview(post.imageUrl);
+    }
     setIsEditPostDialogOpen(true);
   };
 
@@ -670,23 +818,47 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         : post
     ));
     
-    // Close dialog
+    // Reset edit image states and close dialog
+    setUploadedEditImage(null);
+    setEditImagePreview("");
     setIsEditPostDialogOpen(false);
     
     alert("Post updated successfully!");
   };
 
-<<<<<<< HEAD
   const handleDeletePost = (postId, postTitle) => {
     // In a real app, this would delete the post from the database
     if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
-=======
-  const handleDeletePost = (postId: any, postTitle: string) => {
-    // In a real app, this would delete the post from the database
-    if (window.confirm(`Are you sure you want to delete "${postTitle}"?`)) {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
       setOrganizationPosts(organizationPosts.filter(post => post.id !== postId));
       alert("Post deleted successfully!");
+    }
+  };
+
+  const handleFollowToggle = () => {
+    setIsFollowing(!isFollowing);
+    // In a real app, this would update the follow status in the database
+    if (!isFollowing) {
+      // Update follower count
+      if (profileType === "student") {
+        setStudentProfile(prev => ({
+          ...prev,
+          stats: {
+            ...prev.stats,
+            followers: prev.stats.followers + 1
+          }
+        }));
+      }
+    } else {
+      // Decrease follower count
+      if (profileType === "student") {
+        setStudentProfile(prev => ({
+          ...prev,
+          stats: {
+            ...prev.stats,
+            followers: Math.max(0, prev.stats.followers - 1)
+          }
+        }));
+      }
     }
   };
 
@@ -708,16 +880,14 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       category: "",
       imageUrl: ""
     });
+    setUploadedImage(null);
+    setImagePreview("");
     setIsCreatePostDialogOpen(false);
     
     alert("Post created successfully!");
   };
 
-<<<<<<< HEAD
   const handleEditStudentPost = (post) => {
-=======
-  const handleEditStudentPost = (post: any) => {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -726,6 +896,10 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       category: post.category,
       imageUrl: post.imageUrl || ""
     });
+    // Set existing image preview if available
+    if (post.imageUrl) {
+      setEditImagePreview(post.imageUrl);
+    }
     setIsEditPostDialogOpen(true);
   };
 
@@ -743,25 +917,100 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
         : post
     ));
     
-    // Close dialog
+    // Reset edit image states and close dialog
+    setUploadedEditImage(null);
+    setEditImagePreview("");
     setIsEditPostDialogOpen(false);
     
     alert("Post updated successfully!");
   };
 
-<<<<<<< HEAD
   const handleDeleteStudentPost = (postId, postTitle) => {
     // In a real app, this would delete the post from the database
     if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
-=======
-  const handleDeleteStudentPost = (postId: any, postTitle: any) => {
-    // In a real app, this would delete the post from the database
-    if (window.confirm(`Are you sure you want to delete "${postTitle}"?`)) {
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
       setStudentPosts(studentPosts.filter(post => post.id !== postId));
       alert("Post deleted successfully!");
     }
   };
+
+  // Organization creation handlers
+  const handleOrgLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setOrgLogoFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setOrgLogoPreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveOrgLogo = () => {
+    setOrgLogoFile(null);
+    setOrgLogoPreview("");
+  };
+
+  const handleCreateOrganization = () => {
+    // Validate required fields
+    if (!createOrgFormData.name || !createOrgFormData.category || !createOrgFormData.description) {
+      alert("Please fill in all required fields (Name, Category, Description)");
+      return;
+    }
+
+    // In a real app, this would create the organization in the database
+    const newOrg = {
+      id: `org${Date.now()}`,
+      name: createOrgFormData.name,
+      logo: orgLogoPreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(createOrgFormData.name)}&background=random`,
+      category: createOrgFormData.category,
+      role: "Founder",
+      socialMedia: {
+        discord: createOrgFormData.discord || "N/A",
+        instagram: createOrgFormData.instagram || "N/A",
+        linkedin: createOrgFormData.linkedin || "N/A"
+      }
+    };
+
+    // Add to student's enrolled organizations
+    studentProfile.enrolledOrganizations.push(newOrg);
+
+    // Reset form and close dialog
+    setCreateOrgFormData({
+      name: "",
+      description: "",
+      mission: "",
+      category: "",
+      email: "",
+      phone: "",
+      website: "",
+      discord: "",
+      instagram: "",
+      linkedin: ""
+    });
+    setOrgLogoFile(null);
+    setOrgLogoPreview("");
+    setIsCreateOrgDialogOpen(false);
+
+    alert("Organization created successfully! You are now the founder.");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background pb-20 lg:pb-8">
+        <div className="max-w-5xl mx-auto px-4 pt-4">
+          <SkeletonProfileHeader />
+          <div className="mt-6 space-y-4">
+            <SkeletonPostCard />
+            <SkeletonPostCard />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-8">
@@ -784,7 +1033,14 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-3">
                 <div className="min-w-0">
-                  <h1 className="text-2xl md:text-3xl font-semibold mb-1 truncate">{currentProfile.name}</h1>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h1 className="text-2xl md:text-3xl font-semibold truncate">{currentProfile.name}</h1>
+                    {profileType === "organization" && (
+                      <Badge variant="secondary" className="text-sm">
+                        {organizationProfile.category}
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
                     {profileType === "student" ? (
                       <>
@@ -794,26 +1050,40 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                     ) : (
                       <>
                         <Building2 className="h-4 w-4" />
-                        <span className="text-sm">{organizationProfile.category} Organization</span>
+                        <span className="text-sm">Organization</span>
                       </>
                     )}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button variant="outline" size="sm" onClick={handleEditProfile}>
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
-<<<<<<< HEAD
+                  {isOwnProfile ? (
+                    <Button variant="outline" size="sm" onClick={handleEditProfile}>
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant={isFollowing ? "outline" : "default"} 
+                      size="sm" 
+                      onClick={handleFollowToggle}
+                    >
+                      {isFollowing ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Following
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Follow
+                        </>
+                      )}
+                    </Button>
+                  )}
                   {/* <Button variant="ghost" size="sm">
                     <Settings className="h-4 w-4" />
                   </Button> */}
-=======
-                  <Button variant="ghost" size="sm">
-                    <Settings className="h-4 w-4" />
-                  </Button>
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                 </div>
               </div>
 
@@ -828,6 +1098,10 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                     <div>
                       <div className="font-semibold">{studentProfile.stats.eventsAttended}</div>
                       <div className="text-sm text-muted-foreground">Events Attended</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold">{studentProfile.stats.followers}</div>
+                      <div className="text-sm text-muted-foreground">Followers</div>
                     </div>
                   </>
                 ) : (
@@ -856,11 +1130,7 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
       <div className="max-w-5xl mx-auto px-4 mt-6">
         {profileType === "student" ? (
           /* STUDENT PROFILE VIEW */
-<<<<<<< HEAD
           <Tabs defaultValue={activeTab} className="space-y-6">
-=======
-          <Tabs defaultValue="about" className="space-y-6">
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -901,14 +1171,6 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Graduation Year</div>
                       <div className="font-medium">{studentProfile.graduationYear}</div>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Location</div>
-                      <div className="font-medium">{studentProfile.location}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -1026,10 +1288,16 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
             <TabsContent value="organizations" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">My Organizations</h2>
-                <Button size="sm" onClick={() => onNavigate?.("discover")}>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Join New
-                </Button>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setIsCreateOrgDialogOpen(true)}>
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Create Organization
+                  </Button>
+                  <Button size="sm" onClick={() => onNavigate?.("discover")}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Join New
+                  </Button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1051,11 +1319,7 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                               {org.role}
                             </Badge>
                           </div>
-<<<<<<< HEAD
                           <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => onNavigate?.("profile", { profileId: org.id, activeTab: "about" })}>
-=======
-                          <Button variant="ghost" size="sm" className="h-7 px-2">
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
                             View Profile
                           </Button>
                         </div>
@@ -1089,11 +1353,7 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
           </Tabs>
         ) : (
           /* ORGANIZATION PROFILE VIEW */
-<<<<<<< HEAD
           <Tabs defaultValue={activeTab} className="space-y-6">
-=======
-          <Tabs defaultValue="about" className="space-y-6">
->>>>>>> 536c26bd5bb16a92940a2c17b5aa66d10aaf4c9f
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>
@@ -1217,7 +1477,19 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div className="flex-1">
-                            <h3 className="font-semibold mb-2 line-clamp-2">{event.title}</h3>
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="font-semibold line-clamp-2">{event.title}</h3>
+                              {event.status === "pending" && (
+                                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-500 dark:border-yellow-800 flex-shrink-0">
+                                  Pending
+                                </Badge>
+                              )}
+                              {event.status === "approved" && (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-500 dark:border-green-800 flex-shrink-0">
+                                  Approved
+                                </Badge>
+                              )}
+                            </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                               <Calendar className="h-4 w-4" />
                               <span>{event.date} • {event.time}</span>
@@ -1283,6 +1555,16 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                             <p className="text-xs text-muted-foreground mt-2">
                               By {post.author}
                             </p>
+                            <div className="flex items-center gap-4 mt-3">
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Heart className="h-4 w-4" />
+                                <span className="text-sm">{post.likes || 0}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <MessageCircle className="h-4 w-4" />
+                                <span className="text-sm">{post.comments || 0}</span>
+                              </div>
+                            </div>
                           </div>
                           <div className="flex flex-col gap-2">
                             <Button 
@@ -1445,6 +1727,52 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
             {profileType === "student" ? (
               // Student Edit Form
               <>
+            {/* Profile Picture */}
+            <div className="space-y-2">
+              <Label>Profile Picture</Label>
+              <div className="flex items-start gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={profileImagePreview || studentProfile.avatar} alt={studentProfile.name} />
+                  <AvatarFallback>{studentProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 space-y-2">
+                  {!profileImageFile ? (
+                    <div>
+                      <Input
+                        id="profile-image-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfileImageUpload}
+                        className="cursor-pointer"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Upload a new profile picture (JPG, PNG, or GIF)
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {profileImageFile.name} ({(profileImageFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveProfileImage}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Remove & Choose Another
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
             {/* Bio */}
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
@@ -1614,6 +1942,52 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
             ) : (
               // Organization Edit Form
               <>
+                {/* Profile Picture */}
+                <div className="space-y-2">
+                  <Label>Organization Logo</Label>
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={profileImagePreview || organizationProfile.avatar} alt={organizationProfile.name} />
+                      <AvatarFallback>{organizationProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-2">
+                      {!profileImageFile ? (
+                        <div>
+                          <Input
+                            id="org-profile-image-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProfileImageUpload}
+                            className="cursor-pointer"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Upload a new organization logo (JPG, PNG, or GIF)
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {profileImageFile.name} ({(profileImageFile.size / 1024).toFixed(1)} KB)
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleRemoveProfileImage}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Remove & Choose Another
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
                 {/* About Us Section */}
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
@@ -1643,6 +2017,28 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                       rows={3}
                       className="resize-none"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select
+                      value={orgEditFormData.category}
+                      onValueChange={(value) => setOrgEditFormData(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger id="category">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Academic">Academic</SelectItem>
+                        <SelectItem value="Technical">Technical</SelectItem>
+                        <SelectItem value="Sports">Sports</SelectItem>
+                        <SelectItem value="Cultural">Cultural</SelectItem>
+                        <SelectItem value="Social">Social</SelectItem>
+                        <SelectItem value="Professional">Professional</SelectItem>
+                        <SelectItem value="Arts">Arts</SelectItem>
+                        <SelectItem value="Service">Service</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -1759,6 +2155,55 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
           </DialogHeader>
 
           <div className="space-y-6 py-4">
+            {/* Event Image */}
+            <div className="space-y-2">
+              <Label>Event Image</Label>
+              {!eventImageFile && !eventImagePreview ? (
+                <div>
+                  <Input
+                    id="event-image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEventImageUpload}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Upload an event cover image (JPG, PNG, or GIF)
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {eventImagePreview && (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted">
+                      <img 
+                        src={eventImagePreview} 
+                        alt="Event preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  {eventImageFile && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {eventImageFile.name} ({(eventImageFile.size / 1024).toFixed(1)} KB)
+                      </span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveEventImage}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Remove & Choose Another
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
             {/* Event Title */}
             <div className="space-y-2">
               <Label htmlFor="event-title">Event Title *</Label>
@@ -1852,35 +2297,6 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                 />
               </div>
             </div>
-
-            {/* Event Image URL */}
-            <div className="space-y-2">
-              <Label htmlFor="event-image">Event Image URL (optional)</Label>
-              <Input
-                id="event-image"
-                type="url"
-                placeholder="https://example.com/event-image.jpg"
-                value={createEventFormData.imageUrl}
-                onChange={(e) => setCreateEventFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-              />
-              <p className="text-xs text-muted-foreground">
-                Provide a URL to an image that represents your event
-              </p>
-            </div>
-
-            {/* Image Preview */}
-            {createEventFormData.imageUrl && (
-              <div className="space-y-2">
-                <Label>Image Preview</Label>
-                <div className="rounded-lg overflow-hidden border border-border">
-                  <ImageWithFallback
-                    src={createEventFormData.imageUrl}
-                    alt="Event preview"
-                    className="w-full h-48 object-cover"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Action Buttons */}
@@ -1917,6 +2333,55 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
           </DialogHeader>
 
           <div className="space-y-6 py-4">
+            {/* Event Image */}
+            <div className="space-y-2">
+              <Label>Event Image</Label>
+              {!editEventImageFile && !editEventImagePreview ? (
+                <div>
+                  <Input
+                    id="edit-event-image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditEventImageUpload}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Upload an event cover image (JPG, PNG, or GIF)
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {editEventImagePreview && (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted">
+                      <img 
+                        src={editEventImagePreview} 
+                        alt="Event preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  {editEventImageFile && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {editEventImageFile.name} ({(editEventImageFile.size / 1024).toFixed(1)} KB)
+                      </span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveEditEventImage}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Remove & Choose Another
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
             {/* Event Title */}
             <div className="space-y-2">
               <Label htmlFor="edit-event-title">Event Title *</Label>
@@ -2010,35 +2475,6 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
                 />
               </div>
             </div>
-
-            {/* Event Image URL */}
-            <div className="space-y-2">
-              <Label htmlFor="edit-event-image">Event Image URL (optional)</Label>
-              <Input
-                id="edit-event-image"
-                type="url"
-                placeholder="https://example.com/event-image.jpg"
-                value={editEventFormData.imageUrl}
-                onChange={(e) => setEditEventFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-              />
-              <p className="text-xs text-muted-foreground">
-                Provide a URL to an image that represents your event
-              </p>
-            </div>
-
-            {/* Image Preview */}
-            {editEventFormData.imageUrl && (
-              <div className="space-y-2">
-                <Label>Image Preview</Label>
-                <div className="rounded-lg overflow-hidden border border-border">
-                  <ImageWithFallback
-                    src={editEventFormData.imageUrl}
-                    alt="Event preview"
-                    className="w-full h-48 object-cover"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Action Buttons */}
@@ -2200,18 +2636,45 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
               </Select>
             </div>
 
-            {/* Image URL */}
+            {/* Image Upload */}
             <div className="space-y-2">
-              <Label htmlFor="create-post-image">Cover Image URL (optional)</Label>
-              <Input
-                id="create-post-image"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={createPostFormData.imageUrl}
-                onChange={(e) => setCreatePostFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-              />
+              <Label htmlFor="create-post-image">Cover Image (optional)</Label>
+              {!imagePreview ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="create-post-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="cursor-pointer"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="relative rounded-lg overflow-hidden border border-border">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Remove
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {uploadedImage?.name} ({(uploadedImage!.size / 1024).toFixed(1)} KB)
+                  </p>
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
-                Add a cover image to make your post more engaging
+                Upload an image to make your post more engaging
               </p>
             </div>
 
@@ -2340,18 +2803,47 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
               </Select>
             </div>
 
-            {/* Image URL */}
+            {/* Image Upload */}
             <div className="space-y-2">
-              <Label htmlFor="edit-post-image">Cover Image URL (optional)</Label>
-              <Input
-                id="edit-post-image"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={editPostFormData.imageUrl}
-                onChange={(e) => setEditPostFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-              />
+              <Label htmlFor="edit-post-image">Cover Image (optional)</Label>
+              {!editImagePreview ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="edit-post-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditImageUpload}
+                    className="cursor-pointer"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="relative rounded-lg overflow-hidden border border-border">
+                    <img 
+                      src={editImagePreview} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveEditImage}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Remove
+                    </Button>
+                  </div>
+                  {uploadedEditImage && (
+                    <p className="text-xs text-muted-foreground">
+                      {uploadedEditImage.name} ({(uploadedEditImage.size / 1024).toFixed(1)} KB)
+                    </p>
+                  )}
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
-                Add a cover image to make your post more engaging
+                Upload an image to make your post more engaging
               </p>
             </div>
 
@@ -2404,6 +2896,251 @@ export function UserProfile({ selectedProfileId = "student", onNavigate }: UserP
             >
               <Edit3 className="h-4 w-4 mr-2" />
               Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Organization Dialog */}
+      <Dialog open={isCreateOrgDialogOpen} onOpenChange={setIsCreateOrgDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Organization</DialogTitle>
+            <DialogDescription>
+              Set up your new campus organization. Fill in the required information to get started.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Organization Logo */}
+            <div className="space-y-2">
+              <Label>Organization Logo</Label>
+              <div className="flex items-start gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={orgLogoPreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(createOrgFormData.name || 'Org')}&background=random`} alt="Organization logo" />
+                  <AvatarFallback>{createOrgFormData.name ? createOrgFormData.name[0] : 'O'}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 space-y-2">
+                  {!orgLogoFile ? (
+                    <div>
+                      <Input
+                        id="org-logo-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleOrgLogoUpload}
+                        className="cursor-pointer"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Upload your organization's logo (JPG, PNG, or GIF)
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {orgLogoFile.name} ({(orgLogoFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveOrgLogo}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Remove & Choose Another
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Basic Information
+              </h3>
+
+              <div className="space-y-2">
+                <Label htmlFor="org-name">Organization Name *</Label>
+                <Input
+                  id="org-name"
+                  placeholder="e.g., Tech Innovation Club"
+                  value={createOrgFormData.name}
+                  onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="org-category">Category *</Label>
+                <Select
+                  value={createOrgFormData.category}
+                  onValueChange={(value) => setCreateOrgFormData(prev => ({ ...prev, category: value }))}
+                >
+                  <SelectTrigger id="org-category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Academic">Academic</SelectItem>
+                    <SelectItem value="Cultural">Cultural</SelectItem>
+                    <SelectItem value="Sports">Sports</SelectItem>
+                    <SelectItem value="Technology">Technology</SelectItem>
+                    <SelectItem value="Arts">Arts</SelectItem>
+                    <SelectItem value="Service">Service</SelectItem>
+                    <SelectItem value="Professional">Professional</SelectItem>
+                    <SelectItem value="Social">Social</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="org-description">Description *</Label>
+                <Textarea
+                  id="org-description"
+                  placeholder="Brief description of your organization..."
+                  value={createOrgFormData.description}
+                  onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  className="resize-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="org-mission">Mission Statement (optional)</Label>
+                <Textarea
+                  id="org-mission"
+                  placeholder="Your organization's mission..."
+                  value={createOrgFormData.mission}
+                  onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, mission: e.target.value }))}
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Contact Information */}
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Contact Information
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="org-email">Email</Label>
+                  <Input
+                    id="org-email"
+                    type="email"
+                    placeholder="contact@organization.com"
+                    value={createOrgFormData.email}
+                    onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="org-phone">Phone</Label>
+                  <Input
+                    id="org-phone"
+                    type="tel"
+                    placeholder="(555) 123-4567"
+                    value={createOrgFormData.phone}
+                    onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="org-website">Website</Label>
+                  <Input
+                    id="org-website"
+                    type="url"
+                    placeholder="https://yourorganization.com"
+                    value={createOrgFormData.website}
+                    onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, website: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Social Media */}
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <LinkIcon className="h-4 w-4" />
+                Social Media
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="org-discord">Discord</Label>
+                  <Input
+                    id="org-discord"
+                    placeholder="discord.gg/yourserver"
+                    value={createOrgFormData.discord}
+                    onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, discord: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="org-instagram">Instagram</Label>
+                  <Input
+                    id="org-instagram"
+                    placeholder="@yourorganization"
+                    value={createOrgFormData.instagram}
+                    onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, instagram: e.target.value }))}
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="org-linkedin">LinkedIn</Label>
+                  <Input
+                    id="org-linkedin"
+                    placeholder="linkedin.com/company/yourorg"
+                    value={createOrgFormData.linkedin}
+                    onChange={(e) => setCreateOrgFormData(prev => ({ ...prev, linkedin: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => {
+              setIsCreateOrgDialogOpen(false);
+              setCreateOrgFormData({
+                name: "",
+                description: "",
+                mission: "",
+                category: "",
+                email: "",
+                phone: "",
+                website: "",
+                discord: "",
+                instagram: "",
+                linkedin: ""
+              });
+              setOrgLogoFile(null);
+              setOrgLogoPreview("");
+            }}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateOrganization}
+              disabled={
+                !createOrgFormData.name ||
+                !createOrgFormData.category ||
+                !createOrgFormData.description
+              }
+            >
+              <Building2 className="h-4 w-4 mr-2" />
+              Create Organization
             </Button>
           </div>
         </DialogContent>
