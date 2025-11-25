@@ -16,6 +16,7 @@ const ManageOrganization = require("../models/manageorganization");
 const EventsAndActivities = require("../models/eventsandactivities");
 const EventsAndActivitiesType = require("../models/eventsandactivitiestype");
 const ManageEventAndActivities = require("../models/manageeventandactivities");
+const e = require("express");
 
 module.exports.get = async (req, res) => {
   let success = false;
@@ -42,6 +43,7 @@ module.exports.post = async (req, res) => {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
     });
+
     if (!Userdata) {
       return res.status(404).send("Not Found User", success);
     }
@@ -62,16 +64,6 @@ module.exports.post = async (req, res) => {
 
     const { path } = req.file;
 
-    /*if (typeof EventActivityType === "string") {
-      try {
-        EventActivityType = JSON.parse(EventActivityType);
-      } catch (err) {
-        return res
-          .status(400)
-          .json({ success, error: "Invalid EventActivityType format" });
-      }
-    }*/
-
     if (
       !OID ||
       !EventActivityName ||
@@ -90,12 +82,7 @@ module.exports.post = async (req, res) => {
         .json({ success, error: "Please fill all required fields" });
     }
 
-    /*if (!Array.isArray(EventActivityType) || EventActivityType.length === 0) {
-      return res.status(400).json({
-        success,
-        error: "EventActivityType must be a non-empty array",
-      });
-    }*/
+    // Validate building & room
     if (!(await Building.findOne({ where: { ID: BID } }))) {
       return res.status(400).json({
         success: false,
@@ -110,10 +97,32 @@ module.exports.post = async (req, res) => {
       });
     }
 
-    const start = new Date(`${EventDate} ${StartingTime}`);
-    const end = new Date(`${EventDate} ${EndingTime}`);
+    // ---------- FIX: Convert TIME + DATE into valid ISO DATETIME ----------
+    const formatDT = (date, time) => {
+      // If time is "18:00" → convert to "18:00:00"
+      if (time.length === 5) time = time + ":00";
+      return `${date}T${time}`;
+    };
 
-    // Validate start < end
+    const start = new Date(formatDT(EventDate, StartingTime));
+    const end = new Date(formatDT(EventDate, EndingTime));
+
+    console.log("Start DateTime:", StartingTime);
+    console.log("End DateTime:", EndingTime);
+
+    const isValidTime = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
+      StartingTime
+    );
+    const isValidTime2 = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
+      EndingTime
+    );
+
+    if (!isValidTime || !isValidTime2) {
+      return res.status(400).json({ error: "Invalid TIME format (HH:MM:SS)" });
+    }
+
+    // --------------------------------------------------------------------
+
     if (start >= end) {
       return res.status(400).json({
         success: false,
@@ -121,31 +130,23 @@ module.exports.post = async (req, res) => {
       });
     }
 
-    // Create 12-hour restricted window
     const before12 = new Date(start.getTime() - 12 * 60 * 60 * 1000);
     const after12 = new Date(end.getTime() + 12 * 60 * 60 * 1000);
 
-    // Check for conflicting event
+    // Check conflicts
     const conflictingEvent = await EventsAndActivities.findOne({
       where: {
         BuildingID: BID,
         RoomID: RID,
-        EventDate: EventDate,
+        EventDate,
 
-        // Overlap logic:
-        // ExistingStart < ProposedEnd AND ExistingEnd > ProposedStart
         [Op.or]: [
           {
             StartingTime: { [Op.lt]: end },
             EndingTime: { [Op.gt]: start },
           },
-          // 12 hours before/after restriction
-          {
-            StartingTime: { [Op.between]: [before12, after12] },
-          },
-          {
-            EndingTime: { [Op.between]: [before12, after12] },
-          },
+          { StartingTime: { [Op.between]: [before12, after12] } },
+          { EndingTime: { [Op.between]: [before12, after12] } },
         ],
       },
     });
@@ -158,8 +159,10 @@ module.exports.post = async (req, res) => {
       });
     }
 
+    console.log("Image path:", path);
+    // Save image
     let Image = await Images.create({
-      ImagePath: path,
+      ImageURL: path,
       UploadedByID: req.user.id,
     });
 
@@ -167,6 +170,7 @@ module.exports.post = async (req, res) => {
       return res.status(500).json({ success, error: "Failed to upload image" });
     }
 
+    // ---------- FIX: Insert proper DATETIME into DB ----------
     let createdEvent = await EventsAndActivities.create({
       OID,
       EventActivityName,
@@ -174,14 +178,15 @@ module.exports.post = async (req, res) => {
       BuildingID: BID,
       RoomID: RID,
       ImgID: Image.ID,
-      StartingTime,
-      EndingTime,
+      StartingTime: StartingTime, // Use fixed Date object
+      EndingTime: EndingTime,
       Capacity,
       EventDate,
       Overview,
       EstimatedCostAverage,
       CreatedByID: req.user.id,
     });
+    // ---------------------------------------------------------
 
     if (!createdEvent || !createdEvent.ID) {
       return res
@@ -189,78 +194,13 @@ module.exports.post = async (req, res) => {
         .json({ success, error: "Failed to create event/activity" });
     }
 
-    /* EventActivityType.forEach(async (type) => {
-      let STyID = await StatusType.findOne({
-        where: { Code: MasterTypes.Ev.toUpperCase() },
-        attributes: ["ID"],
-      });
-
-      let similar = await findSimilarStatus(type, STyID.ID);
-      let SID = null;
-      if (similar) {
-        SID = similar;
-      } else {
-        SID = await Status.findOne({
-          where: {
-            STID: STyID.ID,
-            Code: type.trim().replace(/\s+/g, "").toUpperCase(),
-          },
-          attributes: ["ID"],
-        });
-      }
-
-      if (!SID) {
-        let CreatedStatus = await Status.create({
-          STID: STyID.ID,
-          Code: type.trim().replace(/\s+/g, "").toUpperCase(),
-          Name: type
-            .trim()
-            .replace(/\s+/g, "")
-            .split(" ")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" "),
-          CreatedByID: req.user.id,
-        });
-
-        if (!CreatedStatus) {
-          return res.status(500).json({
-            success: false,
-            message: "Failed to create status type",
-          });
-        }
-
-        SID = CreatedStatus;
-      }
-    });
-
-    if (
-      !(await EventsAndActivitiesType.findOne({
-        where: {
-          EID: createdEvent.ID,
-          SID: SID.ID,
-        },
-      }))
-    ) {
-      let createdEventType = await EventsAndActivitiesType.create({
-        EID: createdEvent.ID,
-        SID: SID.ID,
-        CreatedByID: req.user.id,
-      });
-
-      if (!createdEventType || !createdEventType.ID) {
-        return res
-          .status(500)
-          .json({ success, error: "Failed to create event/activity type" });
-      }
-    }*/
-
     success = true;
     return res
       .status(200)
       .json({ success, message: "Event created successfully!" });
   } catch (error) {
     console.error(error.message);
-    return res.status(500).json({ success, error: "Internal Server Error" });
+    return res.status(500).json({ success, message: error.message });
   }
 };
 
@@ -440,7 +380,7 @@ module.exports.put = async (req, res) => {
     updateEvent.EstimatedCostAverage = EstimatedCostAverage;
     updateEvent.UpdatedByID = req.user.id;
 
-   /* EventActivityType.forEach(async (type) => {
+    /* EventActivityType.forEach(async (type) => {
       let STyID = await StatusType.findOne({
         where: { Code: MasterTypes.Ev.toUpperCase() },
         attributes: ["ID"],

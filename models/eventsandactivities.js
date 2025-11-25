@@ -42,11 +42,11 @@ const EventsAndActivities = sequelize.define(
       allowNull: true,
     },
     StartingTime: {
-      type: DataTypes.DATE,
+      type: DataTypes.TIME,
       allowNull: false,
     },
     EndingTime: {
-      type: DataTypes.DATE,
+      type: DataTypes.TIME,
       allowNull: false,
     },
     Capacity: {
