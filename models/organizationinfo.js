@@ -43,11 +43,16 @@ const OrganizationInfo = sequelize.define(
       allowNull: true,
     },
 
-    Mission: {
+    AboutUs: {
       type: DataTypes.TEXT("long"),
       allowNull: true,
     },
     
+    Mission: {
+      type: DataTypes.TEXT("long"),
+      allowNull: true,
+    },
+
     CreatedByID: {
       type: DataTypes.INTEGER,
       allowNull: true,

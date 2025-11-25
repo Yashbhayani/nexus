@@ -70,6 +70,7 @@ module.exports.post = async (req, res) => {
       BID,
       RID,
       Mission,
+      AboutUs,
     } = req.body;
     const { path } = req.file;
 
@@ -93,6 +94,7 @@ module.exports.post = async (req, res) => {
       !BID ||
       !RID ||
       !Mission ||
+      !AboutUs ||
       !OrganizationType ||
       !path
     ) {
@@ -183,6 +185,7 @@ module.exports.post = async (req, res) => {
       phone: Phone,
       BID: BID,
       RID: RID,
+      AboutUs: AboutUs,
       Mission: Mission,
       CreatedByID: req.user.id,
     });
@@ -288,6 +291,7 @@ module.exports.put = async (req, res) => {
       BID,
       RID,
       Mission,
+      AboutUs,
       image,
     } = req.body;
     let path = null;
@@ -315,6 +319,7 @@ module.exports.put = async (req, res) => {
       !Phone ||
       !BID ||
       !Mission ||
+      !AboutUs ||
       !RID
     ) {
       return res.status(400).json({
@@ -439,6 +444,7 @@ module.exports.put = async (req, res) => {
     updatedOrganizationInfo.BID = BID;
     updatedOrganizationInfo.RID = RID;
     updatedOrganizationInfo.Mission = Mission;
+    updatedOrganizationInfo.AboutUs = AboutUs;
     updatedOrganizationInfo.UpdatedByID = req.user.id;
     await updatedOrganizationInfo.save();
 
