@@ -224,8 +224,10 @@ module.exports.put = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
+    //    console.log(req.body);
+
     let {
-      Id,
+      ID,
       OID,
       EventActivityName,
       BID,
@@ -256,7 +258,7 @@ module.exports.put = async (req, res) => {
     }*/
 
     if (
-      !Id ||
+      !ID ||
       !OID ||
       !EventActivityName ||
       !BID ||
@@ -294,52 +296,63 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    const start = new Date(`${EventDate} ${StartingTime}`);
-    const end = new Date(`${EventDate} ${EndingTime}`);
+    // -------------------- VALIDATION --------------------
 
-    const isValidTime = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
-      StartingTime
-    );
-    const isValidTime2 = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
-      EndingTime
-    );
+    // TIME validation
+    const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
-    if (!isValidTime || !isValidTime2) {
-      return res.status(400).json({ error: "Invalid TIME format (HH:MM:SS)" });
-    }
-
-    // Validate start < end
-    if (start >= end) {
+    if (!timeRegex.test(StartingTime) || !timeRegex.test(EndingTime)) {
       return res.status(400).json({
         success: false,
-        error: "EndingTime must be greater than StartingTime",
+        message: "Time must be HH:MM:SS",
       });
     }
 
-    // Create 12-hour restricted window
-    const before12 = new Date(start.getTime() - 12 * 60 * 60 * 1000);
-    const after12 = new Date(end.getTime() + 12 * 60 * 60 * 1000);
+    // EVENT DATE validation (YYYY-MM-DD HH:MM:SS)
+    const eventDateRegex =
+      /^\d{4}-\d{2}-\d{2} ([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
+    if (!eventDateRegex.test(EventDate)) {
+      return res.status(400).json({
+        success: false,
+        message: "EventDate must be YYYY-MM-DD HH:MM:SS",
+      });
+    }
+
+    // Merge EventDate (date+time) correctly (NO T format)
+    const startDT = `${EventDate.split(" ")[0]} ${StartingTime}`;
+    const endDT = `${EventDate.split(" ")[0]} ${EndingTime}`;
+
+    const start = new Date(startDT);
+    const end = new Date(endDT);
+
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid final datetime (JS cannot parse)",
+      });
+    }
+
+    if (start >= end) {
+      return res.status(400).json({
+        success: false,
+        message: "EndingTime must be greater than StartingTime",
+      });
+    }
+
+    // -------------------- CHECK CONFLICT --------------------
 
     // Check for conflicting event
     const conflictingEvent = await EventsAndActivities.findOne({
       where: {
         BuildingID: BID,
         RoomID: RID,
-        EventDate: EventDate,
+        EventDate: EventDate.split(" ")[0], // compare by date only
 
-        // Overlap logic:
-        // ExistingStart < ProposedEnd AND ExistingEnd > ProposedStart
         [Op.or]: [
           {
-            StartingTime: { [Op.lt]: end },
-            EndingTime: { [Op.gt]: start },
-          },
-          // 12 hours before/after restriction
-          {
-            StartingTime: { [Op.between]: [before12, after12] },
-          },
-          {
-            EndingTime: { [Op.between]: [before12, after12] },
+            StartingTime: { [Op.lt]: endDT },
+            EndingTime: { [Op.gt]: startDT },
           },
         ],
       },
@@ -353,7 +366,7 @@ module.exports.put = async (req, res) => {
       });
     }
 
-    let updateEvent = await EventsAndActivities.findByPk(Id);
+    let updateEvent = await EventsAndActivities.findByPk(ID);
     if (!updateEvent) {
       return res
         .status(404)
@@ -504,14 +517,15 @@ module.exports.join = async (req, res) => {
       where: { ID: EID },
       attributes: ["Capacity"],
     });
-    if (!event) {
+
+    if (!eventCapacitycount) {
       return res
         .status(404)
         .json({ success, error: "Event/Activity not found" });
     }
 
     const count = await ManageEventAndActivities.count({
-      where: { EAAID: EID },
+      where: { EAAID: EID, IsDeleted: false },
     });
 
     if (count >= eventCapacitycount.Capacity) {
@@ -520,16 +534,38 @@ module.exports.join = async (req, res) => {
         .json({ success, error: "Event/Activity capacity reached" });
     }
 
-    const addManageEventAndActivities = await ManageEventAndActivities.create({
-      EAAID: EID,
-      UID: req.user.id,
-      CreatedByID: req.user.id,
+    const CheckUserJoinEvent = await ManageEventAndActivities.findOne({
+      where: { EAAID: EID, UID: req.user.id, IsDeleted: false },
     });
 
-    if (!addManageEventAndActivities || !addManageEventAndActivities.ID) {
-      return res
-        .status(500)
-        .json({ success, error: "Failed to join event/activity" });
+    if (!CheckUserJoinEvent) {
+      const addManageEventAndActivities = await ManageEventAndActivities.create(
+        {
+          EAAID: EID,
+          UID: req.user.id,
+          CreatedByID: req.user.id,
+        }
+      );
+
+      if (!addManageEventAndActivities || !addManageEventAndActivities.ID) {
+        return res
+          .status(500)
+          .json({ success, error: "Failed to join event/activity" });
+      }
+    } else {
+      let updateEventActivities = await ManageEventAndActivities.findByPk(
+        CheckUserJoinEvent.ID
+      );
+      updateEventActivities.IsDeleted = true;
+      updateEventActivities.UpdatedByID = req.user.id;
+
+      await updateEventActivities.save();
+
+      if (!updateEventActivities) {
+        return res
+          .status(500)
+          .json({ success, error: "Failed to remove event/activity" });
+      }
     }
 
     success = true;
@@ -537,5 +573,119 @@ module.exports.join = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     return res.status(500).json({ success, error: "Internal Server Error" });
+  }
+};
+
+module.exports.deleteevent = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { ID } = req.query;
+    if (!ID) {
+      return res
+        .status(400)
+        .json({ success, error: "Please provide Event/Activity ID" });
+    }
+
+    if (
+      !(await EventsAndActivities.findOne({
+        where: { ID: ID },
+      }))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Events ID",
+      });
+    }
+
+    let updateEventActivity = await EventsAndActivities.findByPk(ID);
+
+    if (!updateEventActivity) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Events",
+      });
+    }
+
+    updateEventActivity.IsDeleted = true;
+    await updateEventActivity.save();
+
+    if (!updateEventActivity) {
+      return res
+        .status(500)
+        .json({ success, error: "Failed to delete event/activity" });
+    }
+
+    success = true;
+    return res
+      .status(200)
+      .json({ success, message: "Event deleted successfully!" });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ success, error: "Internal Server Error" });
+  }
+};
+
+module.exports.approver = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { ID } = req.query;
+    if (!ID) {
+      return res
+        .status(400)
+        .json({ success, error: "Please provide Event/Activity ID" });
+    }
+
+    if (
+      !(await EventsAndActivities.findOne({
+        where: { ID: ID },
+      }))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Events ID",
+      });
+    }
+
+    let updateEventActivity = await EventsAndActivities.findByPk(ID);
+
+    if (!updateEventActivity) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Events",
+      });
+    }
+
+    updateEventActivity.ApproverByID = req.user.id;
+    await updateEventActivity.save();
+
+    if (!updateEventActivity) {
+      return res
+        .status(500)
+        .json({ success, error: "Failed to approver event/activity" });
+    }
+
+    success = true;
+    return res
+      .status(200)
+      .json({ success, message: "Event approved successfully!" });
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ success, error: err.message });
   }
 };
