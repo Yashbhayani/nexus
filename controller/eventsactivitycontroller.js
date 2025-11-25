@@ -38,16 +38,19 @@ module.exports.get = async (req, res) => {
 
 module.exports.post = async (req, res) => {
   let success = false;
+
   try {
+    // Fetch logged-in user
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
     });
 
     if (!Userdata) {
-      return res.status(404).send("Not Found User", success);
+      return res.status(404).json({ success, message: "User not found" });
     }
 
+    // Incoming body
     let {
       OID,
       EventActivityName,
@@ -64,6 +67,7 @@ module.exports.post = async (req, res) => {
 
     const { path } = req.file;
 
+    // Required fields
     if (
       !OID ||
       !EventActivityName ||
@@ -93,60 +97,68 @@ module.exports.post = async (req, res) => {
     if (!(await Room.findOne({ where: { ID: RID, BID: BID } }))) {
       return res.status(400).json({
         success: false,
-        message: "Invalid Room ID or Building ID",
+        message: "Invalid Room or Building",
       });
     }
 
-    // ---------- FIX: Convert TIME + DATE into valid ISO DATETIME ----------
-    const formatDT = (date, time) => {
-      // If time is "18:00" → convert to "18:00:00"
-      if (time.length === 5) time = time + ":00";
-      return `${date}T${time}`;
-    };
+    // -------------------- VALIDATION --------------------
 
-    const start = new Date(formatDT(EventDate, StartingTime));
-    const end = new Date(formatDT(EventDate, EndingTime));
+    // TIME validation
+    const timeRegex = /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
-    console.log("Start DateTime:", StartingTime);
-    console.log("End DateTime:", EndingTime);
-
-    const isValidTime = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
-      StartingTime
-    );
-    const isValidTime2 = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
-      EndingTime
-    );
-
-    if (!isValidTime || !isValidTime2) {
-      return res.status(400).json({ error: "Invalid TIME format (HH:MM:SS)" });
+    if (!timeRegex.test(StartingTime) || !timeRegex.test(EndingTime)) {
+      return res.status(400).json({
+        success: false,
+        message: "Time must be HH:MM:SS",
+      });
     }
 
-    // --------------------------------------------------------------------
+    // EVENT DATE validation (YYYY-MM-DD HH:MM:SS)
+    const eventDateRegex =
+      /^\d{4}-\d{2}-\d{2} ([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
+    if (!eventDateRegex.test(EventDate)) {
+      return res.status(400).json({
+        success: false,
+        message: "EventDate must be YYYY-MM-DD HH:MM:SS",
+      });
+    }
+
+    // Merge EventDate (date+time) correctly (NO T format)
+    const startDT = `${EventDate.split(" ")[0]} ${StartingTime}`;
+    const endDT = `${EventDate.split(" ")[0]} ${EndingTime}`;
+
+    const start = new Date(startDT);
+    const end = new Date(endDT);
+
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid final datetime (JS cannot parse)",
+      });
+    }
 
     if (start >= end) {
       return res.status(400).json({
         success: false,
-        error: "EndingTime must be greater than StartingTime",
+        message: "EndingTime must be greater than StartingTime",
       });
     }
 
-    const before12 = new Date(start.getTime() - 12 * 60 * 60 * 1000);
-    const after12 = new Date(end.getTime() + 12 * 60 * 60 * 1000);
+    // -------------------- CHECK CONFLICT --------------------
 
-    // Check conflicts
+    // Check for conflicting event
     const conflictingEvent = await EventsAndActivities.findOne({
       where: {
         BuildingID: BID,
         RoomID: RID,
-        EventDate,
+        EventDate: EventDate.split(" ")[0], // compare by date only
 
         [Op.or]: [
           {
-            StartingTime: { [Op.lt]: end },
-            EndingTime: { [Op.gt]: start },
+            StartingTime: { [Op.lt]: endDT },
+            EndingTime: { [Op.gt]: startDT },
           },
-          { StartingTime: { [Op.between]: [before12, after12] } },
-          { EndingTime: { [Op.between]: [before12, after12] } },
         ],
       },
     });
@@ -154,23 +166,21 @@ module.exports.post = async (req, res) => {
     if (conflictingEvent) {
       return res.status(400).json({
         success: false,
-        error:
-          "Room is not available (conflict or 12-hour buffer rule violated)",
+        error: "Room not available (time conflict)",
       });
     }
 
-    console.log("Image path:", path);
-    // Save image
+    // -------------------- SAVE IMAGE --------------------
     let Image = await Images.create({
       ImageURL: path,
       UploadedByID: req.user.id,
     });
 
     if (!Image || !Image.ID) {
-      return res.status(500).json({ success, error: "Failed to upload image" });
+      return res.status(500).json({ success, error: "Image upload failed" });
     }
 
-    // ---------- FIX: Insert proper DATETIME into DB ----------
+    // -------------------- INSERT EVENT --------------------
     let createdEvent = await EventsAndActivities.create({
       OID,
       EventActivityName,
@@ -178,17 +188,16 @@ module.exports.post = async (req, res) => {
       BuildingID: BID,
       RoomID: RID,
       ImgID: Image.ID,
-      StartingTime: StartingTime, // Use fixed Date object
-      EndingTime: EndingTime,
+      StartingTime: startDT,
+      EndingTime: endDT,
       Capacity,
-      EventDate,
+      EventDate, // already valid MySQL datetime
       Overview,
       EstimatedCostAverage,
       CreatedByID: req.user.id,
     });
-    // ---------------------------------------------------------
 
-    if (!createdEvent || !createdEvent.ID) {
+    if (!createdEvent) {
       return res
         .status(500)
         .json({ success, error: "Failed to create event/activity" });
@@ -199,7 +208,7 @@ module.exports.post = async (req, res) => {
       .status(200)
       .json({ success, message: "Event created successfully!" });
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     return res.status(500).json({ success, message: error.message });
   }
 };
@@ -288,6 +297,17 @@ module.exports.put = async (req, res) => {
     const start = new Date(`${EventDate} ${StartingTime}`);
     const end = new Date(`${EventDate} ${EndingTime}`);
 
+    const isValidTime = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
+      StartingTime
+    );
+    const isValidTime2 = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(
+      EndingTime
+    );
+
+    if (!isValidTime || !isValidTime2) {
+      return res.status(400).json({ error: "Invalid TIME format (HH:MM:SS)" });
+    }
+
     // Validate start < end
     if (start >= end) {
       return res.status(400).json({
@@ -354,7 +374,7 @@ module.exports.put = async (req, res) => {
       await UpdateImage.save();
 
       const NewImage = await Images.create({
-        ImagePath: path,
+        ImageURL: path,
         CreatedByID: req.user.id,
       });
 
