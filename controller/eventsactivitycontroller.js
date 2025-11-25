@@ -224,8 +224,6 @@ module.exports.put = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    //    console.log(req.body);
-
     let {
       ID,
       OID,
@@ -241,9 +239,10 @@ module.exports.put = async (req, res) => {
       EventActivityType,
       image,
     } = req.body;
-    let path = null;
-    if (image) {
-      path = req.file;
+
+    let { path } = req.file;
+    if (!path) {
+      path = null;
     }
 
     /*if (typeof EventActivityType === "string") {

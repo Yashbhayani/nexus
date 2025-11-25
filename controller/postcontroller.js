@@ -1,8 +1,8 @@
 const { request } = require("express");
 const BlogTable = require("../models/blogtable");
 const Status = require("../models/status");
-const { route } = require("../routers/eventsactivities");
 const e = require("express");
+const User = require("../models/user");
 
 module.exports.get = async (req, res) => {
   let success = false;
@@ -21,12 +21,14 @@ module.exports.post = async (req, res) => {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
     });
+
     if (!Userdata) {
-      return res.status(404).send("Not Found User", success);
+      return res.status(404).json({ success, message: "User not found" });
     }
 
-    const { PostTitle, Content, CategoryID } = req.body;
-    let path = null;
+    const { PostTitle, Content, CategoryID, image } = req.body;
+    let { path } = req.file;
+
     if (image) {
       path = req.file;
     }
@@ -44,10 +46,11 @@ module.exports.post = async (req, res) => {
     }
 
     const createPost = await BlogTable.create({
+      UID: req.user.id,
       PostTitle,
       Content,
       CategoryID,
-      ImagePath: path,
+      Image: path,
       CreatedByID: req.user.id,
     });
 
@@ -74,12 +77,13 @@ module.exports.put = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    const { ID, PostTitle, Content, CategoryID } = req.body;
-    let path = null;
-    if (image) {
-      path = req.file;
+    const { ID, PostTitle, Content, CategoryID, image } = req.body;
+    
+    let { path } = req.file;
+    if (!path) {
+      path = null;
     }
-
+    
     if (!PostTitle || !Content || !CategoryID) {
       return res
         .status(400)
@@ -102,7 +106,7 @@ module.exports.put = async (req, res) => {
     updatedPost.Content = Content;
     updatedPost.CategoryID = CategoryID;
     if (path) {
-      updatedPost.ImagePath = path;
+      updatedPost.Image = path;
     }
     updatedPost.UpdatedByID = req.user.id;
 
@@ -151,7 +155,7 @@ module.exports.deletepost = async (req, res) => {
     if (!postToDelete) {
       return res.status(500).json({ success, error: "Failed to delete post" });
     }
-    
+
     success = true;
     res.status(200).json({ success, message: "Post deleted successfully!" });
   } catch (error) {

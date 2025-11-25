@@ -5,7 +5,6 @@ const getStorage = require("../config/multer");
 const { get, post } = require("../controller/roomscontroller");
 const fetchUser = require("../midlewere/fetchuser");
 
-
 // Get all user types
 router.get("/", fetchUser, get);
 // Create new user type
@@ -13,7 +12,6 @@ router.post(
   "/",
   fetchUser,
   (req, res, next) => {
-    console.log(req);
     const upload = multer({ storage: getStorage("rooms", req) }).single(
       "image"
     );

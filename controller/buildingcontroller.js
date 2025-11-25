@@ -95,9 +95,9 @@ module.exports.put = async (req, res) => {
   try {
     const { ID, Code, BuildingName, Location, image } = req.body;
 
-    let path = null;
-    if (image) {
-      path = req.file;
+    let { path } = req.file;
+    if (!path) {
+      path = null;
     }
     const adminCheck = await verifyUsers.verifyAdmin(req);
     if (!adminCheck.allowed) {

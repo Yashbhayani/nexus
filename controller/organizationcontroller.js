@@ -294,9 +294,10 @@ module.exports.put = async (req, res) => {
       AboutUs,
       image,
     } = req.body;
-    let path = null;
-    if (image) {
-      path = req.file;
+
+    let { path } = req.file;
+    if (!path) {
+      path = null;
     }
 
     /*if (typeof OrganizationType === "string") {
@@ -475,8 +476,7 @@ module.exports.put = async (req, res) => {
         });
       }
 
-      //console.log("Similar Status Found: ", SID);
-
+11
       if (!SID) {
         let CreatedStatus = await Status.create({
           STID: STyID.ID,

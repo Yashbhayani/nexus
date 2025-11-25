@@ -6,7 +6,6 @@ const verifyUsers = require("../midlewere/userferification");
 module.exports.get = async (req, res) => {
   let success = false;
   try {
-    console.log("Get user types request by user:", req.user.id);
     const Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
