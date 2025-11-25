@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const {
-  get,
-  post,
-  put,
-  join,
-} = require("../controller/organizationcontroller");
+const { get, post, put, deletepost } = require("../controller/postcontroller");
 const fetchUser = require("../midlewere/fetchuser");
 const getStorage = require("../config/multer");
 
@@ -15,9 +10,7 @@ router.post(
   "/",
   fetchUser,
   (req, res, next) => {
-    const upload = multer({ storage: getStorage("organization", req) }).single(
-      "image"
-    );
+    const upload = multer({ storage: getStorage("blog", req) }).single("image");
     upload(req, res, function (err) {
       if (err) {
         return res.status(400).json({ success: false, error: err.message });
@@ -27,13 +20,12 @@ router.post(
   },
   post
 );
+
 router.put(
   "/",
   fetchUser,
   (req, res, next) => {
-    const upload = multer({ storage: getStorage("organization", req) }).single(
-      "image"
-    );
+    const upload = multer({ storage: getStorage("blog", req) }).single("image");
     upload(req, res, function (err) {
       if (err) {
         return res.status(400).json({ success: false, error: err.message });
@@ -43,7 +35,6 @@ router.put(
   },
   put
 );
-router.put("/join", fetchUser, join);
-router.post("/view-organization", fetchUser, join);
 
+router.delete("/", fetchUser, deletepost);
 module.exports = router;

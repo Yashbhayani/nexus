@@ -25,6 +25,8 @@ module.exports.get = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
+    const { OrganizationName, OrganizationType } = req.query;
+
     let organizations = await Organization.findAll({
       include: [
         {

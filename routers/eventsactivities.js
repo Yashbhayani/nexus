@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const { get, post, put } = require("../controller/eventsactivitycontroller");
+const { get, post, put, join } = require("../controller/eventsactivitycontroller");
 const fetchUser = require("../midlewere/fetchuser");
 const getStorage = require("../config/multer");
 
