@@ -632,7 +632,7 @@ module.exports.deleteevent = async (req, res) => {
   }
 };
 
-module.exports.approver = async (req, res) => {
+module.exports.approved = async (req, res) => {
   let success = false;
   try {
     let Userdata = await User.findByPk(req.user.id, {
@@ -683,6 +683,16 @@ module.exports.approver = async (req, res) => {
     return res
       .status(200)
       .json({ success, message: "Event approved successfully!" });
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ success, error: err.message });
+  }
+};
+
+module.exports.rejected = async (req, res) => {
+  let success = false;
+  try {
+    
   } catch (err) {
     console.error(err.message);
     return res.status(500).json({ success, error: err.message });

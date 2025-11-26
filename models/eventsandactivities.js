@@ -93,6 +93,10 @@ const EventsAndActivities = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: 0,
     },
+    Isrejected: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: 0,
+    },
   },
   {
     tableName: "eventsandactivities",

@@ -7,7 +7,8 @@ const {
   put,
   join,
   deleteevent,
-  approver,
+  approved,
+  rejected,
 } = require("../controller/eventsactivitycontroller");
 const fetchUser = require("../midlewere/fetchuser");
 const getStorage = require("../config/multer");
@@ -49,6 +50,7 @@ router.put(
 
 router.patch("/join", fetchUser, join);
 router.delete("/", fetchUser, deleteevent);
-router.patch("/accept", fetchUser, approver);
+router.patch("/approved", fetchUser, approved);
+router.patch("/rejected", fetchUser, rejected);
 
 module.exports = router;
