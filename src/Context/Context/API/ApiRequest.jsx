@@ -9,8 +9,8 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
       method,
       headers: {
         "Content-Type": "application/json",
-        // if you still use token from sessionStorage
-        //token: sessionStorage.getItem("token") || "",
+        // if you still use token from localStorage
+        "auth-token": localStorage.getItem("token") || "",
       },
       body: body ? JSON.stringify(body) : null,
       params,
