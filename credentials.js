@@ -1,4 +1,4 @@
-module.export.credentials = {
+module.exports.credentials = {
   DB_NAME: "nexus",
   DB_USER: "root",
   DB_PASSWORD: "9974143053",
