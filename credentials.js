@@ -34,8 +34,8 @@ const fullPass =
 module.exports.credentials = {
   DB_NAME: "nexus",
   DB_USER: "avnadmin",
-  DB_PASSWORD: "",
-  DB_HOST: "",
+  DB_PASSWORD: fullPass,
+  DB_HOST: fullHost,
   DB_PORT: 16133,
 };
 
