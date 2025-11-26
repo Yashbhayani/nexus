@@ -5,3 +5,13 @@ module.exports.credentials = {
   DB_HOST: "localhost",
   DB_PORT: 3308,
 };
+module.exports.HostData =  {
+    Part1 : "mysql-",
+    Part2: "7e0e00f-",
+    Part3 : "coderecherche07-",
+    Part4: "45e2.",
+    Part5: "c.",
+    Part6: "aiven",
+    Part7: "cloud",
+    Part8: ".com"
+}
