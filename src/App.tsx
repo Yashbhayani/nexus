@@ -30,9 +30,10 @@ import {
   DropdownMenuLabel,
 } from "./components/ui/dropdown-menu";
 import { User, Building2, LogOut, Info, Shield } from "lucide-react";
+import { APIState } from "./Context/Context/apimethods/APIState";
 
 export default function App() {
-  
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -156,54 +157,76 @@ export default function App() {
     // Render screens based on current view
     switch (currentView.screen) {
       case "home":
-        return <HomeFeed onNavigate={handleNavigate} />;
+        return (
+          <APIState>
+            <HomeFeed onNavigate={handleNavigate} />
+          </APIState>);
 
       case "discover":
-        return <EventDiscovery onNavigate={handleNavigate} />;
+        return (
+          <APIState>
+            <EventDiscovery onNavigate={handleNavigate} />
+          </APIState>);
 
       case "events":
-        return <EventsScreen onNavigate={handleNavigate} />;
+        return (
+            <APIState>
+              <EventsScreen onNavigate={handleNavigate} />
+            </APIState>);
 
       case "event-detail":
         return (
+          <APIState>
           <EventDetail
             eventId={currentView.data?.eventId || "1"}
             onBack={() => handleNavigate("home")}
           />
+          </APIState>
         );
 
       case "profile":
         return (
+          <APIState>
           <UserProfile
             selectedProfileId={currentView.data?.profileId}
             activeTab={currentView.data?.activeTab}
             onNavigate={handleNavigate}
           />
+          </APIState>
         );
 
       case "organizationProfile":
         return (
+          <APIState>
           <OrganizationProfile
             organizationId={currentView.data?.organizationId || "org1"}
             onBack={() => handleNavigate("discover")}
             onNavigate={handleNavigate}
           />
+          </APIState>
         );
 
       case "otherUserProfile":
         return (
+          <APIState>
           <OtherUserProfile
             userId={currentView.data?.userId || "1"}
             onNavigate={handleNavigate}
             onBack={() => handleNavigate("home")}
           />
+          </APIState>
         );
 
       case "admin":
-        return <AdminScreen />;
+        return (
+              <APIState>
+              <AdminScreen />
+              </APIState>);
 
       default:
-        return <HomeFeed onNavigate={handleNavigate} />;
+        return (<APIState>
+          <HomeFeed onNavigate={handleNavigate} />
+          </APIState>);
     }
   };
 
@@ -213,7 +236,8 @@ export default function App() {
     if (showResetPassword) {
       return (
         <div className="min-h-screen bg-background text-foreground">
-          <ResetPassword 
+          <APIState>
+          <ResetPassword
             onBack={() => {
               setShowResetPassword(false);
               setShowForgotPassword(false);
@@ -223,32 +247,37 @@ export default function App() {
               setShowForgotPassword(false);
             }}
           />
+          </APIState>
         </div>
       );
     }
-    
+
     // Show forgot password screen
     if (showForgotPassword) {
       return (
         <div className="min-h-screen bg-background text-foreground">
-          <ForgotPassword 
+          <APIState>
+            <ForgotPassword
             onBack={() => setShowForgotPassword(false)}
             onResetLink={() => {
               setShowForgotPassword(false);
               setShowResetPassword(true);
             }}
           />
+          </APIState>
         </div>
       );
     }
-    
+
     // Show login/signup screen
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <StartPage 
-          onLogin={handleLogin} 
+        <APIState>
+          <StartPage
+          onLogin={handleLogin}
           onForgotPassword={() => setShowForgotPassword(true)}
         />
+        </APIState>
       </div>
     );
   }
@@ -398,7 +427,7 @@ export default function App() {
       />
 
       {/* About Dialog */}
-      <AboutDialog 
+      <AboutDialog
         isOpen={showAboutDialog}
         onClose={() => setShowAboutDialog(false)}
       />
