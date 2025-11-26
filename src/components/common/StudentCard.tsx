@@ -1,4 +1,9 @@
-import { GraduationCap, MapPin, UserPlus, BookOpen } from "lucide-react";
+import {
+  GraduationCap,
+  MapPin,
+  UserPlus,
+  BookOpen,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -21,7 +26,12 @@ interface StudentCardProps {
   variant?: "grid" | "list";
 }
 
-export function StudentCard({ student, onFollow, onNavigate, variant = "grid" }: StudentCardProps) {
+export function StudentCard({
+  student,
+  onFollow,
+  onNavigate,
+  variant = "grid",
+}: StudentCardProps) {
   if (variant === "list") {
     return (
       <Card className="mb-3 border-0 shadow-sm">
@@ -36,7 +46,7 @@ export function StudentCard({ student, onFollow, onNavigate, variant = "grid" }:
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-1">
-                <h3 
+                <h3
                   className="font-medium truncate pr-2 cursor-pointer hover:text-primary transition-colors"
                   onClick={() => onNavigate?.(student.id)}
                 >
@@ -48,7 +58,9 @@ export function StudentCard({ student, onFollow, onNavigate, variant = "grid" }:
               </div>
               <div className="flex items-center gap-2 mb-1">
                 <BookOpen className="h-3 w-3 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">{student.major}</span>
+                <span className="text-sm text-muted-foreground">
+                  {student.major}
+                </span>
               </div>
               <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                 {student.bio}
@@ -56,16 +68,24 @@ export function StudentCard({ student, onFollow, onNavigate, variant = "grid" }:
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground truncate">{student.location}</span>
+                  <span className="text-sm text-muted-foreground truncate">
+                    {student.location}
+                  </span>
                 </div>
                 {onFollow && (
-                  <Button 
-                    size="sm" 
-                    className="h-7 px-3" 
-                    variant={student.isFollowing ? "outline" : "default"}
+                  <Button
+                    size="sm"
+                    className="h-7 px-3"
+                    variant={
+                      student.isFollowing
+                        ? "outline"
+                        : "default"
+                    }
                     onClick={() => onFollow(student.id)}
                   >
-                    {student.isFollowing ? "Following" : "Follow"}
+                    {student.isFollowing
+                      ? "Following"
+                      : "Follow"}
                   </Button>
                 )}
               </div>
@@ -89,66 +109,87 @@ export function StudentCard({ student, onFollow, onNavigate, variant = "grid" }:
             />
           </div>
           <div className="absolute top-3 right-3">
-            <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+            <Badge
+              variant="secondary"
+              className="bg-background/80 backdrop-blur-sm"
+            >
               {student.year}
             </Badge>
           </div>
           {student.isFollowing && (
             <div className="absolute top-3 left-3">
-              <Badge variant="default" className="bg-primary/80 backdrop-blur-sm">
+              <Badge
+                variant="default"
+                className="bg-primary/80 backdrop-blur-sm"
+              >
                 Following
               </Badge>
             </div>
           )}
         </div>
-        
+
         <div className="p-4 pt-10">
-          <h3 
+          <h3
             className="font-medium mb-1 cursor-pointer hover:text-primary transition-colors"
             onClick={() => onNavigate?.(student.id)}
           >
             {student.name}
           </h3>
-          
+
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">{student.major}</span>
+            <span className="text-sm text-muted-foreground">
+              {student.major}
+            </span>
           </div>
-          
+
           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
             {student.bio}
           </p>
-          
-          <div className="flex items-center gap-2 mb-3">
+
+          {/* <div className="flex items-center gap-2 mb-3">
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground truncate">{student.location}</span>
-          </div>
+          </div> */}
 
           {student.interests.length > 0 && (
             <div className="mb-3">
               <div className="flex flex-wrap gap-1">
-                {student.interests.slice(0, 3).map((interest, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {interest}
-                  </Badge>
-                ))}
+                {student.interests
+                  .slice(0, 3)
+                  .map((interest, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="text-xs"
+                    >
+                      {interest}
+                    </Badge>
+                  ))}
                 {student.interests.length > 3 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs"
+                  >
                     +{student.interests.length - 3}
                   </Badge>
                 )}
               </div>
             </div>
           )}
-          
+
           {onFollow && (
-            <Button 
-              className="w-full" 
-              variant={student.isFollowing ? "outline" : "default"}
+            <Button
+              className="w-full"
+              variant={
+                student.isFollowing ? "outline" : "default"
+              }
               onClick={() => onFollow(student.id)}
             >
               <UserPlus className="h-4 w-4 mr-2" />
-              {student.isFollowing ? "Following" : "Follow Student"}
+              {student.isFollowing
+                ? "Following"
+                : "Follow Student"}
             </Button>
           )}
         </div>

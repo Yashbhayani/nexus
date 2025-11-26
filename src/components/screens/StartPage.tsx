@@ -15,6 +15,13 @@ import {
   TabsTrigger,
 } from "../ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import {
   Eye,
   EyeOff,
   Music,
@@ -697,13 +704,19 @@ export function StartPage({
                         >
                           Academic Level
                         </Label>
-                        <Input
-                          id="academicLevel"
-                          type="text"
-                          placeholder="Undergraduate"
-                          required
-                          className="h-10"
-                        />
+                        <Select name="academicLevel" required>
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="freshman">Freshman</SelectItem>
+                            <SelectItem value="sophomore">Sophomore</SelectItem>
+                            <SelectItem value="junior">Junior</SelectItem>
+                            <SelectItem value="senior">Senior</SelectItem>
+                            <SelectItem value="graduate">Graduate</SelectItem>
+                            <SelectItem value="phd">PhD Candidate</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
                         <Label
@@ -712,13 +725,34 @@ export function StartPage({
                         >
                           Major
                         </Label>
-                        <Input
-                          id="major"
-                          type="text"
-                          placeholder="Computer Science"
-                          required
-                          className="h-10"
-                        />
+                        <Select name="major" required>
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Select major" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="computer-science">Computer Science</SelectItem>
+                            <SelectItem value="software-engineering">Software Engineering</SelectItem>
+                            <SelectItem value="information-systems">Information Systems</SelectItem>
+                            <SelectItem value="data-science">Data Science</SelectItem>
+                            <SelectItem value="business-administration">Business Administration</SelectItem>
+                            <SelectItem value="psychology">Psychology</SelectItem>
+                            <SelectItem value="biology">Biology</SelectItem>
+                            <SelectItem value="chemistry">Chemistry</SelectItem>
+                            <SelectItem value="physics">Physics</SelectItem>
+                            <SelectItem value="mathematics">Mathematics</SelectItem>
+                            <SelectItem value="mechanical-engineering">Mechanical Engineering</SelectItem>
+                            <SelectItem value="electrical-engineering">Electrical Engineering</SelectItem>
+                            <SelectItem value="civil-engineering">Civil Engineering</SelectItem>
+                            <SelectItem value="fine-arts">Fine Arts</SelectItem>
+                            <SelectItem value="graphic-design">Graphic Design</SelectItem>
+                            <SelectItem value="english">English</SelectItem>
+                            <SelectItem value="history">History</SelectItem>
+                            <SelectItem value="political-science">Political Science</SelectItem>
+                            <SelectItem value="economics">Economics</SelectItem>
+                            <SelectItem value="nursing">Nursing</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </CardContent>

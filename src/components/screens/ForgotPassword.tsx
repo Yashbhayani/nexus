@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardDescription } from "../ui/card";
-import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
 import { NexusLogo } from "../common/NexusLogo";
 
 interface ForgotPasswordProps {
@@ -13,25 +13,69 @@ interface ForgotPasswordProps {
 
 export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [currentStep, setCurrentStep] = useState<"email" | "otp" | "reset">("email");
+  const [otpError, setOtpError] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
+    // Simulate sending OTP
     setTimeout(() => {
       setIsLoading(false);
-      setIsSubmitted(true);
-      if (onResetLink) {
-        onResetLink();
+      setCurrentStep("otp");
+    }, 1500);
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError("");
+    setIsLoading(true);
+    
+    // Simulate OTP verification
+    setTimeout(() => {
+      setIsLoading(false);
+      if (otp === "0000") {
+        setCurrentStep("reset");
+      } else {
+        setOtpError("Wrong OTP, try again");
+        setOtp("");
       }
+    }, 1000);
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+    
+    if (newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    // Simulate password reset
+    setTimeout(() => {
+      setIsLoading(false);
+      // Reset complete, go back to login
+      onBack();
     }, 1500);
   };
 
   const handleBackToLogin = () => {
-    setIsSubmitted(false);
+    setCurrentStep("email");
     setEmail("");
     onBack();
   };
@@ -45,7 +89,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
           </div>
 
           <Card className="bg-card border border-border shadow-lg">
-            {!isSubmitted ? (
+            {currentStep === "email" ? (
               <>
                 <CardHeader className="space-y-1 pb-4">
                   <div className="flex items-center gap-2 mb-2">
@@ -65,7 +109,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                   </CardDescription>
                 </CardHeader>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleEmailSubmit}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="reset-email" className="text-sm text-card-foreground">
@@ -102,7 +146,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                           Sending...
                         </div>
                       ) : (
-                        'Send Reset Link'
+                        'Get OTP'
                       )}
                     </Button>
 
@@ -118,68 +162,199 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                   </CardFooter>
                 </form>
               </>
-            ) : (
+            ) : currentStep === "otp" ? (
               <>
-                <CardHeader className="space-y-4 text-center pb-4">
-                  <div className="flex justify-center">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                      <CheckCircle2 className="w-8 h-8 text-primary" aria-hidden="true" />
-                    </div>
+                <CardHeader className="space-y-1 pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <button
+                      onClick={() => setCurrentStep("email")}
+                      className="p-1 hover:bg-muted rounded-md transition-colors"
+                      aria-label="Go back to email entry"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                    </button>
                   </div>
-                  <div className="space-y-1">
-                    <h2 className="text-card-foreground">
-                      Check Your Email
-                    </h2>
-                    <CardDescription className="text-muted-foreground">
-                      We've sent password reset instructions to:
-                    </CardDescription>
-                    <p className="text-sm text-primary font-medium">
-                      {email}
-                    </p>
-                  </div>
+                  <h2 className="text-card-foreground">
+                    Verify OTP
+                  </h2>
+                  <CardDescription className="text-muted-foreground">
+                    We've sent a verification code to: <span className="font-medium text-primary">{email}</span>
+                  </CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-4 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Didn't receive the email? Check your spam folder or try again with a different email address.
-                  </p>
-                  
-                  {/* Demo Reset Link */}
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-xs text-muted-foreground mb-3">
-                      For demo purposes, click below to simulate the reset link:
-                    </p>
+                <form onSubmit={handleOtpSubmit}>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp" className="text-sm text-card-foreground">
+                        Enter OTP
+                      </Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Input
+                          id="otp"
+                          type="text"
+                          placeholder="Enter 4-digit code"
+                          value={otp}
+                          onChange={(e) => {
+                            setOtp(e.target.value);
+                            setOtpError("");
+                          }}
+                          required
+                          maxLength={4}
+                          className="h-11 pl-10 text-center text-lg tracking-widest"
+                          aria-describedby="otp-description"
+                        />
+                      </div>
+                      <p id="otp-description" className="sr-only">
+                        Enter the 4-digit OTP sent to your email address
+                      </p>
+                      {otpError && (
+                        <p className="text-sm text-red-500 flex items-center gap-2">
+                          <span className="inline-block w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">!</span>
+                          {otpError}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground text-center pt-2">
+                        Demo: Use code <span className="font-mono font-medium text-primary">0000</span> to continue
+                      </p>
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="flex flex-col space-y-3 pt-6">
                     <Button
-                      onClick={onResetLink}
-                      variant="default"
-                      className="w-full h-10"
+                      type="submit"
+                      className="w-full h-11"
+                      disabled={isLoading || otp.length !== 4}
                     >
-                      Open Reset Link
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          Verifying...
+                        </div>
+                      ) : (
+                        'Verify OTP'
+                      )}
                     </Button>
-                  </div>
-                </CardContent>
 
-                <CardFooter className="flex flex-col space-y-3 pt-6">
-                  <Button
-                    onClick={handleBackToLogin}
-                    variant="outline"
-                    className="w-full h-11"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
-                    Back to Login
-                  </Button>
+                    <div className="text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentStep("email");
+                          setOtp("");
+                          setOtpError("");
+                        }}
+                        className="text-sm text-primary hover:text-primary/80 transition-colors font-medium underline-offset-4 hover:underline"
+                      >
+                        Try Different Email
+                      </button>
+                    </div>
+                  </CardFooter>
+                </form>
+              </>
+            ) : (
+              <>
+                <CardHeader className="space-y-1 pb-4">
+                  <h2 className="text-card-foreground">
+                    Reset Password
+                  </h2>
+                  <CardDescription className="text-muted-foreground">
+                    Enter your new password for {email}
+                  </CardDescription>
+                </CardHeader>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      setEmail("");
-                    }}
-                    className="text-sm text-primary hover:text-primary/80 transition-colors font-medium underline-offset-4 hover:underline"
-                  >
-                    Try Different Email
-                  </button>
-                </CardFooter>
+                <form onSubmit={handlePasswordReset}>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password" className="text-sm text-card-foreground">
+                        New Password
+                      </Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Input
+                          id="new-password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter new password"
+                          value={newPassword}
+                          onChange={(e) => {
+                            setNewPassword(e.target.value);
+                            setPasswordError("");
+                          }}
+                          required
+                          className="h-11 pl-10"
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password" className="text-sm text-card-foreground">
+                        Confirm Password
+                      </Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Input
+                          id="confirm-password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Confirm new password"
+                          value={confirmPassword}
+                          onChange={(e) => {
+                            setConfirmPassword(e.target.value);
+                            setPasswordError("");
+                          }}
+                          required
+                          className="h-11 pl-10"
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {passwordError && (
+                        <p className="text-sm text-red-500 flex items-center gap-2">
+                          <span className="inline-block w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">!</span>
+                          {passwordError}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="flex flex-col space-y-3 pt-6">
+                    <Button
+                      type="submit"
+                      className="w-full h-11"
+                      disabled={isLoading || !newPassword || !confirmPassword}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          Resetting Password...
+                        </div>
+                      ) : (
+                        'Reset Password'
+                      )}
+                    </Button>
+
+                    <div className="text-center">
+                      <button
+                        type="button"
+                        onClick={handleBackToLogin}
+                        className="text-sm text-primary hover:text-primary/80 transition-colors font-medium underline-offset-4 hover:underline"
+                      >
+                        Back to Login
+                      </button>
+                    </div>
+                  </CardFooter>
+                </form>
               </>
             )}
           </Card>

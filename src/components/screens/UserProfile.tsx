@@ -37,6 +37,35 @@ import {
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
+/**
+ * Role-Based Permissions System for Organizations:
+ * 
+ * DEFAULT ROLE ASSIGNMENTS:
+ *   - When a user CREATES an organization → Assigned "President" role
+ *   - When a user JOINS an organization → Assigned "Member" role
+ *   - Admins/Presidents can change roles later via Member Management
+ * 
+ * President / Vice President:
+ *   - Full access to all organization features
+ *   - Can update organization bio and information
+ *   - Can create, edit, and delete posts and events
+ *   - Can approve, remove, and change member roles
+ * 
+ * Event Manager:
+ *   - Can update organization bio and information
+ *   - Can create, edit, and delete posts and events
+ *   - Cannot manage members (approve, remove, change roles)
+ * 
+ * Content Editor:
+ *   - Can create, edit, and delete posts only
+ *   - Cannot edit organization bio
+ *   - Cannot manage events or members
+ * 
+ * Member:
+ *   - View-only access to all organization content
+ *   - Cannot make any changes to the organization
+ */
+
 interface UserProfileProps {
   selectedProfileId?: string;
   activeTab?: string;
@@ -114,7 +143,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   // Member management state
   const [isInviteMemberDialogOpen, setIsInviteMemberDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("Member");
+  const [inviteRole, setInviteRole] = useState("Member"); // Default role when inviting new members
   
   // Pending member requests (mock data)
   const [pendingRequests, setPendingRequests] = useState([
@@ -250,7 +279,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     location: "Engineering Building, Room 304",
     joinedDate: "Fall 2023",
     stats: {
-      enrolledOrgs: 5,
+      enrolledOrgs: 3,
       eventsAttended: 18,
       followers: 127
     },
@@ -260,7 +289,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       {
         id: "1",
         name: "Computer Science Society",
-        role: "Member",
+        role: "Vice President",
         logo: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=100&h=100&fit=crop",
         category: "Academic",
         socialMedia: {
@@ -284,7 +313,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       {
         id: "3",
         name: "HackNight Weekly",
-        role: "Organizer",
+        role: "President",
         logo: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=100&h=100&fit=crop",
         category: "Technical",
         socialMedia: {
@@ -296,8 +325,10 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     ]
   };
 
-  // Mock organization data (for organizations the student manages)
-  const organizationProfile = {
+  // Mock organization data - ALL organizations in the system
+  const allOrganizations: Record<string, any> = {
+    "1": {
+      id: "1",
     name: "Computer Science Society",
     email: "contact@cssociety.edu",
     avatar: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=300&h=300&fit=crop",
@@ -365,25 +396,194 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       {
         id: "3",
         name: "Marcus Williams",
-        role: "Secretary",
+        role: "Event Manager",
         avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
         major: "Software Engineering"
       },
       {
         id: "4",
         name: "Emily Rodriguez",
-        role: "Treasurer",
+        role: "Content Editor",
         avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
         major: "Computer Science"
+      },
+      {
+        id: "5",
+        name: "Jordan Taylor",
+        role: "Member",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+        major: "Information Systems"
       }
     ]
+    },
+    "2": {
+      id: "2",
+      name: "AI Research Club",
+      email: "contact@airesearch.edu",
+      avatar: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&h=300&fit=crop",
+      banner: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&h=400&fit=crop",
+      description: "Dedicated to advancing AI research and applications on campus. We organize research paper discussions, ML workshops, and collaborate on cutting-edge AI projects.",
+      mission: "To create an inclusive environment where students can explore, learn, and contribute to the field of artificial intelligence.",
+      category: "Academic",
+      location: "Research Lab, Building C",
+      foundedDate: "2018",
+      website: "https://airesearch.university.edu",
+      socialMedia: {
+        discord: "ai_research",
+        instagram: "@ai_research_club",
+        linkedin: "ai-research-club"
+      },
+      stats: {
+        members: 156,
+        eventsHosted: 42,
+        postsPublished: 38
+      },
+      contactInfo: {
+        president: "Dr. Maya Patel",
+        vicePresident: "Alex Johnson",
+        email: "contact@airesearch.edu",
+        phone: "(555) 987-6543"
+      },
+      upcomingEvents: [
+        {
+          id: "1",
+          title: "Deep Learning Workshop",
+          date: "Dec 22",
+          time: "2:00 PM",
+          location: "Research Lab 301",
+          attendees: 45,
+          image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=300&h=200&fit=crop",
+          status: "approved"
+        }
+      ],
+      members: [
+        {
+          id: "1",
+          name: "Dr. Maya Patel",
+          role: "President",
+          avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face",
+          major: "AI Research Faculty"
+        },
+        {
+          id: "2",
+          name: "Alex Johnson",
+          role: "Vice President",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+          major: "Computer Science"
+        },
+        {
+          id: "6",
+          name: "Sophia Lee",
+          role: "Event Manager",
+          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+          major: "Data Science"
+        }
+      ]
+    },
+    "3": {
+      id: "3",
+      name: "HackNight Weekly",
+      email: "contact@hacknight.edu",
+      avatar: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=300&fit=crop",
+      banner: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&h=400&fit=crop",
+      description: "Weekly coding sessions and hackathons for students to build projects, learn new technologies, and collaborate with peers.",
+      mission: "To foster a culture of hands-on learning and innovation through regular coding events and project collaboration.",
+      category: "Technical",
+      location: "Innovation Hub, Room 101",
+      foundedDate: "2020",
+      website: "https://hacknight.university.edu",
+      socialMedia: {
+        discord: "hacknight",
+        instagram: "@hacknight_weekly",
+        linkedin: "hacknight-weekly"
+      },
+      stats: {
+        members: 89,
+        eventsHosted: 52,
+        postsPublished: 27
+      },
+      contactInfo: {
+        president: "Alex Johnson",
+        vicePresident: "Jamie Park",
+        email: "contact@hacknight.edu",
+        phone: "(555) 456-7890"
+      },
+      upcomingEvents: [
+        {
+          id: "1",
+          title: "Build-a-thon Weekend",
+          date: "Dec 28",
+          time: "5:00 PM",
+          location: "Innovation Hub",
+          attendees: 67,
+          image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300&h=200&fit=crop",
+          status: "approved"
+        }
+      ],
+      members: [
+        {
+          id: "2",
+          name: "Alex Johnson",
+          role: "President",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+          major: "Computer Science"
+        },
+        {
+          id: "7",
+          name: "Jamie Park",
+          role: "Vice President",
+          avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+          major: "Software Engineering"
+        },
+        {
+          id: "8",
+          name: "David Kim",
+          role: "Content Editor",
+          avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
+          major: "Computer Science"
+        }
+      ]
+    }
   };
 
   // Determine profile type based on selectedProfileId
   const profileType = selectedProfileId === "student" ? "student" : "organization";
   
+  // Get the correct organization profile based on selectedProfileId
+  const organizationProfile = profileType === "organization" 
+    ? allOrganizations[selectedProfileId] || allOrganizations["1"]
+    : allOrganizations["1"]; // Default fallback
+  
   // Get current profile data based on type
   const currentProfile = profileType === "student" ? studentProfile : organizationProfile;
+
+  // Get current user's role in the organization (for permission checking)
+  // In this case, Alex Johnson is Vice President (id: "2")
+  const currentUserId = "2"; // This would come from auth context in real app
+  const currentUserRole = profileType === "organization" 
+    ? organizationProfile.members.find(m => m.id === currentUserId)?.role || "Member"
+    : "Member";
+
+  // Role-based permission helper functions (only applicable for organization profiles)
+  const canEditBio = () => {
+    if (profileType !== "organization") return false;
+    return ["President", "Vice President", "Event Manager"].includes(currentUserRole);
+  };
+
+  const canManageEvents = () => {
+    if (profileType !== "organization") return false;
+    return ["President", "Vice President", "Event Manager"].includes(currentUserRole);
+  };
+
+  const canManagePosts = () => {
+    if (profileType !== "organization") return false;
+    return ["President", "Vice President", "Event Manager", "Content Editor"].includes(currentUserRole);
+  };
+
+  const canManageMembers = () => {
+    if (profileType !== "organization") return false;
+    return ["President", "Vice President"].includes(currentUserRole);
+  };
 
   // Simulate loading delay
   useEffect(() => {
@@ -687,8 +887,18 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
       console.log("Approving request from:", request.name);
+      
+      // By default, when a user joins an organization, assign them the "Member" role
+      const newMember = {
+        ...request,
+        role: "Member" // Default role for new members
+      };
+      
       setPendingRequests(prev => prev.filter(r => r.id !== requestId));
-      alert(`${request.name} has been approved and added to the organization!`);
+      alert(`${request.name} has been approved and added to the organization with "Member" role!`);
+      
+      // In a real app, you would add the newMember to the organization's members array
+      // organizationProfile.members.push(newMember);
     }
   };
 
@@ -967,7 +1177,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       name: createOrgFormData.name,
       logo: orgLogoPreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(createOrgFormData.name)}&background=random`,
       category: createOrgFormData.category,
-      role: "Founder",
+      role: "President", // By default, when a user creates an organization, assign them the "President" role
       socialMedia: {
         discord: createOrgFormData.discord || "N/A",
         instagram: createOrgFormData.instagram || "N/A",
@@ -995,7 +1205,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     setOrgLogoPreview("");
     setIsCreateOrgDialogOpen(false);
 
-    alert("Organization created successfully! You are now the founder.");
+    alert("Organization created successfully! You are now the President.");
   };
 
   if (isLoading) {
@@ -1036,9 +1246,14 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h1 className="text-2xl md:text-3xl font-semibold truncate">{currentProfile.name}</h1>
                     {profileType === "organization" && (
-                      <Badge variant="secondary" className="text-sm">
-                        {organizationProfile.category}
-                      </Badge>
+                      <>
+                        <Badge variant="secondary" className="text-sm">
+                          {organizationProfile.category}
+                        </Badge>
+                        <Badge variant="outline" className="text-sm bg-purple-50 text-purple-700 border-purple-300 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800">
+                          {currentUserRole}
+                        </Badge>
+                      </>
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
@@ -1058,10 +1273,14 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {isOwnProfile ? (
-                    <Button variant="outline" size="sm" onClick={handleEditProfile}>
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit Profile
-                    </Button>
+                    <>
+                      {(profileType === "student" || canEditBio()) && (
+                        <Button variant="outline" size="sm" onClick={handleEditProfile}>
+                          <Edit3 className="h-4 w-4 mr-2" />
+                          Edit Profile
+                        </Button>
+                      )}
+                    </>
                   ) : (
                     <Button 
                       variant={isFollowing ? "outline" : "default"} 
@@ -1453,16 +1672,116 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Role Permissions Guide */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Role Permissions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* President / Vice President */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-purple-600 hover:bg-purple-700">President / Vice President</Badge>
+                      </div>
+                      <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Full access to all features</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Update organization bio</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Create, edit, and delete posts & events</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Approve, remove, and change member roles</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Event Manager */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Event Manager</Badge>
+                      </div>
+                      <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Update organization bio</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Create, edit, and delete posts & events</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
+                          <span>Cannot manage members</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Content Editor */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Content Editor</Badge>
+                      </div>
+                      <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Create, edit, and delete posts only</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
+                          <span>Cannot edit organization bio</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
+                          <span>Cannot manage events or members</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Member */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Member</Badge>
+                      </div>
+                      <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                        <li className="flex items-start gap-2">
+                          <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>View organization information</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
+                          <span>Cannot make any changes</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
+                          <span>View-only access to all content</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Events Tab */}
             <TabsContent value="events" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Upcoming Events</h2>
-                <Button size="sm" onClick={() => setIsCreateEventDialogOpen(true)}>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Create Event
-                </Button>
+                {canManageEvents() && (
+                  <Button size="sm" onClick={() => setIsCreateEventDialogOpen(true)}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Create Event
+                  </Button>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1503,13 +1822,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                               <span>{event.attendees} interested</span>
                             </div>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleOpenEditEvent(event)}
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
+                          {canManageEvents() && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleOpenEditEvent(event)}
+                            >
+                              <Edit3 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -1522,10 +1843,12 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             <TabsContent value="posts" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Posts ({organizationPosts.length})</h2>
-                <Button size="sm" onClick={() => setIsCreatePostDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Post
-                </Button>
+                {canManagePosts() && (
+                  <Button size="sm" onClick={() => setIsCreatePostDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Post
+                  </Button>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1566,23 +1889,25 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-col gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleEditPost(post)}
-                            >
-                              <Edit3 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleDeletePost(post.id, post.title)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          {canManagePosts() && (
+                            <div className="flex flex-col gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleEditPost(post)}
+                              >
+                                <Edit3 className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDeletePost(post.id, post.title)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -1602,7 +1927,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {/* Members Tab */}
             <TabsContent value="members" className="space-y-6">
               {/* Pending Requests Section */}
-              {pendingRequests.length > 0 && (
+              {canManageMembers() && pendingRequests.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold">Pending Requests ({pendingRequests.length})</h2>
@@ -1652,10 +1977,12 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">Members ({organizationProfile.stats.members})</h2>
-                  <Button size="sm" onClick={() => setIsInviteMemberDialogOpen(true)}>
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Invite Members
-                  </Button>
+                  {canManageMembers() && (
+                    <Button size="sm" onClick={() => setIsInviteMemberDialogOpen(true)}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Invite Members
+                    </Button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
@@ -1672,33 +1999,40 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                             <p className="text-sm text-muted-foreground truncate">{member.major}</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            {/* Role Selector */}
-                            <Select
-                              value={member.role}
-                              onValueChange={(newRole) => handleUpdateMemberRole(member.id, member.name, newRole)}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="President">President</SelectItem>
-                                <SelectItem value="Vice President">Vice President</SelectItem>
-                                <SelectItem value="Secretary">Secretary</SelectItem>
-                                <SelectItem value="Treasurer">Treasurer</SelectItem>
-                                <SelectItem value="Officer">Officer</SelectItem>
-                                <SelectItem value="Member">Member</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            {/* Role Display/Selector - Only editable for Presidents/VPs */}
+                            {canManageMembers() ? (
+                              <Select
+                                value={member.role}
+                                onValueChange={(newRole) => handleUpdateMemberRole(member.id, member.name, newRole)}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="President">President</SelectItem>
+                                  <SelectItem value="Vice President">Vice President</SelectItem>
+                                  <SelectItem value="Event Manager">Event Manager</SelectItem>
+                                  <SelectItem value="Content Editor">Content Editor</SelectItem>
+                                  <SelectItem value="Member">Member</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <Badge variant="secondary" className="w-32 justify-center">
+                                {member.role}
+                              </Badge>
+                            )}
 
-                            {/* Remove Member Button */}
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleRemoveMember(member.id, member.name)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {/* Remove Member Button - Only for Presidents/VPs */}
+                            {canManageMembers() && (
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleRemoveMember(member.id, member.name)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -1796,22 +2130,73 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="major">Major</Label>
-                  <Input
-                    id="major"
-                    placeholder="e.g., Computer Science"
+                  <Select
                     value={editFormData.major}
-                    onChange={(e) => handleFormChange("major", e.target.value)}
-                  />
+                    onValueChange={(value) => handleFormChange("major", value)}
+                  >
+                    <SelectTrigger id="major">
+                      <SelectValue placeholder="Select major" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Computer Science">Computer Science</SelectItem>
+                      <SelectItem value="Software Engineering">Software Engineering</SelectItem>
+                      <SelectItem value="Information Systems">Information Systems</SelectItem>
+                      <SelectItem value="Data Science">Data Science</SelectItem>
+                      <SelectItem value="Business Administration">Business Administration</SelectItem>
+                      <SelectItem value="Psychology">Psychology</SelectItem>
+                      <SelectItem value="Biology">Biology</SelectItem>
+                      <SelectItem value="Chemistry">Chemistry</SelectItem>
+                      <SelectItem value="Physics">Physics</SelectItem>
+                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                      <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                      <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                      <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                      <SelectItem value="Fine Arts">Fine Arts</SelectItem>
+                      <SelectItem value="Graphic Design">Graphic Design</SelectItem>
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="History">History</SelectItem>
+                      <SelectItem value="Political Science">Political Science</SelectItem>
+                      <SelectItem value="Economics">Economics</SelectItem>
+                      <SelectItem value="Nursing">Nursing</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="minor">Minor</Label>
-                  <Input
-                    id="minor"
-                    placeholder="e.g., Mathematics"
+                  <Select
                     value={editFormData.minor}
-                    onChange={(e) => handleFormChange("minor", e.target.value)}
-                  />
+                    onValueChange={(value) => handleFormChange("minor", value)}
+                  >
+                    <SelectTrigger id="minor">
+                      <SelectValue placeholder="Select minor (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="Computer Science">Computer Science</SelectItem>
+                      <SelectItem value="Software Engineering">Software Engineering</SelectItem>
+                      <SelectItem value="Information Systems">Information Systems</SelectItem>
+                      <SelectItem value="Data Science">Data Science</SelectItem>
+                      <SelectItem value="Business Administration">Business Administration</SelectItem>
+                      <SelectItem value="Psychology">Psychology</SelectItem>
+                      <SelectItem value="Biology">Biology</SelectItem>
+                      <SelectItem value="Chemistry">Chemistry</SelectItem>
+                      <SelectItem value="Physics">Physics</SelectItem>
+                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                      <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                      <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                      <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                      <SelectItem value="Fine Arts">Fine Arts</SelectItem>
+                      <SelectItem value="Graphic Design">Graphic Design</SelectItem>
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="History">History</SelectItem>
+                      <SelectItem value="Political Science">Political Science</SelectItem>
+                      <SelectItem value="Economics">Economics</SelectItem>
+                      <SelectItem value="Nursing">Nursing</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -2533,9 +2918,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                 <SelectContent>
                   <SelectItem value="President">President</SelectItem>
                   <SelectItem value="Vice President">Vice President</SelectItem>
-                  <SelectItem value="Secretary">Secretary</SelectItem>
-                  <SelectItem value="Treasurer">Treasurer</SelectItem>
-                  <SelectItem value="Officer">Officer</SelectItem>
+                  <SelectItem value="Event Manager">Event Manager</SelectItem>
+                  <SelectItem value="Content Editor">Content Editor</SelectItem>
                   <SelectItem value="Member">Member</SelectItem>
                 </SelectContent>
               </Select>
