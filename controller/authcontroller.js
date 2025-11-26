@@ -6,6 +6,7 @@ const UserInfo = require("../models/userinfo");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Images = require("../models/images");
+const { Jwt } = require("../credentials");
 
 module.exports.login = async (req, res) => {
   try {
@@ -57,7 +58,7 @@ module.exports.login = async (req, res) => {
 
     const authToken = jwt.sign(
       data,
-      process.env.JWT_SCERET || "Yashisagoodboy"
+      Jwt.JWT_SCERET || "NexusCampus"
     );
     return res
       .status(200)
@@ -210,7 +211,7 @@ module.exports.createaccount = async (req, res) => {
     success = true;
     const authToken = jwt.sign(
       data,
-      process.env.JWT_SCERET || "Yashisagoodboy"
+      Jwt.JWT_SCERET || "NexusCampus"
     );
     return res
       .status(200)

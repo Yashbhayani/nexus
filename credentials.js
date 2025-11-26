@@ -46,3 +46,17 @@ module.exports.credentials = {
 //   DB_HOST: "localhost",
 //   DB_PORT: 3308,
 // };
+
+module.exports.WebPort = {
+  PORT: 5000,
+};
+
+module.exports.Cloudnary = {
+  CLOUDINARY_CLOUD_NAME: "dgv63uond",
+  CLOUDINARY_API_KEY: "918276615367186",
+  CLOUDINARY_API_SECRET: "1TL-XYuR0P7iiwrDH0vzhs2ddYU",
+};
+
+module.exports.Jwt = {
+  JWT_SCERET: "NexusCampus",
+};
