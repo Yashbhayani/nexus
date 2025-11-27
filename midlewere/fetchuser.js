@@ -3,8 +3,6 @@ const JWT_SECRET = "NexusCampus";
 
 const fetchUser = (req, res, next) => {
   const token = req.header("auth-token");
-  console.log(token);
-
   if (!token) {
     // ❌ old: res.status(401).send(...)
     // ✅ new: return immediately to stop execution

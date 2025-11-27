@@ -369,7 +369,8 @@ module.exports.adminblogurl = async (req, res) => {
   LEFT JOIN nexus.organization AS o
       ON o.ID = b.OID
   LEFT JOIN nexus.images AS oImg
-      ON oImg.ID = o.ImgID;
+      ON oImg.ID = o.ImgID
+  ORDER BY COALESCE(b.UpdatedDate, b.CreatedDate) DESC;
   `,
       {
         type: Sequelize.QueryTypes.SELECT,
