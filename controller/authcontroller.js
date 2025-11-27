@@ -2,16 +2,17 @@ const { request } = require("express");
 const User = require("../models/user");
 const Staus = require("../models/status");
 const UserInfo = require("../models/userinfo");
-
+const { Sequelize } = require("sequelize");
+const sequelize = require("../db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Images = require("../models/images");
 const { Jwt } = require("../credentials");
 
 module.exports.login = async (req, res) => {
+  let success = false;
   try {
     const { Email, Password } = req.body;
-    let success = true;
 
     if (!Email || !Password) {
       return res
@@ -43,7 +44,7 @@ module.exports.login = async (req, res) => {
     if (!passwordCompare) {
       return res.status(400).json({
         error: "Please try to login with correct credentials.",
-        success: false,
+        success,
       });
     }
 
@@ -56,10 +57,8 @@ module.exports.login = async (req, res) => {
       },
     };
 
-    const authToken = jwt.sign(
-      data,
-      Jwt.JWT_SCERET || "NexusCampus"
-    );
+    const authToken = jwt.sign(data, Jwt.JWT_SCERET || "NexusCampus");
+    success = true;
     return res
       .status(200)
       .json({ success, authToken, message: "Login successful" });
@@ -69,6 +68,7 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.createaccount = async (req, res) => {
+  let success = false;
   try {
     const {
       FirstName,
@@ -79,7 +79,6 @@ module.exports.createaccount = async (req, res) => {
       StudentType,
       Majors,
     } = req.body;
-    let success = true;
 
     // Check required fields
     if (
@@ -209,10 +208,7 @@ module.exports.createaccount = async (req, res) => {
 
     // ✅ All validations passed
     success = true;
-    const authToken = jwt.sign(
-      data,
-      Jwt.JWT_SCERET || "NexusCampus"
-    );
+    const authToken = jwt.sign(data, Jwt.JWT_SCERET || "NexusCampus");
     return res
       .status(200)
       .json({ success, authToken, message: "User registered successfully" });
@@ -269,8 +265,8 @@ module.exports.userinfo = async (req, res) => {
         BIO: BIO,
         Gender: GID.ID,
         ImgID: ImagesData.ID,
-        Minor: Minor, 
-        GraduationYear: GraduationYear
+        Minor: Minor,
+        GraduationYear: GraduationYear,
       },
       { where: { UID: Userdata.ID } }
     );

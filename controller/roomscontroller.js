@@ -1,5 +1,7 @@
 const { request } = require("express");
 const { Op } = require("sequelize");
+const { Sequelize } = require("sequelize");
+const sequelize = require("../db");
 const Building = require("../models/building");
 const User = require("../models/user");
 const Room = require("../models/rooms");

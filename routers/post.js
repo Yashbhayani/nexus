@@ -1,7 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const { get, post, put, deletepost } = require("../controller/postcontroller");
+const {
+  get,
+  post,
+  put,
+  deletepost,
+  userblog,
+  adminblogurl,
+} = require("../controller/postcontroller");
 const fetchUser = require("../midlewere/fetchuser");
 const getStorage = require("../config/multer");
 
@@ -37,4 +44,7 @@ router.put(
 );
 
 router.delete("/", fetchUser, deletepost);
+router.get("/userblog", fetchUser, userblog);
+router.get("/adminblogurl", fetchUser, adminblogurl);
+
 module.exports = router;

@@ -10,7 +10,7 @@ const Comments = sequelize.define('Comments', {
     primaryKey: true,
     autoIncrement: true
   },
-  EAAID: {
+  BID: {
     type: DataTypes.INTEGER,
     allowNull: false
   },

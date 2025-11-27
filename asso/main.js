@@ -65,6 +65,11 @@ Status.belongsTo(User, {
   as: "UpdatedBy",
 });
 
+Status.hasMany(BlogTable, {
+  foreignKey: "CategoryID",
+  as: "Blogs",
+});
+
 // ---------------------------------------------------------
 // ⭐ ASSOCIATIONS
 // ---------------------------------------------------------
@@ -244,9 +249,9 @@ ManageEventAndActivities.belongsTo(User, {
 // --------------------------------------------------------
 
 // Event
-Like.belongsTo(EventsAndActivities, {
-  foreignKey: "EAAID",
-  as: "Event",
+Like.belongsTo(BlogTable, {
+  foreignKey: "BID",
+  as: "BlogTable",
 });
 
 // User
@@ -350,9 +355,9 @@ Feedback.belongsTo(User, {
 // --------------------------------------------------------
 
 // Event
-Comments.belongsTo(EventsAndActivities, {
-  foreignKey: "EAAID",
-  as: "Event",
+Comments.belongsTo(BlogTable, {
+  foreignKey: "BID",
+  as: "BlogTable",
 });
 
 // User
@@ -531,6 +536,18 @@ SkillsTable.belongsTo(Status, { foreignKey: "SID", as: "SkillStatus" });
 // Associations
 InterestTable.belongsTo(User, { foreignKey: "UID", as: "User" });
 InterestTable.belongsTo(Status, { foreignKey: "SID", as: "InterestStatus" });
+
+UserType.hasMany(User, {
+  foreignKey: "UTID",
+  as: "Users",
+});
+
+BlogTable.belongsTo(Organization, {
+  foreignKey: "OID",
+  as: "Organization",
+  onDelete: "SET NULL",
+  onUpdate: "CASCADE",
+});
 
 module.exports = {
   User,

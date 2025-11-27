@@ -1,4 +1,6 @@
 const { request } = require("express");
+const { Sequelize } = require("sequelize");
+const sequelize = require("../db");
 const UserType = require("../models/usertype");
 const User = require("../models/user");
 const verifyUsers = require("../midlewere/userferification");

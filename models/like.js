@@ -10,7 +10,7 @@ const Like = sequelize.define('Like', {
     primaryKey: true,
     autoIncrement: true
   },
-  EAAID: {
+  BID: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
