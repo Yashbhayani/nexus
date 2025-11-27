@@ -274,7 +274,7 @@ export function StartPage({
       return;
     }
 
-    const phoneRegex = /^[0-9]{10}$/;
+    const phoneRegex = /^[0-9]{10,12}$/;
 
     if (!phoneRegex.test(mobileNumber)) {
       setMobileError("Mobile number must be exactly 10 digits.");
