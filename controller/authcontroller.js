@@ -8,6 +8,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Images = require("../models/images");
 const { Jwt } = require("../credentials");
+const { checkAdminStatus } = require("../config/findSimilarStatus");
+const { Useres } = require("../enums/codes");
 
 module.exports.login = async (req, res) => {
   let success = false;
@@ -283,5 +285,33 @@ module.exports.userinfo = async (req, res) => {
     });
   } catch (e) {
     return res.status(500).json({ error: e.message, success: false });
+  }
+};
+
+module.exports.verifyusertype = async (req, res) => {
+  let success = false;
+  try {
+    let ID = req.user.id;
+
+    // Call the function
+    let check = await checkAdminStatus(ID);
+
+    // If not success → return response
+    if (!check.success) {
+      return res.status(check.status).json({
+        success: false,
+        message: check.message,
+      });
+    }
+
+    if (check.user != Useres.ADMIN.toUpperCase()) {
+      return res.status(404).json({ error: "User is not Admin", success });
+    } else {
+      success = true;
+      return res.status(404).json({ error: "User is Admin", success });
+    }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success, error: err.message });
   }
 };

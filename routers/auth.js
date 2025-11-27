@@ -4,7 +4,7 @@ const multer = require('multer');
 const fetchUser = require('../midlewere/fetchuser');
 const getStorage = require('../config/multer');
 
-const {login, createaccount, userinfo} = require('../controller/authcontroller');
+const {login, createaccount, userinfo, verifyusertype} = require('../controller/authcontroller');
 
 router.post('/login', login);
 router.post('/create-account', createaccount);
@@ -37,5 +37,6 @@ router.put(
   },
   userinfo
 );
+router.get('/verifyusertype',fetchUser, verifyusertype )
 
 module.exports = router;
