@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -57,6 +57,8 @@ import {
 } from "lucide-react";
 import { NexusLogo } from "../common/NexusLogo";
 import { AboutDialog } from "../common/AboutDialog";
+import APIContext from "../../Context/apimethods/APIContext";
+import * as apiroute from "../../Context/API/ApiRouter";
 
 interface StartPageProps {
   onLogin: (isAdmin: boolean) => void;
@@ -67,6 +69,9 @@ export function StartPage({
   onLogin,
   onForgotPassword,
 }: StartPageProps) {
+  const context = useContext(APIContext);
+  const { POSTFunction, GETFunction } = context;
+
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] =
     useState(false);
@@ -75,6 +80,7 @@ export function StartPage({
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [mobileError, setMobileError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
@@ -83,7 +89,8 @@ export function StartPage({
     y: number;
   } | null>(null);
   const [showAboutDialog, setShowAboutDialog] = useState(false);
-
+  const [AcademicLevels, setAcademicLevels] = useState([]);
+  const [Majors, setAMajors] = useState([]);
   // Cursor halo effect
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -100,6 +107,8 @@ export function StartPage({
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
 
+    AcademicLevel();
+    MajorLevel();
     return () => {
       document.removeEventListener(
         "mousemove",
@@ -121,6 +130,8 @@ export function StartPage({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setIsLoading(true);
+
     // Get form data
     const formData = new FormData(e.target as HTMLFormElement);
     const email = formData.get("email") as string;
@@ -134,19 +145,58 @@ export function StartPage({
     const emailPattern = /^[^\s@]+@[^\s@]+\.(com|edu)$/;
     if (!emailPattern.test(email)) {
       setEmailError("Email must end with .com or .edu");
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    // Check if admin credentials
 
-    setTimeout(() => {
+    let body = {
+      Email: email,
+      Password: password,
+    }
+
+    const PostData = await POSTFunction(body, apiroute.loginurl);
+
+    if (!PostData.success) {
+      alert(PostData.error); // You can use a more sophisticated notification here
       setIsLoading(false);
-      // Check if admin credentials
-      const isAdmin =
-        email === "admin@gmail.com" && password === "admin";
-      onLogin(isAdmin);
-    }, 1500);
+      return;
+    } else {
+      localStorage.setItem("auth-token", PostData.authToken);
+      let useradd = await verifyuserisAdmin();
+      if (useradd) {
+        onLogin(useradd);
+      } else {
+        onLogin(useradd);
+      }
+    }
+    // const isAdmin =
+    //   email === "admin@gmail.com" && password === "admin";
+    // if (isAdmin) {
+    //   console.log("Admin logged in");
+    //          // onLogin(isAdmin);
+    // } else {
+    //   return;
+    // }
+
   };
+
+  const AcademicLevel = async () => {
+    const Data = await GETFunction(apiroute.academiclevel);
+    setAcademicLevels(Data.statusdata);
+  }
+
+  const MajorLevel = async () => {
+    const Data = await GETFunction(apiroute.major);
+    setAMajors(Data.statusdata);
+  }
+
+  const verifyuserisAdmin = async () => {
+    let IsAdminStatus = await GETFunction(apiroute.verifyusertype);
+    return IsAdminStatus.success;
+
+  }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,6 +204,17 @@ export function StartPage({
     // Get form data
     const formData = new FormData(e.target as HTMLFormElement);
     const email = formData.get("email") as string;
+    const mobileNumber = formData.get("mobileNumber") as string;
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const signupPassword = formData.get("signupPassword") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+    const academicLevel = formData.get("academicLevel") as string;
+    const major = formData.get("major") as string;
+
+
+
+
 
     // Clear previous errors
     setPasswordError("");
@@ -213,13 +274,41 @@ export function StartPage({
       return;
     }
 
+    const phoneRegex = /^[0-9]{10}$/;
+
+    if (!phoneRegex.test(mobileNumber)) {
+      setMobileError("Mobile number must be exactly 10 digits.");
+    } else {
+      setMobileError("");
+    }
+
     setIsLoading(true);
 
-    setTimeout(() => {
+    let body = {
+      FirstName: firstName,
+      LastName: lastName,
+      MobileNumber: mobileNumber,
+      Email: email,
+      Password: signupPassword,
+      StudentType: academicLevel,
+      Majors: major,
+    }
+
+    const PostData = await POSTFunction(body, apiroute.signupurl);
+    console.log(PostData);
+    if (!PostData.success) {
+      alert(PostData.error); // You can use a more sophisticated notification here
       setIsLoading(false);
-      // After successful signup, log in as regular user (not admin)
-      onLogin(false);
-    }, 1500);
+      return;
+    } else {
+      localStorage.setItem("auth-token", PostData.authToken);
+      let useradd = await verifyuserisAdmin();
+      if (useradd) {
+        onLogin(useradd);
+      } else {
+        onLogin(useradd);
+      }
+    }
   };
 
   // Orbiting icons - Inner ring (10 icons)
@@ -531,7 +620,7 @@ export function StartPage({
                         </Label>
                         <Input
                           id="firstName"
-                          name="firstName" 
+                          name="firstName"
                           type="text"
                           placeholder="Alex"
                           required
@@ -556,28 +645,51 @@ export function StartPage({
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="email"
-                        className="text-sm font-medium text-card-foreground"
-                      >
-                        Email
-                      </Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="username@website.com"
-                        required
-                        className="h-10"
-                      />
-                      {emailError && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {emailError}
-                        </p>
-                      )}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="email"
+                          className="text-sm font-medium text-card-foreground"
+                        >
+                          Email
+                        </Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="username@website.com"
+                          required
+                          className="h-10"
+                        />
+                        {emailError && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {emailError}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="email"
+                          className="text-sm font-medium text-card-foreground"
+                        >
+                          Mobile Number
+                        </Label>
+                        <Input
+                          id="mobileNumber"
+                          name="mobileNumber"
+                          type="mobileNumber"
+                          placeholder="9988774455"
+                          required
+                          className="h-10"
+                          maxLength={10}
+                        />
+                        {mobileError && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {mobileError}
+                          </p>
+                        )}
+                      </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label
                         htmlFor="signupPassword"
@@ -647,6 +759,7 @@ export function StartPage({
                       <div className="relative">
                         <Input
                           id="confirmPassword"
+                          name="confirmPassword"
                           type={
                             showConfirmPassword
                               ? "text"
@@ -709,12 +822,17 @@ export function StartPage({
                             <SelectValue placeholder="Select level" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="freshman">Freshman</SelectItem>
+                            {AcademicLevels.map((level: any, index) => (
+                              <SelectItem
+                                key={index}
+                                value={level.Code}> {level.Name}</SelectItem>
+                            ))}
+                            {/* <SelectItem value="freshman">Freshman</SelectItem>
                             <SelectItem value="sophomore">Sophomore</SelectItem>
                             <SelectItem value="junior">Junior</SelectItem>
                             <SelectItem value="senior">Senior</SelectItem>
                             <SelectItem value="graduate">Graduate</SelectItem>
-                            <SelectItem value="phd">PhD Candidate</SelectItem>
+                            <SelectItem value="phd">PhD Candidate</SelectItem> */}
                           </SelectContent>
                         </Select>
                       </div>
@@ -730,6 +848,14 @@ export function StartPage({
                             <SelectValue placeholder="Select major" />
                           </SelectTrigger>
                           <SelectContent>
+                            {Majors.map((level: any, index) => (
+                              <SelectItem
+                                key={index}
+                                value={level.Code}> {level.Name}</SelectItem>
+                            ))}
+
+                          </SelectContent>
+                          {/* <SelectContent>
                             <SelectItem value="computer-science">Computer Science</SelectItem>
                             <SelectItem value="software-engineering">Software Engineering</SelectItem>
                             <SelectItem value="information-systems">Information Systems</SelectItem>
@@ -751,7 +877,7 @@ export function StartPage({
                             <SelectItem value="economics">Economics</SelectItem>
                             <SelectItem value="nursing">Nursing</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
+                          </SelectContent> */}
                         </Select>
                       </div>
                     </div>

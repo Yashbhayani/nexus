@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { APIState } from './Context/apimethods/APIState';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

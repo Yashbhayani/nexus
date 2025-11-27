@@ -27,7 +27,7 @@ export const APIState = (props) => {
         });
 
 
-    const GETFunction = (code, formdata) =>
+    const GETFunction = (code, params = {}) =>
         apiRequest({
             url: apiroute.host + code,
             method: "GET",

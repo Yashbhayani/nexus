@@ -12,11 +12,11 @@ import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 import { SkeletonProfileHeader, SkeletonPostCard } from "../common/SkeletonCard";
-import { 
-  Settings, 
-  MapPin, 
-  Calendar, 
-  Users, 
+import {
+  Settings,
+  MapPin,
+  Calendar,
+  Users,
   Edit3,
   Mail,
   Phone,
@@ -103,7 +103,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   // Profile image upload states
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string>("");
-
+  const [imageArray, setImageArray] = useState<any>(null);
   // Create event dialog state
   const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] = useState(false);
   const [createEventFormData, setCreateEventFormData] = useState({
@@ -116,18 +116,18 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     capacity: "",
     imageUrl: ""
   });
-  
+
   // Event image upload states
   const [eventImageFile, setEventImageFile] = useState<File | null>(null);
   const [eventImagePreview, setEventImagePreview] = useState<string>("");
 
   // Edit event dialog state
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
-  
+
   // Edit event image upload states
   const [editEventImageFile, setEditEventImageFile] = useState<File | null>(null);
   const [editEventImagePreview, setEditEventImagePreview] = useState<string>("");
-  
+
   const [editEventFormData, setEditEventFormData] = useState({
     id: "",
     title: "",
@@ -144,7 +144,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   const [isInviteMemberDialogOpen, setIsInviteMemberDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("Member"); // Default role when inviting new members
-  
+
   // Pending member requests (mock data)
   const [pendingRequests, setPendingRequests] = useState([
     {
@@ -168,7 +168,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   // Posts management state
   const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] = useState(false);
   const [isEditPostDialogOpen, setIsEditPostDialogOpen] = useState(false);
-  
+
   // Create organization state
   const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
   const [createOrgFormData, setCreateOrgFormData] = useState({
@@ -195,7 +195,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   const [imagePreview, setImagePreview] = useState<string>("");
   const [uploadedEditImage, setUploadedEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string>("");
-  
+
   // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(true);
@@ -216,7 +216,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       category: "Announcement",
       imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=400&fit=crop",
       date: "2 days ago",
-      author: "Admin Team"
+      author: "Admin Team",
+      likes: 12,
+      comments: 3
     },
     {
       id: "post2",
@@ -225,7 +227,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       category: "Event",
       imageUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=400&fit=crop",
       date: "5 days ago",
-      author: "Study Group Lead"
+      author: "Study Group Lead",
+      likes: 7,
+      comments: 1
     },
     {
       id: "post3",
@@ -234,7 +238,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       category: "News",
       imageUrl: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=400&fit=crop",
       date: "1 week ago",
-      author: "President"
+      author: "President",
+      likes: 20,
+      comments: 5
     }
   ]);
 
@@ -329,92 +335,92 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   const allOrganizations: Record<string, any> = {
     "1": {
       id: "1",
-    name: "Computer Science Society",
-    email: "contact@cssociety.edu",
-    avatar: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=300&h=300&fit=crop",
-    banner: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=400&fit=crop",
-    description: "The premier organization for Computer Science students at the university. We host tech talks, hackathons, and networking events to help students grow their skills and connect with industry professionals.",
-    mission: "To foster a collaborative community of aspiring technologists through educational events, hands-on projects, and industry connections.",
-    category: "Academic",
-    location: "Engineering Building, Room 215",
-    foundedDate: "2015",
-    website: "https://cssociety.university.edu",
-    socialMedia: {
-      discord: "cssociety",
-      instagram: "@cs_society",
-      linkedin: "cs-society-university"
-    },
-    stats: {
-      members: 342,
-      eventsHosted: 28,
-      postsPublished: 45
-    },
-    contactInfo: {
-      president: "Sarah Chen",
-      vicePresident: "Alex Johnson",
+      name: "Computer Science Society",
       email: "contact@cssociety.edu",
-      phone: "(555) 123-4567"
-    },
-    upcomingEvents: [
-      {
-        id: "1",
-        title: "CS Study Group for Finals",
-        date: "Dec 18",
-        time: "6:00 PM",
-        location: "Library Room 204",
-        attendees: 23,
-        image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop",
-        status: "approved"
+      avatar: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=300&h=300&fit=crop",
+      banner: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=400&fit=crop",
+      description: "The premier organization for Computer Science students at the university. We host tech talks, hackathons, and networking events to help students grow their skills and connect with industry professionals.",
+      mission: "To foster a collaborative community of aspiring technologists through educational events, hands-on projects, and industry connections.",
+      category: "Academic",
+      location: "Engineering Building, Room 215",
+      foundedDate: "2015",
+      website: "https://cssociety.university.edu",
+      socialMedia: {
+        discord: "cssociety",
+        instagram: "@cs_society",
+        linkedin: "cs-society-university"
       },
-      {
-        id: "2",
-        title: "Tech Innovation Showcase",
-        date: "May 20",
-        time: "4:00 PM",
-        location: "Engineering Building Atrium",
-        attendees: 289,
-        image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop",
-        status: "pending"
-      }
-    ],
+      stats: {
+        members: 342,
+        eventsHosted: 28,
+        postsPublished: 45
+      },
+      contactInfo: {
+        president: "Sarah Chen",
+        vicePresident: "Alex Johnson",
+        email: "contact@cssociety.edu",
+        phone: "(555) 123-4567"
+      },
+      upcomingEvents: [
+        {
+          id: "1",
+          title: "CS Study Group for Finals",
+          date: "Dec 18",
+          time: "6:00 PM",
+          location: "Library Room 204",
+          attendees: 23,
+          image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop",
+          status: "approved"
+        },
+        {
+          id: "2",
+          title: "Tech Innovation Showcase",
+          date: "May 20",
+          time: "4:00 PM",
+          location: "Engineering Building Atrium",
+          attendees: 289,
+          image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop",
+          status: "pending"
+        }
+      ],
 
-    members: [
-      {
-        id: "1",
-        name: "Sarah Chen",
-        role: "President",
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-        major: "Computer Science"
-      },
-      {
-        id: "2",
-        name: "Alex Johnson",
-        role: "Vice President",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-        major: "Computer Science"
-      },
-      {
-        id: "3",
-        name: "Marcus Williams",
-        role: "Event Manager",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-        major: "Software Engineering"
-      },
-      {
-        id: "4",
-        name: "Emily Rodriguez",
-        role: "Content Editor",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-        major: "Computer Science"
-      },
-      {
-        id: "5",
-        name: "Jordan Taylor",
-        role: "Member",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-        major: "Information Systems"
-      }
-    ]
+      members: [
+        {
+          id: "1",
+          name: "Sarah Chen",
+          role: "President",
+          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+          major: "Computer Science"
+        },
+        {
+          id: "2",
+          name: "Alex Johnson",
+          role: "Vice President",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+          major: "Computer Science"
+        },
+        {
+          id: "3",
+          name: "Marcus Williams",
+          role: "Event Manager",
+          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+          major: "Software Engineering"
+        },
+        {
+          id: "4",
+          name: "Emily Rodriguez",
+          role: "Content Editor",
+          avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+          major: "Computer Science"
+        },
+        {
+          id: "5",
+          name: "Jordan Taylor",
+          role: "Member",
+          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+          major: "Information Systems"
+        }
+      ]
     },
     "2": {
       id: "2",
@@ -548,20 +554,20 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
 
   // Determine profile type based on selectedProfileId
   const profileType = selectedProfileId === "student" ? "student" : "organization";
-  
+
   // Get the correct organization profile based on selectedProfileId
-  const organizationProfile = profileType === "organization" 
+  const organizationProfile = profileType === "organization"
     ? allOrganizations[selectedProfileId] || allOrganizations["1"]
     : allOrganizations["1"]; // Default fallback
-  
+
   // Get current profile data based on type
   const currentProfile = profileType === "student" ? studentProfile : organizationProfile;
 
   // Get current user's role in the organization (for permission checking)
   // In this case, Alex Johnson is Vice President (id: "2")
   const currentUserId = "2"; // This would come from auth context in real app
-  const currentUserRole = profileType === "organization" 
-    ? organizationProfile.members.find(m => m.id === currentUserId)?.role || "Member"
+  const currentUserRole = profileType === "organization"
+    ? organizationProfile.members.find((m: any) => m.id === currentUserId)?.role || "Member"
     : "Member";
 
   // Role-based permission helper functions (only applicable for organization profiles)
@@ -599,13 +605,14 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const file = e.target.files?.[0];
     if (file) {
       setProfileImageFile(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setProfileImagePreview(result);
       };
+      setImageArray(file);
       reader.readAsDataURL(file);
     }
   };
@@ -695,26 +702,75 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   // Save profile changes
   const handleSaveProfile = () => {
     if (profileType === "student") {
+      const { bio, major, minor, academicLevel, graduationYear, skills, interests } = editFormData;
+
+      console.log("Profile image file to upload:", profileImageFile);
+      console.log("bio updated:", bio);
+      console.log("major updated:", major);
+      console.log("minor updated:", minor);
+      console.log("academicLevel updated:", academicLevel);
+      console.log("graduationYear updated:", graduationYear);
+      console.log("skills updated:", skills);
+      console.log("interests updated:", interests);
+
       // In a real app, this would update the database
       console.log("Saving student profile:", editFormData);
-      
+
+
+
+      const formData = new FormData();
+      formData.append('image', imageArray);
+      formData.append('BIO', bio);
+      formData.append('Major', major);
+      formData.append('Minor', minor);
+      formData.append('AcademicLevel', academicLevel);
+      formData.append('GraduationYear', graduationYear);
+      formData.append('Skills', JSON.stringify(skills));
+      formData.append('Interests', JSON.stringify(interests));
+
+
+
+
+
       // Update local data (in real app, this would be from API response)
-      studentProfile.bio = editFormData.bio;
-      studentProfile.major = editFormData.major;
-      studentProfile.minor = editFormData.minor;
-      studentProfile.academicLevel = editFormData.academicLevel;
-      studentProfile.graduationYear = editFormData.graduationYear;
-      studentProfile.skills = editFormData.skills;
-      studentProfile.interests = editFormData.interests;
-      
+      studentProfile.bio = bio;
+      studentProfile.major = major;
+      studentProfile.minor = minor;
+      studentProfile.academicLevel = academicLevel;
+      studentProfile.graduationYear = graduationYear;
+      studentProfile.skills = skills;
+      studentProfile.interests = interests;
+
+
+
       // Update profile image if a new one was uploaded
       if (profileImagePreview && profileImagePreview !== studentProfile.avatar) {
         studentProfile.avatar = profileImagePreview;
       }
     } else {
+
+      const { description, mission, category, email, phone, website, discord, instagram, linkedin } = orgEditFormData;
+      console.log("Profile image file to upload:");
+      
+      
+      const formdata = new FormData();
+      formdata.append('image', imageArray);
+      formdata.append('Description', description);
+      formdata.append('Mission', mission);
+      formdata.append('Category', category);
+      formdata.append('Email', email);
+      formdata.append('Phone', phone);
+      formdata.append('Website', website);
+      formdata.append('Discord', discord);
+      formdata.append('Instagram', instagram);
+      formdata.append('LinkedIn', linkedin);
+      
+      const formValues = Object.fromEntries(formdata.entries());
+      console.table(formValues);
+
       // Save organization profile
       console.log("Saving organization profile:", orgEditFormData);
-      
+
       // Update local data
       organizationProfile.description = orgEditFormData.description;
       organizationProfile.mission = orgEditFormData.mission;
@@ -725,13 +781,13 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       organizationProfile.socialMedia.discord = orgEditFormData.discord;
       organizationProfile.socialMedia.instagram = orgEditFormData.instagram;
       organizationProfile.socialMedia.linkedin = orgEditFormData.linkedin;
-      
+
       // Update profile image if a new one was uploaded
       if (profileImagePreview && profileImagePreview !== organizationProfile.avatar) {
         organizationProfile.avatar = profileImagePreview;
       }
     }
-    
+
     // Reset profile image upload states
     setProfileImageFile(null);
     setProfileImagePreview("");
@@ -743,7 +799,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const file = e.target.files?.[0];
     if (file) {
       setEventImageFile(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -764,7 +820,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const file = e.target.files?.[0];
     if (file) {
       setEditEventImageFile(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -782,6 +838,23 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
 
   // Handle create event
   const handleCreateEvent = () => {
+
+    let { title, description, date, time, location, category, capacity } = createEventFormData;
+
+
+    const formdata = new FormData();
+    formdata.append('Title', title);
+    formdata.append('Description', description);
+    formdata.append('Date', date);
+    formdata.append('Time', time);
+    formdata.append('Location', location);
+    formdata.append('Category', category);
+    formdata.append('Capacity', capacity.toString());
+    formdata.append('Image', eventImageFile || new Blob());
+
+    const formValues = Object.fromEntries(formdata.entries());
+    console.table(formValues);
+
     // In a real app, this would send data to the database
     const eventData = {
       ...createEventFormData,
@@ -789,7 +862,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       status: "pending" // New events need approval
     };
     console.log("Creating event:", eventData);
-    
+
     // Reset form and close dialog
     setCreateEventFormData({
       title: "",
@@ -804,13 +877,24 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     setEventImageFile(null);
     setEventImagePreview("");
     setIsCreateEventDialogOpen(false);
-    
+
     // Show success message (in real app, would handle success/error from API)
     alert("Event created successfully! Your event is pending approval and will be visible once approved by an administrator.");
   };
 
   // Handle open edit event dialog
-  const handleOpenEditEvent = (event) => {
+  const handleOpenEditEvent = (event: {
+    id: string;
+    title: string;
+    description?: string;
+    date: string;
+    time: string;
+    location: string;
+    category?: string;
+    capacity?: number | string;
+    image?: string;
+    [key: string]: any;
+  }) => {
     // Pre-populate the form with the event's current data
     setEditEventFormData({
       id: event.id,
@@ -823,7 +907,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       capacity: event.capacity?.toString() || "",
       imageUrl: event.image || ""
     });
-    
+
     // Set existing image as preview if available
     if (event.image) {
       setEditEventImagePreview(event.image);
@@ -831,19 +915,35 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       setEditEventImagePreview("");
     }
     setEditEventImageFile(null);
-    
+
     setIsEditEventDialogOpen(true);
   };
 
   // Handle save edited event
   const handleSaveEditedEvent = () => {
+
+    let { title, description, date, time, location, category, capacity } = editEventFormData;
+    const formdata = new FormData();
+
+    formdata.append('Title', title);
+    formdata.append('Description', description);
+    formdata.append('Date', date);
+    formdata.append('Time', time);
+    formdata.append('Location', location);
+    formdata.append('Category', category);
+    formdata.append('Capacity', capacity.toString());
+    formdata.append('Image', editEventImageFile || new Blob());
+    
+    const formValues = Object.fromEntries(formdata.entries());
+    console.table(formValues);
+
     // In a real app, this would send updated data to the database
     const updatedEventData = {
       ...editEventFormData,
       imageUrl: editEventImagePreview || editEventFormData.imageUrl
     };
     console.log("Updating event:", updatedEventData);
-    
+
     // Update the event in the local data (in real app, this would be from API response)
     const eventIndex = organizationProfile.upcomingEvents.findIndex(e => e.id === editEventFormData.id);
     if (eventIndex !== -1) {
@@ -859,12 +959,12 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
         image: editEventImagePreview || editEventFormData.imageUrl
       };
     }
-    
+
     // Reset image states and close dialog
     setEditEventImageFile(null);
     setEditEventImagePreview("");
     setIsEditEventDialogOpen(false);
-    
+
     // Show success message (in real app, would handle success/error from API)
     alert("Event updated successfully!");
   };
@@ -873,36 +973,36 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   const handleSendInvite = () => {
     // In a real app, this would send an email invitation
     console.log("Sending invite to:", inviteEmail, "with role:", inviteRole);
-    
+
     // Reset form and close dialog
     setInviteEmail("");
     setInviteRole("Member");
     setIsInviteMemberDialogOpen(false);
-    
+
     alert(`Invitation sent to ${inviteEmail}!`);
   };
 
-  const handleApproveRequest = (requestId) => {
+  const handleApproveRequest = (requestId: string) => {
     // In a real app, this would approve the request in the database
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
       console.log("Approving request from:", request.name);
-      
+
       // By default, when a user joins an organization, assign them the "Member" role
       const newMember = {
         ...request,
         role: "Member" // Default role for new members
       };
-      
+
       setPendingRequests(prev => prev.filter(r => r.id !== requestId));
       alert(`${request.name} has been approved and added to the organization with "Member" role!`);
-      
+
       // In a real app, you would add the newMember to the organization's members array
       // organizationProfile.members.push(newMember);
     }
   };
 
-  const handleRejectRequest = (requestId) => {
+  const handleRejectRequest = (requestId: string) => {
     // In a real app, this would reject the request in the database
     const request = pendingRequests.find(r => r.id === requestId);
     if (request) {
@@ -912,7 +1012,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     }
   };
 
-  const handleRemoveMember = (memberId, memberName) => {
+  const handleRemoveMember = (memberId: string, memberName: string) => {
     // In a real app, this would remove the member from the database
     if (confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
       console.log("Removing member:", memberId);
@@ -920,7 +1020,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     }
   };
 
-  const handleUpdateMemberRole = (memberId, memberName, newRole) => {
+  const handleUpdateMemberRole = (memberId: string, memberName: string, newRole: string) => {
     // In a real app, this would update the member's role in the database
     console.log("Updating role for member:", memberId, "to:", newRole);
     alert(`${memberName}'s role has been updated to ${newRole}.`);
@@ -931,7 +1031,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -954,7 +1054,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const file = e.target.files?.[0];
     if (file) {
       setUploadedEditImage(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -974,6 +1074,19 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
 
   // Post management handlers
   const handleCreatePost = () => {
+    console.log("Creating post with data:");
+    console.table(createPostFormData);
+
+    let { title, content, category } = createPostFormData;
+
+    const formData: any = new FormData();
+    formData.append('Image', uploadedImage!);
+    formData.append('Title', title);
+    formData.append('Content', content);
+    formData.append('Category', category);
+    const formValues = Object.fromEntries(formData.entries());
+    console.table(formValues);
+
     // In a real app, this would send the post data to the database
     const newPost = {
       id: `post${Date.now()}`,
@@ -981,9 +1094,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       date: "Just now",
       author: "Admin Team"
     };
-    
+
     setOrganizationPosts([newPost, ...organizationPosts]);
-    
+
     // Reset form and close dialog
     setCreatePostFormData({
       title: "",
@@ -994,11 +1107,17 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     setUploadedImage(null);
     setImagePreview("");
     setIsCreatePostDialogOpen(false);
-    
+
     alert("Post created successfully!");
   };
 
-  const handleEditPost = (post) => {
+  const handleEditPost = (post: {
+    id: string;
+    title: string;
+    content: string;
+    category: string;
+    imageUrl?: string;
+  }) => {
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -1015,28 +1134,40 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   };
 
   const handleSaveEditedPost = () => {
+
+    let { title, content, category } = editPostFormData;
+    console.log("Form data to be sent:");
+    const formData: any = new FormData();
+    formData.append('Image', uploadedEditImage!);
+    formData.append('Title', title);
+    formData.append('Content', content);
+    formData.append('Category', category);
+    const formValues = Object.fromEntries(formData.entries());
+    console.table(formValues);
+
+
     // In a real app, this would update the post in the database
-    setOrganizationPosts(organizationPosts.map(post => 
-      post.id === editPostFormData.id 
+    setOrganizationPosts(organizationPosts.map(post =>
+      post.id === editPostFormData.id
         ? {
-            ...post,
-            title: editPostFormData.title,
-            content: editPostFormData.content,
-            category: editPostFormData.category,
-            imageUrl: editPostFormData.imageUrl
-          }
+          ...post,
+          title: editPostFormData.title,
+          content: editPostFormData.content,
+          category: editPostFormData.category,
+          imageUrl: editPostFormData.imageUrl
+        }
         : post
     ));
-    
+
     // Reset edit image states and close dialog
     setUploadedEditImage(null);
     setEditImagePreview("");
     setIsEditPostDialogOpen(false);
-    
+
     alert("Post updated successfully!");
   };
 
-  const handleDeletePost = (postId, postTitle) => {
+  const handleDeletePost = (postId: string, postTitle: string) => {
     // In a real app, this would delete the post from the database
     if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
       setOrganizationPosts(organizationPosts.filter(post => post.id !== postId));
@@ -1050,39 +1181,42 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     if (!isFollowing) {
       // Update follower count
       if (profileType === "student") {
-        setStudentProfile(prev => ({
-          ...prev,
-          stats: {
-            ...prev.stats,
-            followers: prev.stats.followers + 1
-          }
-        }));
+        studentProfile.stats.followers += 1;
       }
     } else {
       // Decrease follower count
       if (profileType === "student") {
-        setStudentProfile(prev => ({
-          ...prev,
-          stats: {
-            ...prev.stats,
-            followers: Math.max(0, prev.stats.followers - 1)
-          }
-        }));
+        studentProfile.stats.followers = Math.max(0, studentProfile.stats.followers - 1);
       }
     }
   };
 
   // Student post management handlers
   const handleCreateStudentPost = () => {
+    let { title, content, category } = createPostFormData;
+
+
+
+    const formData: any = new FormData();
+    console.log(formData.get('Title'));
+    console.log(formData.get('Content'));
+    console.log(formData.get('Category'));
+    const formValues = Object.fromEntries(formData.entries());
+
+    console.table(formValues);
+
+
+
+
     // In a real app, this would send the post data to the database
     const newPost = {
       id: `studentpost${Date.now()}`,
       ...createPostFormData,
       date: "Just now"
     };
-    
+
     setStudentPosts([newPost, ...studentPosts]);
-    
+
     // Reset form and close dialog
     setCreatePostFormData({
       title: "",
@@ -1093,11 +1227,17 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     setUploadedImage(null);
     setImagePreview("");
     setIsCreatePostDialogOpen(false);
-    
+
     alert("Post created successfully!");
   };
 
-  const handleEditStudentPost = (post) => {
+  const handleEditStudentPost = (post: {
+    id: string;
+    title: string;
+    content: string;
+    category: string;
+    imageUrl?: string;
+  }) => {
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -1114,28 +1254,44 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   };
 
   const handleSaveEditedStudentPost = () => {
+
+    let { title, content, category } = editPostFormData;
+
+
+    console.log("Form data to be sent:");
+    const formData: any = new FormData();
+    formData.append('Image', uploadedEditImage!);
+    formData.append('Title', title);
+    formData.append('Content', content);
+    formData.append('Category', category);
+
+    const formValues = Object.fromEntries(formData.entries());
+
+    console.table(formValues);
+
+
     // In a real app, this would update the post in the database
-    setStudentPosts(studentPosts.map(post => 
-      post.id === editPostFormData.id 
+    setStudentPosts(studentPosts.map(post =>
+      post.id === editPostFormData.id
         ? {
-            ...post,
-            title: editPostFormData.title,
-            content: editPostFormData.content,
-            category: editPostFormData.category,
-            imageUrl: editPostFormData.imageUrl
-          }
+          ...post,
+          title: editPostFormData.title,
+          content: editPostFormData.content,
+          category: editPostFormData.category,
+          imageUrl: editPostFormData.imageUrl
+        }
         : post
     ));
-    
+
     // Reset edit image states and close dialog
     setUploadedEditImage(null);
     setEditImagePreview("");
     setIsEditPostDialogOpen(false);
-    
+
     alert("Post updated successfully!");
   };
 
-  const handleDeleteStudentPost = (postId, postTitle) => {
+  const handleDeleteStudentPost = (postId: string, postTitle: string) => {
     // In a real app, this would delete the post from the database
     if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
       setStudentPosts(studentPosts.filter(post => post.id !== postId));
@@ -1148,7 +1304,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     const file = e.target.files?.[0];
     if (file) {
       setOrgLogoFile(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -1165,6 +1321,41 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   };
 
   const handleCreateOrganization = () => {
+
+    let { name, description, mission, category, email, phone, website, discord, instagram, linkedin } = createOrgFormData;
+
+    // console.log("Creating organization with data:");
+    // console.log(orgLogoFile);
+    // console.log(name);
+    // console.log(description);
+    // console.log(mission);
+    // console.log(category);
+    // console.log(email);
+    // console.log(phone);
+    // console.log(website);
+    // console.log(discord);
+    // console.log(instagram);
+    // console.log(linkedin);
+
+    const formData = new FormData();
+    formData.append('logo', orgLogoFile!);
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('mission', mission);
+    formData.append('category', category);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('website', website);
+    formData.append('discord', discord);
+    formData.append('instagram', instagram);
+    formData.append('linkedin', linkedin);
+
+    const formValues = Object.fromEntries(formData.entries());
+    console.table(formValues);
+    
+
+
+
     // Validate required fields
     if (!createOrgFormData.name || !createOrgFormData.category || !createOrgFormData.description) {
       alert("Please fill in all required fields (Name, Category, Description)");
@@ -1234,7 +1425,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               <Avatar className="h-32 w-32 md:h-40 md:w-40">
                 <AvatarImage src={currentProfile.avatar} alt={currentProfile.name} />
                 <AvatarFallback className="text-3xl">
-                  {currentProfile.name.split(" ").map(n => n[0]).join("")}
+                  {currentProfile.name.split(" ").map((n: string) => n[0]).join("")}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -1282,9 +1473,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       )}
                     </>
                   ) : (
-                    <Button 
-                      variant={isFollowing ? "outline" : "default"} 
-                      size="sm" 
+                    <Button
+                      variant={isFollowing ? "outline" : "default"}
+                      size="sm"
                       onClick={handleFollowToggle}
                     >
                       {isFollowing ? (
@@ -1471,15 +1662,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                             </p>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleEditStudentPost(post)}
                             >
                               <Edit3 className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={() => handleDeleteStudentPost(post.id, post.title)}
@@ -1543,9 +1734,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                           </Button>
                         </div>
                       </div>
-                      
+
                       <Separator />
-                      
+
                       {/* Social Media Section */}
                       <div>
                         <h4 className="text-sm font-semibold mb-2">Social Media</h4>
@@ -1785,7 +1976,17 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {organizationProfile.upcomingEvents.map((event) => (
+                {organizationProfile.upcomingEvents.map((event: {
+                  id: string;
+                  title: string;
+                  date: string;
+                  time: string;
+                  location: string;
+                  attendees: number;
+                  image: string;
+                  status: string;
+                  [key: string]: any;
+                }) => (
                   <Card key={event.id} className="overflow-hidden">
                     <CardContent className="p-0">
                       <ImageWithFallback
@@ -1823,8 +2024,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                             </div>
                           </div>
                           {canManageEvents() && (
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleOpenEditEvent(event)}
                             >
@@ -1891,15 +2092,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                           </div>
                           {canManagePosts() && (
                             <div className="flex flex-col gap-2">
-                              <Button 
-                                variant="outline" 
+                              <Button
+                                variant="outline"
                                 size="sm"
                                 onClick={() => handleEditPost(post)}
                               >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() => handleDeletePost(post.id, post.title)}
@@ -1948,16 +2149,16 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                               <p className="text-xs text-muted-foreground mt-1">Requested {request.requestDate}</p>
                             </div>
                             <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="default"
                                 onClick={() => handleApproveRequest(request.id)}
                               >
                                 <Check className="h-4 w-4 mr-1" />
                                 Approve
                               </Button>
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="outline"
                                 onClick={() => handleRejectRequest(request.id)}
                               >
@@ -2024,8 +2225,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
 
                             {/* Remove Member Button - Only for Presidents/VPs */}
                             {canManageMembers() && (
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="ghost"
                                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() => handleRemoveMember(member.id, member.name)}
@@ -2051,7 +2252,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
           <DialogHeader>
             <DialogTitle>Edit {profileType === "student" ? "Profile" : "Organization"}</DialogTitle>
             <DialogDescription>
-              {profileType === "student" 
+              {profileType === "student"
                 ? "Update your profile information, skills, and interests."
                 : "Update your organization's information and contact details."}
             </DialogDescription>
@@ -2061,269 +2262,269 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {profileType === "student" ? (
               // Student Edit Form
               <>
-            {/* Profile Picture */}
-            <div className="space-y-2">
-              <Label>Profile Picture</Label>
-              <div className="flex items-start gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profileImagePreview || studentProfile.avatar} alt={studentProfile.name} />
-                  <AvatarFallback>{studentProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 space-y-2">
-                  {!profileImageFile ? (
-                    <div>
-                      <Input
-                        id="profile-image-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleProfileImageUpload}
-                        className="cursor-pointer"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Upload a new profile picture (JPG, PNG, or GIF)
-                      </p>
+                {/* Profile Picture */}
+                <div className="space-y-2">
+                  <Label>Profile Picture</Label>
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={profileImagePreview || studentProfile.avatar} alt={studentProfile.name} />
+                      <AvatarFallback>{studentProfile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-2">
+                      {!profileImageFile ? (
+                        <div>
+                          <Input
+                            id="profile-image-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProfileImageUpload}
+                            className="cursor-pointer"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Upload a new profile picture (JPG, PNG, or GIF)
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {profileImageFile.name} ({(profileImageFile.size / 1024).toFixed(1)} KB)
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleRemoveProfileImage}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Remove & Choose Another
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  ) : (
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Bio */}
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    placeholder="Tell us about yourself..."
+                    value={editFormData.bio}
+                    onChange={(e) => handleFormChange("bio", e.target.value)}
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
+
+                {/* Academic Information */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4" />
+                    Academic Information
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          {profileImageFile.name} ({(profileImageFile.size / 1024).toFixed(1)} KB)
-                        </span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRemoveProfileImage}
+                      <Label htmlFor="major">Major</Label>
+                      <Select
+                        value={editFormData.major}
+                        onValueChange={(value) => handleFormChange("major", value)}
                       >
-                        <X className="h-4 w-4 mr-1" />
-                        Remove & Choose Another
-                      </Button>
+                        <SelectTrigger id="major">
+                          <SelectValue placeholder="Select major" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Computer Science">Computer Science</SelectItem>
+                          <SelectItem value="Software Engineering">Software Engineering</SelectItem>
+                          <SelectItem value="Information Systems">Information Systems</SelectItem>
+                          <SelectItem value="Data Science">Data Science</SelectItem>
+                          <SelectItem value="Business Administration">Business Administration</SelectItem>
+                          <SelectItem value="Psychology">Psychology</SelectItem>
+                          <SelectItem value="Biology">Biology</SelectItem>
+                          <SelectItem value="Chemistry">Chemistry</SelectItem>
+                          <SelectItem value="Physics">Physics</SelectItem>
+                          <SelectItem value="Mathematics">Mathematics</SelectItem>
+                          <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                          <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                          <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                          <SelectItem value="Fine Arts">Fine Arts</SelectItem>
+                          <SelectItem value="Graphic Design">Graphic Design</SelectItem>
+                          <SelectItem value="English">English</SelectItem>
+                          <SelectItem value="History">History</SelectItem>
+                          <SelectItem value="Political Science">Political Science</SelectItem>
+                          <SelectItem value="Economics">Economics</SelectItem>
+                          <SelectItem value="Nursing">Nursing</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
 
-            <Separator />
+                    <div className="space-y-2">
+                      <Label htmlFor="minor">Minor</Label>
+                      <Select
+                        value={editFormData.minor}
+                        onValueChange={(value) => handleFormChange("minor", value)}
+                      >
+                        <SelectTrigger id="minor">
+                          <SelectValue placeholder="Select minor (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="None">None</SelectItem>
+                          <SelectItem value="Computer Science">Computer Science</SelectItem>
+                          <SelectItem value="Software Engineering">Software Engineering</SelectItem>
+                          <SelectItem value="Information Systems">Information Systems</SelectItem>
+                          <SelectItem value="Data Science">Data Science</SelectItem>
+                          <SelectItem value="Business Administration">Business Administration</SelectItem>
+                          <SelectItem value="Psychology">Psychology</SelectItem>
+                          <SelectItem value="Biology">Biology</SelectItem>
+                          <SelectItem value="Chemistry">Chemistry</SelectItem>
+                          <SelectItem value="Physics">Physics</SelectItem>
+                          <SelectItem value="Mathematics">Mathematics</SelectItem>
+                          <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                          <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                          <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                          <SelectItem value="Fine Arts">Fine Arts</SelectItem>
+                          <SelectItem value="Graphic Design">Graphic Design</SelectItem>
+                          <SelectItem value="English">English</SelectItem>
+                          <SelectItem value="History">History</SelectItem>
+                          <SelectItem value="Political Science">Political Science</SelectItem>
+                          <SelectItem value="Economics">Economics</SelectItem>
+                          <SelectItem value="Nursing">Nursing</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-            {/* Bio */}
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                placeholder="Tell us about yourself..."
-                value={editFormData.bio}
-                onChange={(e) => handleFormChange("bio", e.target.value)}
-                rows={4}
-                className="resize-none"
-              />
-            </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="academicLevel">Academic Level</Label>
+                      <Select
+                        value={editFormData.academicLevel}
+                        onValueChange={(value) => handleFormChange("academicLevel", value)}
+                      >
+                        <SelectTrigger id="academicLevel">
+                          <SelectValue placeholder="Select level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Freshman">Freshman</SelectItem>
+                          <SelectItem value="Sophomore">Sophomore</SelectItem>
+                          <SelectItem value="Junior">Junior</SelectItem>
+                          <SelectItem value="Senior">Senior</SelectItem>
+                          <SelectItem value="Graduate">Graduate</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-            {/* Academic Information */}
-            <div className="space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <GraduationCap className="h-4 w-4" />
-                Academic Information
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="major">Major</Label>
-                  <Select
-                    value={editFormData.major}
-                    onValueChange={(value) => handleFormChange("major", value)}
-                  >
-                    <SelectTrigger id="major">
-                      <SelectValue placeholder="Select major" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Computer Science">Computer Science</SelectItem>
-                      <SelectItem value="Software Engineering">Software Engineering</SelectItem>
-                      <SelectItem value="Information Systems">Information Systems</SelectItem>
-                      <SelectItem value="Data Science">Data Science</SelectItem>
-                      <SelectItem value="Business Administration">Business Administration</SelectItem>
-                      <SelectItem value="Psychology">Psychology</SelectItem>
-                      <SelectItem value="Biology">Biology</SelectItem>
-                      <SelectItem value="Chemistry">Chemistry</SelectItem>
-                      <SelectItem value="Physics">Physics</SelectItem>
-                      <SelectItem value="Mathematics">Mathematics</SelectItem>
-                      <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
-                      <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
-                      <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
-                      <SelectItem value="Fine Arts">Fine Arts</SelectItem>
-                      <SelectItem value="Graphic Design">Graphic Design</SelectItem>
-                      <SelectItem value="English">English</SelectItem>
-                      <SelectItem value="History">History</SelectItem>
-                      <SelectItem value="Political Science">Political Science</SelectItem>
-                      <SelectItem value="Economics">Economics</SelectItem>
-                      <SelectItem value="Nursing">Nursing</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="minor">Minor</Label>
-                  <Select
-                    value={editFormData.minor}
-                    onValueChange={(value) => handleFormChange("minor", value)}
-                  >
-                    <SelectTrigger id="minor">
-                      <SelectValue placeholder="Select minor (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="None">None</SelectItem>
-                      <SelectItem value="Computer Science">Computer Science</SelectItem>
-                      <SelectItem value="Software Engineering">Software Engineering</SelectItem>
-                      <SelectItem value="Information Systems">Information Systems</SelectItem>
-                      <SelectItem value="Data Science">Data Science</SelectItem>
-                      <SelectItem value="Business Administration">Business Administration</SelectItem>
-                      <SelectItem value="Psychology">Psychology</SelectItem>
-                      <SelectItem value="Biology">Biology</SelectItem>
-                      <SelectItem value="Chemistry">Chemistry</SelectItem>
-                      <SelectItem value="Physics">Physics</SelectItem>
-                      <SelectItem value="Mathematics">Mathematics</SelectItem>
-                      <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
-                      <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
-                      <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
-                      <SelectItem value="Fine Arts">Fine Arts</SelectItem>
-                      <SelectItem value="Graphic Design">Graphic Design</SelectItem>
-                      <SelectItem value="English">English</SelectItem>
-                      <SelectItem value="History">History</SelectItem>
-                      <SelectItem value="Political Science">Political Science</SelectItem>
-                      <SelectItem value="Economics">Economics</SelectItem>
-                      <SelectItem value="Nursing">Nursing</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <div className="space-y-2">
+                      <Label htmlFor="graduationYear">Graduation Year</Label>
+                      <Select
+                        value={editFormData.graduationYear}
+                        onValueChange={(value) => handleFormChange("graduationYear", value)}
+                      >
+                        <SelectTrigger id="graduationYear">
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2024">2024</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2026">2026</SelectItem>
+                          <SelectItem value="2027">2027</SelectItem>
+                          <SelectItem value="2028">2028</SelectItem>
+                          <SelectItem value="2029">2029</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="academicLevel">Academic Level</Label>
-                  <Select
-                    value={editFormData.academicLevel}
-                    onValueChange={(value) => handleFormChange("academicLevel", value)}
-                  >
-                    <SelectTrigger id="academicLevel">
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Freshman">Freshman</SelectItem>
-                      <SelectItem value="Sophomore">Sophomore</SelectItem>
-                      <SelectItem value="Junior">Junior</SelectItem>
-                      <SelectItem value="Senior">Senior</SelectItem>
-                      <SelectItem value="Graduate">Graduate</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <Separator />
+
+                {/* Skills */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Award className="h-4 w-4" />
+                    Skills
+                  </Label>
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a skill (e.g., Python, React)"
+                      value={editFormData.newSkill}
+                      onChange={(e) => handleFormChange("newSkill", e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddSkill();
+                        }
+                      }}
+                    />
+                    <Button type="button" size="sm" onClick={handleAddSkill}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {editFormData.skills.map((skill, index) => (
+                      <Badge key={index} variant="secondary" className="pl-3 pr-1">
+                        {skill}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="ml-2 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="graduationYear">Graduation Year</Label>
-                  <Select
-                    value={editFormData.graduationYear}
-                    onValueChange={(value) => handleFormChange("graduationYear", value)}
-                  >
-                    <SelectTrigger id="graduationYear">
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2025">2025</SelectItem>
-                      <SelectItem value="2026">2026</SelectItem>
-                      <SelectItem value="2027">2027</SelectItem>
-                      <SelectItem value="2028">2028</SelectItem>
-                      <SelectItem value="2029">2029</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <Separator />
+
+                {/* Interests */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Interests
+                  </Label>
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add an interest (e.g., AI, Web Development)"
+                      value={editFormData.newInterest}
+                      onChange={(e) => handleFormChange("newInterest", e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddInterest();
+                        }
+                      }}
+                    />
+                    <Button type="button" size="sm" onClick={handleAddInterest}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {editFormData.interests.map((interest, index) => (
+                      <Badge key={index} variant="outline" className="pl-3 pr-1">
+                        {interest}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveInterest(interest)}
+                          className="ml-2 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Skills */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Award className="h-4 w-4" />
-                Skills
-              </Label>
-              
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add a skill (e.g., Python, React)"
-                  value={editFormData.newSkill}
-                  onChange={(e) => handleFormChange("newSkill", e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddSkill();
-                    }
-                  }}
-                />
-                <Button type="button" size="sm" onClick={handleAddSkill}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {editFormData.skills.map((skill, index) => (
-                  <Badge key={index} variant="secondary" className="pl-3 pr-1">
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(skill)}
-                      className="ml-2 hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Interests */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                Interests
-              </Label>
-              
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add an interest (e.g., AI, Web Development)"
-                  value={editFormData.newInterest}
-                  onChange={(e) => handleFormChange("newInterest", e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddInterest();
-                    }
-                  }}
-                />
-                <Button type="button" size="sm" onClick={handleAddInterest}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {editFormData.interests.map((interest, index) => (
-                  <Badge key={index} variant="outline" className="pl-3 pr-1">
-                    {interest}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveInterest(interest)}
-                      className="ml-2 hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            </>
+              </>
             ) : (
               // Organization Edit Form
               <>
@@ -2560,9 +2761,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                 <div className="space-y-2">
                   {eventImagePreview && (
                     <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted">
-                      <img 
-                        src={eventImagePreview} 
-                        alt="Event preview" 
+                      <img
+                        src={eventImagePreview}
+                        alt="Event preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -2689,7 +2890,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             <Button variant="outline" onClick={() => setIsCreateEventDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateEvent}
               disabled={
                 !createEventFormData.title ||
@@ -2738,9 +2939,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                 <div className="space-y-2">
                   {editEventImagePreview && (
                     <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted">
-                      <img 
-                        src={editEventImagePreview} 
-                        alt="Event preview" 
+                      <img
+                        src={editEventImagePreview}
+                        alt="Event preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -2867,7 +3068,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             <Button variant="outline" onClick={() => setIsEditEventDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSaveEditedEvent}
               disabled={
                 !editEventFormData.title ||
@@ -2938,7 +3139,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             <Button variant="outline" onClick={() => setIsInviteMemberDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSendInvite}
               disabled={!inviteEmail || !inviteEmail.includes('@')}
             >
@@ -2989,7 +3190,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {/* Category */}
             <div className="space-y-2">
               <Label htmlFor="create-post-category">Category *</Label>
-              <Select 
+              <Select
                 value={createPostFormData.category}
                 onValueChange={(value) => setCreatePostFormData(prev => ({ ...prev, category: value }))}
               >
@@ -3036,9 +3237,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               ) : (
                 <div className="space-y-2">
                   <div className="relative rounded-lg overflow-hidden border border-border">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
                       className="w-full h-48 object-cover"
                     />
                     <Button
@@ -3101,7 +3302,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             <Button variant="outline" onClick={() => setIsCreatePostDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={profileType === "student" ? handleCreateStudentPost : handleCreatePost}
               disabled={
                 !createPostFormData.title ||
@@ -3156,7 +3357,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {/* Category */}
             <div className="space-y-2">
               <Label htmlFor="edit-post-category">Category *</Label>
-              <Select 
+              <Select
                 value={editPostFormData.category}
                 onValueChange={(value) => setEditPostFormData(prev => ({ ...prev, category: value }))}
               >
@@ -3203,9 +3404,9 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               ) : (
                 <div className="space-y-2">
                   <div className="relative rounded-lg overflow-hidden border border-border">
-                    <img 
-                      src={editImagePreview} 
-                      alt="Preview" 
+                    <img
+                      src={editImagePreview}
+                      alt="Preview"
                       className="w-full h-48 object-cover"
                     />
                     <Button
@@ -3270,7 +3471,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             <Button variant="outline" onClick={() => setIsEditPostDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={profileType === "student" ? handleSaveEditedStudentPost : handleSaveEditedPost}
               disabled={
                 !editPostFormData.title ||
@@ -3515,7 +3716,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             }}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateOrganization}
               disabled={
                 !createOrgFormData.name ||

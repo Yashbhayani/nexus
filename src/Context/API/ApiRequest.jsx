@@ -10,16 +10,12 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
       headers: {
         "Content-Type": "application/json",
         // if you still use token from localStorage
-        "auth-token": localStorage.getItem("token") || "",
+        "auth-token": localStorage.getItem("auth-token") || "",
       },
       body: body ? JSON.stringify(body) : null,
       params,
       //credentials: "include", // ✅ required for backend cookies
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
 
     return await response.json();
   } catch (e) {

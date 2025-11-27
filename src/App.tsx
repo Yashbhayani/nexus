@@ -1,5 +1,5 @@
 import "./styles/globals.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { StartPage } from "./components/screens/StartPage";
 import { ForgotPassword } from "./components/screens/ForgotPassword";
 import { ResetPassword } from "./components/screens/ResetPassword";
@@ -16,6 +16,7 @@ import { LeftNav } from "./components/navigation/LeftNav";
 import { AIAssistant } from "./components/ai/AIAssistant";
 import { AboutDialog } from "./components/common/AboutDialog";
 import { Button } from "./components/ui/button";
+import * as apiroute from "./Context/API/ApiRouter";
 import {
   Avatar,
   AvatarFallback,
@@ -30,9 +31,12 @@ import {
   DropdownMenuLabel,
 } from "./components/ui/dropdown-menu";
 import { User, Building2, LogOut, Info, Shield } from "lucide-react";
-import { APIState } from "./Context/Context/apimethods/APIState";
+import { APIState } from "./Context/apimethods/APIState";
+import APIContext from "./Context/apimethods/APIContext";
 
 export default function App() {
+  const context = useContext(APIContext);
+  const { GETFunction } = context;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -47,46 +51,78 @@ export default function App() {
     data: undefined,
   });
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   // Initialize authentication and detect system theme preference
   useEffect(() => {
-    // Set document language for accessibility
-    document.documentElement.lang = "en";
 
-    // Check authentication status
-    const savedAuth = localStorage.getItem("isAuthenticated");
-    const savedAdminStatus = localStorage.getItem("isAdmin");
-    if (savedAuth === "true") {
-      setIsAuthenticated(true);
-      setIsAdmin(savedAdminStatus === "true");
-    }
+    const fetchData = async () => {
+      try {
+        // Set document language for accessibility
+        document.documentElement.lang = "en";
 
-    // Detect system theme preference
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    setIsDarkMode(prefersDark);
-    document.documentElement.classList.toggle(
-      "dark",
-      prefersDark,
-    );
+        //Check authentication status
+        /*const savedAuth = localStorage.getItem("isAuthenticated");
+        const savedAdminStatus = localStorage.getItem("isAdmin");
+        if (savedAuth === "true") {
+          setIsAuthenticated(true);
+          setIsAdmin(savedAdminStatus === "true");
+        }*/
 
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    );
-    const handleChange = (e: MediaQueryListEvent) => {
-      setIsDarkMode(e.matches);
-      document.documentElement.classList.toggle(
-        "dark",
-        e.matches,
-      );
+
+
+        // Detect system theme preference
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        setIsDarkMode(prefersDark);
+        document.documentElement.classList.toggle(
+          "dark",
+          prefersDark,
+        );
+
+        // Listen for system theme changes
+        const mediaQuery = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        );
+        const handleChange = (e: MediaQueryListEvent) => {
+          setIsDarkMode(e.matches);
+          document.documentElement.classList.toggle(
+            "dark",
+            e.matches,
+          );
+        };
+
+        mediaQuery.addEventListener("change", handleChange);
+        let token = localStorage.getItem("auth-token");
+        if (token) {
+          let verifyToken = await verifyuserisAdmin();
+
+          if (verifyToken) {
+            setIsAdmin(true);
+            setIsAuthenticated(true);
+          } else {
+            setIsAdmin(false);
+            setIsAuthenticated(true);
+          }
+        }
+
+        return () =>
+          mediaQuery.removeEventListener("change", handleChange);
+      } catch (err) {
+        console.error(err);
+      }
     };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () =>
-      mediaQuery.removeEventListener("change", handleChange);
+    fetchData();
   }, []);
+
+  const verifyuserisAdmin = async () => {
+    let IsAdminStatus = await GETFunction(apiroute.verifyusertype);
+    return IsAdminStatus.success;
+  }
+
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -106,16 +142,31 @@ export default function App() {
   const handleLogin = (adminStatus: boolean) => {
     setIsAuthenticated(true);
     setIsAdmin(adminStatus);
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("isAdmin", adminStatus.toString());
+    //localStorage.setItem("isAuthenticated", "true");
+    //localStorage.setItem("isAdmin", adminStatus.toString());
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsAuthenticated(false);
     setIsAdmin(false);
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("isAdmin");
+    localStorage.removeItem("auth-token");
     // Reset app state when logging out
+
+    let token = localStorage.getItem("auth-token");
+    console.log("Token in App.tsx:", token);
+    if (token) {
+      let verifyToken = await verifyuserisAdmin();
+
+      if (verifyToken) {
+        setIsAdmin(true);
+        setIsAuthenticated(true);
+      } else {
+        setIsAdmin(false);
+        setIsAuthenticated(true);
+      }
+    }
     setActiveTab("home");
     setCurrentView({ screen: "home" });
   };
@@ -170,63 +221,63 @@ export default function App() {
 
       case "events":
         return (
-            <APIState>
-              <EventsScreen onNavigate={handleNavigate} />
-            </APIState>);
+          <APIState>
+            <EventsScreen onNavigate={handleNavigate} />
+          </APIState>);
 
       case "event-detail":
         return (
           <APIState>
-          <EventDetail
-            eventId={currentView.data?.eventId || "1"}
-            onBack={() => handleNavigate("home")}
-          />
+            <EventDetail
+              eventId={currentView.data?.eventId || "1"}
+              onBack={() => handleNavigate("home")}
+            />
           </APIState>
         );
 
       case "profile":
         return (
           <APIState>
-          <UserProfile
-            selectedProfileId={currentView.data?.profileId}
-            activeTab={currentView.data?.activeTab}
-            onNavigate={handleNavigate}
-          />
+            <UserProfile
+              selectedProfileId={currentView.data?.profileId}
+              activeTab={currentView.data?.activeTab}
+              onNavigate={handleNavigate}
+            />
           </APIState>
         );
 
       case "organizationProfile":
         return (
           <APIState>
-          <OrganizationProfile
-            organizationId={currentView.data?.organizationId || "org1"}
-            onBack={() => handleNavigate("discover")}
-            onNavigate={handleNavigate}
-          />
+            <OrganizationProfile
+              organizationId={currentView.data?.organizationId || "org1"}
+              onBack={() => handleNavigate("discover")}
+              onNavigate={handleNavigate}
+            />
           </APIState>
         );
 
       case "otherUserProfile":
         return (
           <APIState>
-          <OtherUserProfile
-            userId={currentView.data?.userId || "1"}
-            onNavigate={handleNavigate}
-            onBack={() => handleNavigate("home")}
-          />
+            <OtherUserProfile
+              userId={currentView.data?.userId || "1"}
+              onNavigate={handleNavigate}
+              onBack={() => handleNavigate("home")}
+            />
           </APIState>
         );
 
       case "admin":
         return (
-              <APIState>
-              <AdminScreen />
-              </APIState>);
+          <APIState>
+            <AdminScreen />
+          </APIState>);
 
       default:
         return (<APIState>
           <HomeFeed onNavigate={handleNavigate} />
-          </APIState>);
+        </APIState>);
     }
   };
 
@@ -237,16 +288,16 @@ export default function App() {
       return (
         <div className="min-h-screen bg-background text-foreground">
           <APIState>
-          <ResetPassword
-            onBack={() => {
-              setShowResetPassword(false);
-              setShowForgotPassword(false);
-            }}
-            onSuccess={() => {
-              setShowResetPassword(false);
-              setShowForgotPassword(false);
-            }}
-          />
+            <ResetPassword
+              onBack={() => {
+                setShowResetPassword(false);
+                setShowForgotPassword(false);
+              }}
+              onSuccess={() => {
+                setShowResetPassword(false);
+                setShowForgotPassword(false);
+              }}
+            />
           </APIState>
         </div>
       );
@@ -258,12 +309,12 @@ export default function App() {
         <div className="min-h-screen bg-background text-foreground">
           <APIState>
             <ForgotPassword
-            onBack={() => setShowForgotPassword(false)}
-            onResetLink={() => {
-              setShowForgotPassword(false);
-              setShowResetPassword(true);
-            }}
-          />
+              onBack={() => setShowForgotPassword(false)}
+              onResetLink={() => {
+                setShowForgotPassword(false);
+                setShowResetPassword(true);
+              }}
+            />
           </APIState>
         </div>
       );
@@ -271,15 +322,17 @@ export default function App() {
 
     // Show login/signup screen
     return (
-      <div className="min-h-screen bg-background text-foreground">
-        <APIState>
-          <StartPage
-          onLogin={handleLogin}
-          onForgotPassword={() => setShowForgotPassword(true)}
-        />
-        </APIState>
-      </div>
-    );
+      !localStorage.getItem("auth-token") ?
+        <div className="min-h-screen bg-background text-foreground">
+          <APIState>
+            <StartPage
+              onLogin={handleLogin}
+              onForgotPassword={() => setShowForgotPassword(true)}
+            />
+          </APIState>
+        </div> :
+        <div className="min-h-screen bg-background text-foreground">
+        </div>);
   }
 
   // Show main app if authenticated
