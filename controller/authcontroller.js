@@ -106,8 +106,16 @@ module.exports.createaccount = async (req, res) => {
         .json({ error: "Please enter a valid email", success });
     }
 
-    // ✅ Global mobile number validation (E.164 format)
+    if (MobileNumber.length < 10) {
+      success = false;
+      return res.status(200).json({
+        error:
+          "Please enter a valid mobile number in international format (e.g., +14155552671)",
+        success,
+      });
+    }
     if (!/^\+?[1-9]\d{1,14}$/.test(MobileNumber)) {
+      // ✅ Global mobile number validation (E.164 format)
       success = false;
       return res.status(200).json({
         error:
