@@ -1,5 +1,5 @@
 import "./styles/globals.css";
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StartPage } from "./components/screens/StartPage";
 import { ForgotPassword } from "./components/screens/ForgotPassword";
 import { ResetPassword } from "./components/screens/ResetPassword";
