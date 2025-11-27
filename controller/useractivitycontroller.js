@@ -20,7 +20,7 @@ module.exports.academiclevel = async (req, res) => {
     }
 
     const statusdata = await Status.findAll({
-      where: { STID: StatusTypes.ID },
+      where: { STID: StatusTypes.ID, IsDeleted: false },
       attributes: ["Code", "Name"],
     });
 
