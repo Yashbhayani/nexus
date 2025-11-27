@@ -8,8 +8,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Images = require("../models/images");
 const { Jwt } = require("../credentials");
+const nodemailer = require("nodemailer");
 const { checkAdminStatus } = require("../config/findSimilarStatus");
 const { Useres } = require("../enums/codes");
+const OtpTable = require("../models/otptable");
 
 module.exports.login = async (req, res) => {
   let success = false;
@@ -318,6 +320,206 @@ module.exports.verifyusertype = async (req, res) => {
       success = true;
       return res.status(404).json({ error: "User is Admin", success });
     }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success, error: err.message });
+  }
+};
+
+module.exports.forgotpass = async (req, res) => {
+  let success = false;
+
+  try {
+    const { email } = req.body;
+
+    let UserData = await User.findOne({
+      where: { Email: email },
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+    });
+    if (!UserData) {
+      success = false;
+      return res.status(200).json({
+        error: "Sorry, email is not exists.",
+        success,
+      });
+    }
+
+    let Otpcheck = await OtpTable.count({
+      where: {
+        UID: UserData.ID,
+        IsDeleted: false,
+        IsUsed: false,
+      },
+    });
+
+    if (Otpcheck > 0) {
+      let UpdatedOtp = await OtpTable.update(
+        {
+          IsDeleted: true,
+        },
+        {
+          where: {
+            UID: UserData.ID,
+            IsDeleted: false,
+            IsUsed: false,
+          },
+        }
+      );
+
+      if (!UpdatedOtp) {
+        return res.status(500).json({ error: "OTP is not create!", success });
+      }
+    }
+
+    let digits = "0123456789";
+    let OTP = "";
+    for (let i = 0; i < 4; i++) {
+      OTP += digits[Math.floor(Math.random() * 10)];
+    }
+
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      service: "gmail",
+      port: 587,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: "codeground07@gmail.com", // generated ethereal user
+        pass: "dvab ldtm jqyg mqib", // generated ethereal password
+      },
+    });
+
+    // send mail with defined transport object
+    let info = await transporter.sendMail({
+      from: "codeground07@gmail.com", // sender address
+      to: email, // list of receivers
+      subject: "Blog app OTP", // Subject line
+      text: OTP, // plain text body
+      html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd;">
+
+          <!-- Header -->
+          <div style="background-color: #1E90FF; padding: 20px; text-align: center;">
+            <h2 style="color: #fff; margin: 0;">Password Recovery Request</h2>
+          </div>
+
+          <!-- Body -->
+          <div style="padding: 25px;">
+            <p>Hello <strong>${UserData.FirstName} ${UserData.LastName}</strong>,</p>
+            <p>We received a request to reset your password. Use the OTP below to complete the process:</p>
+
+            <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0;">
+              <h1 style="color: #4CAF50; letter-spacing: 5px; margin: 0;">${OTP}</h1>
+            </div>
+
+            <p><strong>This OTP is valid for 10 minutes.</strong></p>
+            <p>If you didn't request a password reset, please ignore this email or contact support.</p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #1E90FF; padding: 15px; text-align: center; color: white;">
+            <p style="margin: 5px 0; font-size: 14px;">Requested by: <strong>${UserData.FirstName} ${UserData.LastName}</strong></p>
+            <p style="margin: 5px 0; font-size: 14px;">Email: <strong>${UserData.Email}</strong></p>
+            <p style="margin: 10px 0 0 0; font-size: 12px;">This is an automated email. Please do not reply.</p>
+          </div>
+
+        </div>
+
+    `,
+    });
+
+    let INFOMESSAGE = info.messageId;
+    let NODEMAILERINFO = nodemailer.getTestMessageUrl(info);
+
+    let createOtp = await OtpTable.create({
+      UID: UserData.ID,
+      OTPCode: OTP,
+    });
+
+    if (!createOtp) {
+      return res.status(500).json({ error: "Failed to create OTP", success });
+    }
+
+    success = true;
+    return res.status(404).json({
+      message: `We've sent a verification code to: ${email}!`,
+      success,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success, error: err.message });
+  }
+};
+
+module.exports.verifyotp = async (req, res) => {
+  let success = false;
+  try {
+    const { email, Otp } = req.body;
+
+    let UserData = await User.findOne({
+      where: { Email: email },
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+    });
+    if (!UserData) {
+      return res.status(200).json({
+        error: "Sorry, email is not exists.",
+        success,
+      });
+    }
+
+
+    let Otpverify = await OtpTable.findOne({
+      where: {
+        UID: UserData.ID,
+        IsDeleted: false,
+        IsUsed: false,
+      },
+    });
+
+
+    if (!Otpverify) {
+      return res.status(200).json({
+        error: "Wrong OTp, try again!",
+        success,
+      });
+    }
+
+    // OTP matched → update record
+
+    if (Otpverify.OTPCode !== Otp.trim()) {
+      return res.status(200).json({
+        error: "Wrong OTp, try again!",
+        success,
+      });
+    }
+
+    let UpdatedOtp = await OtpTable.update(
+      {
+        IsUsed: true,
+      },
+      {
+        where: {
+          ID: Otpverify.ID,
+          UID: UserData.ID,
+          OTPCode: Otp,
+          IsDeleted: false,
+          IsUsed: false,
+        },
+      }
+    );
+
+    if (!UpdatedOtp) {
+      return res.status(200).json({
+        error: "Wrong OTp, try again!",
+        success,
+      });
+    }
+
+    success = true;
+    return res.status(404).json({
+      message: "Otp Verified Sucessfully!",
+      success,
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success, error: err.message });

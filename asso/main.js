@@ -24,6 +24,7 @@ const InterestTable = require("../models/interesttable");
 const UserType = require("../models/usertype");
 const ManageOrganization = require("../models/manageorganization");
 const EventsAndActivitiesType = require("../models/eventsandactivitiestype");
+const OtpTable = require("../models/otptable");
 
 // ... all other models
 
@@ -549,6 +550,18 @@ BlogTable.belongsTo(Organization, {
   onUpdate: "CASCADE",
 });
 
+//
+
+// 👉 Define Relations
+User.hasMany(OtpTable, { foreignKey: 'UID' });
+OtpTable.belongsTo(User, { foreignKey: 'UID' });
+
+User.hasMany(OtpTable, { foreignKey: 'CreatedID' });
+OtpTable.belongsTo(User, { foreignKey: 'CreatedID' });
+
+User.hasMany(OtpTable, { foreignKey: 'UpdatedID' });
+OtpTable.belongsTo(User, { foreignKey: 'UpdatedID' });
+
 module.exports = {
   User,
   UserType,
@@ -575,4 +588,5 @@ module.exports = {
   InterestTable,
   ManageOrganization,
   EventsAndActivitiesType,
+  OtpTable
 };
