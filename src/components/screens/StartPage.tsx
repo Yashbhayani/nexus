@@ -274,13 +274,14 @@ export function StartPage({
       return;
     }
 
-    const phoneRegex = /^[0-9]{10,12}$/;
+    const phoneRegex = /^\+?[0-9]{10,12}$/;
 
-    if (!phoneRegex.test(mobileNumber)) {
-      setMobileError("Mobile number must be exactly 10 digits.");
+    if (!phoneRegex.test(mobileNumber.trim())) {
+      setMobileError("Mobile number must be 10–12 digits (with optional +).");
     } else {
       setMobileError("");
     }
+
 
     setIsLoading(true);
 
@@ -678,10 +679,11 @@ export function StartPage({
                           id="mobileNumber"
                           name="mobileNumber"
                           type="mobileNumber"
-                          placeholder="9988774455"
+                          placeholder="+19999999999"
                           required
                           className="h-10"
-                          maxLength={10}
+                          minLength={10}
+                          maxLength={12}
                         />
                         {mobileError && (
                           <p className="text-red-500 text-sm mt-1">

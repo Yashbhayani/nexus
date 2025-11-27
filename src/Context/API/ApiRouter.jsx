@@ -1,5 +1,5 @@
-//export const host = "https://nexuscampus.onrender.com/api/";
-export const host = "http://localhost:5000/api/";
+export const host = "https://nexuscampus.onrender.com/api/";
+//export const host = "http://localhost:5000/api/";
 
 // Auth Routes
 export const loginurl = "auth/login";
