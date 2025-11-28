@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Avatar, AvatarFallback } from "../ui/avatar";
@@ -17,6 +17,10 @@ import {
   Clock
 } from "lucide-react";
 
+// Import API Context
+import APIContext from "../../Context/apimethods/APIContext";
+import * as apiroute from "../../Context/API/ApiRouter";
+
 interface Message {
   id: string;
   content: string;
@@ -33,11 +37,11 @@ interface ConversationMessage {
 interface AIAssistantProps {
   isOpen: boolean;
   onToggle: () => void;
-  userId?: number | null; // Add userId prop for logged-in users
+  userId?: number | null; // Pass logged-in user's ID
 }
 
-// API Configuration - update this to match your backend URL
-const API_BASE_URL = 'http://localhost:5000';
+// Add chat route to ApiRouter.jsx: export const chaturl = "chat/";
+const CHAT_URL = "chat/";
 
 const INITIAL_GREETING: Message = {
   id: "1",
@@ -53,6 +57,9 @@ const INITIAL_GREETING: Message = {
 };
 
 export function AIAssistant({ isOpen, onToggle, userId = null }: AIAssistantProps) {
+  // Use API Context
+  const { POSTFunction } = useContext(APIContext);
+
   const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -124,24 +131,19 @@ export function AIAssistant({ isOpen, onToggle, userId = null }: AIAssistantProp
     setIsTyping(true);
 
     try {
-      // Call the API
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Call the API using POSTFunction from context
+      const data = await POSTFunction(
+        {
           message: messageText,
           conversationHistory: conversationHistory,
           userId: userId
-        })
-      });
+        },
+        CHAT_URL
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to get response');
+      if (data.error) {
+        throw new Error(data.error);
       }
-
-      const data = await response.json();
 
       // Add assistant response
       const assistantMessage: Message = {

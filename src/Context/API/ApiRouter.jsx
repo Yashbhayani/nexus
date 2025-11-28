@@ -33,3 +33,5 @@ export const adminblogurl = "adminblogurl/";
 //useractivity Routes
 export const academiclevel = "useractivities/academic-level/";
 export const major = "useractivities/major/";
+
+export const chaturl = "chat/";
