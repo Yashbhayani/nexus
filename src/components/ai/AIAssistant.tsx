@@ -25,10 +25,19 @@ interface Message {
   suggestions?: string[];
 }
 
+interface ConversationMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 interface AIAssistantProps {
   isOpen: boolean;
   onToggle: () => void;
+  userId?: number | null; // Add userId prop for logged-in users
 }
+
+// API Configuration - update this to match your backend URL
+const API_BASE_URL = 'http://localhost:5000';
 
 const INITIAL_GREETING: Message = {
   id: "1",
@@ -43,12 +52,26 @@ const INITIAL_GREETING: Message = {
   ]
 };
 
-export function AIAssistant({ isOpen, onToggle }: AIAssistantProps) {
+export function AIAssistant({ isOpen, onToggle, userId = null }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
+  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasLoadedRef = useRef(false);
+  const previousUserIdRef = useRef<number | null | undefined>(userId);
+
+  // Reset chat when user changes (login/logout)
+  useEffect(() => {
+    if (previousUserIdRef.current !== userId) {
+      // User changed - reset everything
+      setMessages([INITIAL_GREETING]);
+      setConversationHistory([]);
+      setInputMessage("");
+      localStorage.removeItem("campus_ai_chat_history");
+      previousUserIdRef.current = userId;
+    }
+  }, [userId]);
 
   // Load chat history from localStorage when component mounts
   useEffect(() => {
@@ -100,47 +123,60 @@ export function AIAssistant({ isOpen, onToggle }: AIAssistantProps) {
     setInputMessage("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const response = generateAIResponse(messageText);
-      setMessages(prev => [...prev, response]);
+    try {
+      // Call the API
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageText,
+          conversationHistory: conversationHistory,
+          userId: userId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
+
+      // Add assistant response
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: data.reply,
+        sender: "assistant",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        suggestions: data.suggestions
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+      
+      // Update conversation history for context
+      setConversationHistory(data.conversationHistory || [
+        ...conversationHistory,
+        { role: 'user', content: messageText },
+        { role: 'assistant', content: data.reply }
+      ]);
+
+    } catch (error) {
+      console.error('Chat error:', error);
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        sender: "assistant",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        suggestions: ["Try again"]
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
-
-  const generateAIResponse = (userMessage: string): Message => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    let content = "";
-    let suggestions: string[] = [];
-
-    if (lowerMessage.includes("event") || lowerMessage.includes("happening")) {
-      content = "🎉 Here are some upcoming campus events:\n\n• Study Group for Finals - Dec 18, 6:00 PM at Library\n• Basketball Tournament - Jan 20, 3:00 PM at Rec Center\n• Winter Art Showcase - Feb 5, 7:00 PM at Student Union\n\nWould you like me to help you RSVP to any of these?";
-      suggestions = ["RSVP to study group", "More sports events", "Art events this month"];
-    } else if (lowerMessage.includes("dining") || lowerMessage.includes("food") || lowerMessage.includes("eat")) {
-      content = "🍽️ Campus Dining Information:\n\n• Main Dining Hall: 7:00 AM - 9:00 PM\n• Student Union Food Court: 10:00 AM - 8:00 PM\n• Coffee Shop (Library): 6:00 AM - 11:00 PM\n• Late Night Snacks: 9:00 PM - 2:00 AM\n\nDuring finals week, most locations have extended hours!";
-      suggestions = ["Menu for today", "Dietary restrictions", "Food truck schedule"];
-    } else if (lowerMessage.includes("study") || lowerMessage.includes("library")) {
-      content = "📚 Study Spaces & Library Info:\n\n• Main Library: Open 24/7 during finals week\n• Study Rooms: Book online or walk-in\n• Quiet Floor: 3rd floor, no talking\n• Group Study: 1st floor collaborative spaces\n• Computer Lab: 2nd floor, 50+ workstations\n\nNeed help booking a study room?";
-      suggestions = ["Book study room", "Library events", "Computer availability"];
-    } else if (lowerMessage.includes("organization") || lowerMessage.includes("club") || lowerMessage.includes("join")) {
-      content = "🏛️ Student Organizations:\n\n• Computer Science Society - Tech talks & hackathons\n• Student Government - Campus leadership\n• Engineering Society - Professional development\n• Campus Recreation - Sports & fitness\n• Cultural Organizations - International community\n\nWhich type of organization interests you most?";
-      suggestions = ["Academic clubs", "Sports teams", "Cultural groups"];
-    } else if (lowerMessage.includes("help") || lowerMessage.includes("support")) {
-      content = "🤝 Campus Support Resources:\n\n• Academic Advising: Schedule online\n• Counseling Services: 24/7 crisis line\n• Career Center: Resume help & job search\n• IT Support: Tech troubleshooting\n• Campus Safety: Emergency & escort services\n\nWhat type of support are you looking for?";
-      suggestions = ["Academic help", "Mental health", "Career services"];
-    } else {
-      content = "I'd be happy to help! I can assist you with:\n\n🎯 Finding campus events and activities\n📍 Locating buildings and services\n🍕 Dining information and hours\n📚 Study spaces and library resources\n🏛️ Student organizations and clubs\n💬 General campus information\n\nWhat would you like to know more about?";
-      suggestions = ["Campus events", "Dining hours", "Study spaces", "Student organizations"];
     }
-
-    return {
-      id: Date.now().toString(),
-      content,
-      sender: "assistant",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      suggestions
-    };
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
