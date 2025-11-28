@@ -60,3 +60,7 @@ module.exports.Cloudnary = {
 module.exports.Jwt = {
   JWT_SCERET: "NexusCampus",
 };
+
+module.exports.Gemini = {
+  API_KEY: 'AIzaSyBPrdIgWxZ6s2BOPl8OZPCjoRDhgxsQO0Y',
+}
