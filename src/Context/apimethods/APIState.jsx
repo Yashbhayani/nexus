@@ -19,12 +19,12 @@ export const APIState = (props) => {
     //APIFunction({ method: "POST", code: apiroute.savecategoryurl, formdata: { name: "Books" } });
 
 
-    const GETWithBodyFunction = (code, formdata) =>
-        apiRequest({
-            url: apiroute.host + code,
-            method: "GET",
-            body: formdata,
-        });
+    // const GETWithBodyFunction = (code) =>
+    //     apiRequest({
+    //         url: apiroute.host + code,
+    //         method: "GET",
+    //     });
+
 
 
     const GETFunction = (code, params = {}) =>
@@ -78,7 +78,7 @@ export const APIState = (props) => {
 
 
     return (
-        <APIContext.Provider value={{ POSTFunction, GETWithBodyFunction, GETFunction, PUTFunction, DELETEFunction }}>
+        <APIContext.Provider value={{ POSTFunction, GETFunction, PUTFunction, DELETEFunction }}>
             {props.children}
         </APIContext.Provider>
     )

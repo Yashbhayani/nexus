@@ -5,6 +5,7 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
     const fullUrl = queryString ? `${url}?${queryString}` : url;
 
     // Make request
+    console.log(fullUrl);
     const response = await fetch(fullUrl, {
       method,
       headers: {
@@ -13,13 +14,14 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
         "auth-token": localStorage.getItem("auth-token") || "",
       },
       body: body ? JSON.stringify(body) : null,
-      params,
+      //params: params ? params : null,
       //credentials: "include", // ✅ required for backend cookies
     });
 
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (e) {
-    console.error("API Request Error:", e);
+    console.log("API Request Error:", e);
     throw e;
   }
 };

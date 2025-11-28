@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardDescription } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardDescription,
+} from "../ui/card";
 import { ArrowLeft, Mail, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
 import { NexusLogo } from "../common/NexusLogo";
+import APIContext from "../../Context/apimethods/APIContext";
+import * as apiroute from "../../Context/API/ApiRouter";
 
 interface ForgotPasswordProps {
   onBack: () => void;
@@ -12,10 +20,15 @@ interface ForgotPasswordProps {
 }
 
 export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
+  const context = useContext(APIContext);
+  const { GETFunction } = context;
+
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"email" | "otp" | "reset">("email");
+  const [currentStep, setCurrentStep] = useState<"email" | "otp" | "reset">(
+    "email"
+  );
   const [otpError, setOtpError] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,19 +38,37 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate sending OTP
-    setTimeout(() => {
-      setIsLoading(false);
+
+    let cleanEmail = email.trim().replace(/^[?=]+|[?=]+$/g, "");
+
+    const verifyEmail = await GETFunction(apiroute.verifyemail, {
+      email: cleanEmail,
+    });
+    console.log(verifyEmail);
+
+    if (verifyEmail.success) {
+      // Simulate sending OTP
+      setTimeout(() => {
+        setIsLoading(false);
+        setCurrentStep("otp");
+      }, 1500);
+
       setCurrentStep("otp");
-    }, 1500);
+    } else {
+      // Simulate sending OTP
+      setTimeout(() => {
+        alert(verifyEmail.error);
+        setIsLoading(false);
+      }, 1500);
+    }
+    return;
   };
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setOtpError("");
     setIsLoading(true);
-    
+
     // Simulate OTP verification
     setTimeout(() => {
       setIsLoading(false);
@@ -53,19 +84,19 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError("");
-    
+
     if (newPassword.length < 6) {
       setPasswordError("Password must be at least 6 characters");
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     // Simulate password reset
     setTimeout(() => {
       setIsLoading(false);
@@ -101,22 +132,27 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                       <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                     </button>
                   </div>
-                  <h2 className="text-card-foreground">
-                    Forgot Password?
-                  </h2>
+                  <h2 className="text-card-foreground">Forgot Password?</h2>
                   <CardDescription className="text-muted-foreground">
-                    No worries! Enter your email address and we'll send you a link to reset your password.
+                    No worries! Enter your email address and we'll send you a
+                    link to reset your password.
                   </CardDescription>
                 </CardHeader>
 
                 <form onSubmit={handleEmailSubmit}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="reset-email" className="text-sm text-card-foreground">
+                      <Label
+                        htmlFor="reset-email"
+                        className="text-sm text-card-foreground"
+                      >
                         Email Address
                       </Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Mail
+                          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
                         <Input
                           id="reset-email"
                           type="email"
@@ -129,7 +165,8 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                         />
                       </div>
                       <p id="email-description" className="sr-only">
-                        Enter your university email address to receive password reset instructions
+                        Enter your university email address to receive password
+                        reset instructions
                       </p>
                     </div>
                   </CardContent>
@@ -146,7 +183,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                           Sending...
                         </div>
                       ) : (
-                        'Get OTP'
+                        "Get OTP"
                       )}
                     </Button>
 
@@ -174,22 +211,27 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                       <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                     </button>
                   </div>
-                  <h2 className="text-card-foreground">
-                    Verify OTP
-                  </h2>
+                  <h2 className="text-card-foreground">Verify OTP</h2>
                   <CardDescription className="text-muted-foreground">
-                    We've sent a verification code to: <span className="font-medium text-primary">{email}</span>
+                    We've sent a verification code to:{" "}
+                    <span className="font-medium text-primary">{email}</span>
                   </CardDescription>
                 </CardHeader>
 
                 <form onSubmit={handleOtpSubmit}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="otp" className="text-sm text-card-foreground">
+                      <Label
+                        htmlFor="otp"
+                        className="text-sm text-card-foreground"
+                      >
                         Enter OTP
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Lock
+                          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
                         <Input
                           id="otp"
                           type="text"
@@ -210,12 +252,18 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                       </p>
                       {otpError && (
                         <p className="text-sm text-red-500 flex items-center gap-2">
-                          <span className="inline-block w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">!</span>
+                          <span className="inline-block w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                            !
+                          </span>
                           {otpError}
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground text-center pt-2">
-                        Demo: Use code <span className="font-mono font-medium text-primary">0000</span> to continue
+                        Demo: Use code{" "}
+                        <span className="font-mono font-medium text-primary">
+                          0000
+                        </span>{" "}
+                        to continue
                       </p>
                     </div>
                   </CardContent>
@@ -232,7 +280,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                           Verifying...
                         </div>
                       ) : (
-                        'Verify OTP'
+                        "Verify OTP"
                       )}
                     </Button>
 
@@ -255,9 +303,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
             ) : (
               <>
                 <CardHeader className="space-y-1 pb-4">
-                  <h2 className="text-card-foreground">
-                    Reset Password
-                  </h2>
+                  <h2 className="text-card-foreground">Reset Password</h2>
                   <CardDescription className="text-muted-foreground">
                     Enter your new password for {email}
                   </CardDescription>
@@ -266,11 +312,17 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                 <form onSubmit={handlePasswordReset}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="new-password" className="text-sm text-card-foreground">
+                      <Label
+                        htmlFor="new-password"
+                        className="text-sm text-card-foreground"
+                      >
                         New Password
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Lock
+                          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
                         <Input
                           id="new-password"
                           type={showPassword ? "text" : "password"}
@@ -288,17 +340,27 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                           className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirm-password" className="text-sm text-card-foreground">
+                      <Label
+                        htmlFor="confirm-password"
+                        className="text-sm text-card-foreground"
+                      >
                         Confirm Password
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Lock
+                          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
                         <Input
                           id="confirm-password"
                           type={showPassword ? "text" : "password"}
@@ -316,12 +378,18 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                           className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                       {passwordError && (
                         <p className="text-sm text-red-500 flex items-center gap-2">
-                          <span className="inline-block w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">!</span>
+                          <span className="inline-block w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                            !
+                          </span>
                           {passwordError}
                         </p>
                       )}
@@ -340,7 +408,7 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
                           Resetting Password...
                         </div>
                       ) : (
-                        'Reset Password'
+                        "Reset Password"
                       )}
                     </Button>
 

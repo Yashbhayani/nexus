@@ -2,18 +2,8 @@ import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "../ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../ui/tabs";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
   Select,
   SelectContent,
@@ -65,18 +55,13 @@ interface StartPageProps {
   onForgotPassword: () => void;
 }
 
-export function StartPage({
-  onLogin,
-  onForgotPassword,
-}: StartPageProps) {
+export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
   const context = useContext(APIContext);
   const { POSTFunction, GETFunction } = context;
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showSignupPassword, setShowSignupPassword] =
-    useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -89,8 +74,8 @@ export function StartPage({
     y: number;
   } | null>(null);
   const [showAboutDialog, setShowAboutDialog] = useState(false);
-  const [AcademicLevels, setAcademicLevels] = useState([]);
-  const [Majors, setAMajors] = useState([]);
+  const [AcademicLevels, setAcademicLevels] = useState<any[]>([]);
+  const [Majors, setAMajors] = useState<any[]>([]);
   // Cursor halo effect
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -107,17 +92,13 @@ export function StartPage({
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
 
-    AcademicLevel();
-    MajorLevel();
+    // API calls must be in a separate async function
+    AcademicLevel(); // AcademicLevel already setsAcademicLevels()
+    MajorLevel(); // MajorLevel already setsAMajors()
+
     return () => {
-      document.removeEventListener(
-        "mousemove",
-        handleMouseMove,
-      );
-      document.removeEventListener(
-        "mouseleave",
-        handleMouseLeave,
-      );
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
@@ -154,7 +135,7 @@ export function StartPage({
     let body = {
       Email: email,
       Password: password,
-    }
+    };
 
     const PostData = await POSTFunction(body, apiroute.loginurl);
 
@@ -179,24 +160,24 @@ export function StartPage({
     // } else {
     //   return;
     // }
-
   };
 
   const AcademicLevel = async () => {
     const Data = await GETFunction(apiroute.academiclevel);
-    setAcademicLevels(Data.statusdata);
-  }
+    console.log("Academic Data:", Data);
+    setAcademicLevels(Data.statusdata || []);
+  };
 
   const MajorLevel = async () => {
     const Data = await GETFunction(apiroute.major);
-    setAMajors(Data.statusdata);
-  }
+    console.log("Major Data:", Data);
+    setAMajors(Data.statusdata); // THIS is enough
+  };
 
   const verifyuserisAdmin = async () => {
     let IsAdminStatus = await GETFunction(apiroute.verifyusertype);
     return IsAdminStatus.success;
-
-  }
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,10 +192,6 @@ export function StartPage({
     const confirmPassword = formData.get("confirmPassword") as string;
     const academicLevel = formData.get("academicLevel") as string;
     const major = formData.get("major") as string;
-
-
-
-
 
     // Clear previous errors
     setPasswordError("");
@@ -234,42 +211,33 @@ export function StartPage({
     }
 
     // Password strength validation
-    if (
-      signupPassword.length < 8 ||
-      signupPassword.length > 12
-    ) {
+    if (signupPassword.length < 8 || signupPassword.length > 12) {
       setPasswordError("Password must be 8-12 characters long");
       return;
     }
 
     if (!/[A-Z]/.test(signupPassword)) {
       setPasswordError(
-        "Password must contain at least one uppercase letter (A-Z)",
+        "Password must contain at least one uppercase letter (A-Z)"
       );
       return;
     }
 
     if (!/[a-z]/.test(signupPassword)) {
       setPasswordError(
-        "Password must contain at least one lowercase letter (a-z)",
+        "Password must contain at least one lowercase letter (a-z)"
       );
       return;
     }
 
     if (!/[0-9]/.test(signupPassword)) {
-      setPasswordError(
-        "Password must contain at least one digit (0-9)",
-      );
+      setPasswordError("Password must contain at least one digit (0-9)");
       return;
     }
 
-    if (
-      !/[!@#$%^&*()_\-+=\[\]{};:'",.<>?/|\\]/.test(
-        signupPassword,
-      )
-    ) {
+    if (!/[!@#$%^&*()_\-+=\[\]{};:'",.<>?/|\\]/.test(signupPassword)) {
       setPasswordError(
-        "Password must contain at least one special character (!@#$%^&*()_-+=[]{};:'\",.<>?/|)",
+        "Password must contain at least one special character (!@#$%^&*()_-+=[]{};:'\",.<>?/|)"
       );
       return;
     }
@@ -282,7 +250,6 @@ export function StartPage({
       setMobileError("");
     }
 
-
     setIsLoading(true);
 
     let body = {
@@ -293,7 +260,7 @@ export function StartPage({
       Password: signupPassword,
       StudentType: academicLevel,
       Majors: major,
-    }
+    };
 
     const PostData = await POSTFunction(body, apiroute.signupurl);
     console.log(PostData);
@@ -500,9 +467,7 @@ export function StartPage({
               <CardHeader className="pb-4">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">
-                    Sign Up
-                  </TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 </TabsList>
               </CardHeader>
 
@@ -542,9 +507,7 @@ export function StartPage({
                         <Input
                           id="password"
                           name="password"
-                          type={
-                            showPassword ? "text" : "password"
-                          }
+                          type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
                           required
                           className="h-11 pr-10"
@@ -554,13 +517,9 @@ export function StartPage({
                           variant="ghost"
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-muted/20"
-                          onClick={() =>
-                            setShowPassword(!showPassword)
-                          }
+                          onClick={() => setShowPassword(!showPassword)}
                           aria-label={
-                            showPassword
-                              ? "Hide password"
-                              : "Show password"
+                            showPassword ? "Hide password" : "Show password"
                           }
                         >
                           {showPassword ? (
@@ -703,18 +662,12 @@ export function StartPage({
                         <Input
                           id="signupPassword"
                           name="signupPassword"
-                          type={
-                            showSignupPassword
-                              ? "text"
-                              : "password"
-                          }
+                          type={showSignupPassword ? "text" : "password"}
                           placeholder="••••••••"
                           required
                           className="h-10 pr-10"
                           value={signupPassword}
-                          onChange={(e) =>
-                            setSignupPassword(e.target.value)
-                          }
+                          onChange={(e) => setSignupPassword(e.target.value)}
                         />
                         <Button
                           type="button"
@@ -722,9 +675,7 @@ export function StartPage({
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-muted/20"
                           onClick={() =>
-                            setShowSignupPassword(
-                              !showSignupPassword,
-                            )
+                            setShowSignupPassword(!showSignupPassword)
                           }
                           aria-label={
                             showSignupPassword
@@ -746,8 +697,8 @@ export function StartPage({
                         </Button>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Must be 8-12 characters with uppercase,
-                        lowercase, digit, and special character
+                        Must be 8-12 characters with uppercase, lowercase,
+                        digit, and special character
                       </p>
                     </div>
 
@@ -762,18 +713,12 @@ export function StartPage({
                         <Input
                           id="confirmPassword"
                           name="confirmPassword"
-                          type={
-                            showConfirmPassword
-                              ? "text"
-                              : "password"
-                          }
+                          type={showConfirmPassword ? "text" : "password"}
                           placeholder="••••••••"
                           required
                           className="h-10 pr-10"
                           value={confirmPassword}
-                          onChange={(e) =>
-                            setConfirmPassword(e.target.value)
-                          }
+                          onChange={(e) => setConfirmPassword(e.target.value)}
                         />
                         <Button
                           type="button"
@@ -781,9 +726,7 @@ export function StartPage({
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-muted/20"
                           onClick={() =>
-                            setShowConfirmPassword(
-                              !showConfirmPassword,
-                            )
+                            setShowConfirmPassword(!showConfirmPassword)
                           }
                           aria-label={
                             showConfirmPassword
@@ -824,10 +767,11 @@ export function StartPage({
                             <SelectValue placeholder="Select level" />
                           </SelectTrigger>
                           <SelectContent>
-                            {AcademicLevels.map((level: any, index) => (
-                              <SelectItem
-                                key={index}
-                                value={level.Code}> {level.Name}</SelectItem>
+                            {AcademicLevels?.map((level: any, index) => (
+                              <SelectItem key={index} value={level.Code}>
+                                {" "}
+                                {level.Name}
+                              </SelectItem>
                             ))}
                             {/* <SelectItem value="freshman">Freshman</SelectItem>
                             <SelectItem value="sophomore">Sophomore</SelectItem>
@@ -850,12 +794,12 @@ export function StartPage({
                             <SelectValue placeholder="Select major" />
                           </SelectTrigger>
                           <SelectContent>
-                            {Majors.map((level: any, index) => (
-                              <SelectItem
-                                key={index}
-                                value={level.Code}> {level.Name}</SelectItem>
+                            {Majors?.map((level: any, index) => (
+                              <SelectItem key={index} value={level.Code}>
+                                {" "}
+                                {level.Name}
+                              </SelectItem>
                             ))}
-
                           </SelectContent>
                           {/* <SelectContent>
                             <SelectItem value="computer-science">Computer Science</SelectItem>

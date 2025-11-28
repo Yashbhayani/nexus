@@ -1,11 +1,13 @@
-export const host = "https://nexuscampus.onrender.com/api/";
-//export const host = "http://localhost:5000/api/";
+//export const host = "https://nexuscampus.onrender.com/api/";
+export const host = "http://localhost:5000/api/";
 
 // Auth Routes
 export const loginurl = "auth/login";
 export const signupurl = "auth/create-account";
 export const userinfo = "auth/user-info";
 export const verifyusertype = "auth/verifyusertype";
+export const verifyemail = "auth/verifyemail";
+export const verifyotp = "auth/verifyotp";
 
 // Usertype Routes
 export const usertype = "usertype/";
@@ -29,5 +31,5 @@ export const userblogurl = "userblog/";
 export const adminblogurl = "adminblogurl/";
 
 //useractivity Routes
-export const academiclevel= "useractivities/academic-level/";
-export const major= "useractivities/major/";
+export const academiclevel = "useractivities/academic-level/";
+export const major = "useractivities/major/";
