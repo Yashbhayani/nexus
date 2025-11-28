@@ -8,6 +8,7 @@ export const userinfo = "auth/user-info";
 export const verifyusertype = "auth/verifyusertype";
 export const verifyemail = "auth/verifyemail";
 export const verifyotp = "auth/verifyotp";
+export const newpassword = "auth/newpassword";
 
 // Usertype Routes
 export const usertype = "usertype/";

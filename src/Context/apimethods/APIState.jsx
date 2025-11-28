@@ -44,7 +44,8 @@ export const APIState = (props) => {
     // Case 2: GET with params
     //GETFunction(apiroute.getcategoryurl, { cid: 5 });
 
-
+    //PUT example to pass data
+    // PUT — auto (params or body)
     const PUTFunction = (data, code, useParams = false) =>
         apiRequest({
             url: apiroute.host + code,
@@ -52,7 +53,46 @@ export const APIState = (props) => {
             ...(useParams ? { params: data } : { body: data }),
         });
 
-    //PUT example to pass data
+    // PUT — only params
+    const PUTFunctionParams = (params, code) =>
+        apiRequest({
+            url: apiroute.host + code,
+            method: "PUT",
+            params,
+        });
+
+    // PUT — only body
+    const PUTFunctionBody = (body, code) =>
+        apiRequest({
+            url: apiroute.host + code,
+            method: "PUT",
+            body,
+        });
+
+
+    // PATCH — auto (params or body)
+    const PATCHFunction = (data, code, useParams = false) =>
+        apiRequest({
+            url: apiroute.host + code,
+            method: "PATCH",
+            ...(useParams ? { params: data } : { body: data }),
+        });
+
+    // PATCH — only params
+    const PATCHFunctionParams = (code, params) =>
+        apiRequest({
+            url: apiroute.host + code,
+            method: "PATCH",
+            params,
+        });
+
+    // PATCH — only body
+    const PATCHFunctionBody = (code, body) =>
+        apiRequest({
+            url: apiroute.host + code,
+            method: "PATCH",
+            body,
+        });
 
     // Case 1: Update category with formdata (body)
     //PUTFunction({ id: 1, name: "Books" }, apiroute.updatecategoryurl);
@@ -78,7 +118,12 @@ export const APIState = (props) => {
 
 
     return (
-        <APIContext.Provider value={{ POSTFunction, GETFunction, PUTFunction, DELETEFunction }}>
+        <APIContext.Provider value={{
+            POSTFunction, GETFunction,
+            PUTFunction, PUTFunctionParams, PUTFunctionBody,
+            PATCHFunction, PATCHFunctionBody, PATCHFunctionParams,
+            DELETEFunction
+        }}>
             {props.children}
         </APIContext.Provider>
     )

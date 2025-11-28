@@ -21,7 +21,7 @@ interface ForgotPasswordProps {
 
 export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
   const context = useContext(APIContext);
-  const { GETFunction } = context;
+  const { GETFunction, PATCHFunctionBody } = context;
 
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -69,16 +69,32 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
     setOtpError("");
     setIsLoading(true);
 
+    let body = {
+      email: email,
+      Otp: otp,
+    };
+    console.log(body);
     // Simulate OTP verification
-    setTimeout(() => {
-      setIsLoading(false);
-      if (otp === "0000") {
+
+    const verifyOtp = await PATCHFunctionBody(apiroute.verifyotp, body);
+    console.log(verifyOtp);
+
+    if (verifyOtp.success) {
+      // Simulate sending OTP
+      setTimeout(() => {
+        setIsLoading(false);
         setCurrentStep("reset");
-      } else {
-        setOtpError("Wrong OTP, try again");
-        setOtp("");
-      }
-    }, 1000);
+      }, 1500);
+
+      setCurrentStep("otp");
+    } else {
+      // Simulate sending OTP
+      setTimeout(() => {
+        alert(verifyOtp.error);
+        setIsLoading(false);
+      }, 1500);
+    }
+    return;
   };
 
   const handlePasswordReset = async (e: React.FormEvent) => {
@@ -95,14 +111,28 @@ export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
       return;
     }
 
-    setIsLoading(true);
+    let body = {
+      email: email,
+      Password: newPassword,
+    };
 
-    // Simulate password reset
-    setTimeout(() => {
-      setIsLoading(false);
-      // Reset complete, go back to login
-      onBack();
-    }, 1500);
+    const verifyPass = await PATCHFunctionBody(apiroute.newpassword, body);
+    if (verifyPass.success) {
+      // Simulate sending OTP
+      setTimeout(() => {
+        setIsLoading(false);
+        onBack();
+      }, 1500);
+
+      setCurrentStep("otp");
+    } else {
+      // Simulate sending OTP
+      setTimeout(() => {
+        alert(verifyPass.error);
+        setIsLoading(false);
+      }, 1500);
+    }
+    return;
   };
 
   const handleBackToLogin = () => {
