@@ -65,45 +65,32 @@ export function AIAssistant({ isOpen, onToggle, userId = null }: AIAssistantProp
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const hasLoadedRef = useRef(false);
-  const previousUserIdRef = useRef<number | null | undefined>(userId);
+  const sessionIdRef = useRef<string | null>(null);
 
-  // Reset chat when user changes (login/logout)
+  // Reset chat on every login - generates a new session each time
   useEffect(() => {
-    if (previousUserIdRef.current !== userId) {
-      // User changed - reset everything
+    if (userId !== null && userId !== undefined) {
+      // Generate a new session ID for this login
+      const newSessionId = `${userId}_${Date.now()}`;
+      
+      // Only reset if this is a new session
+      if (sessionIdRef.current !== newSessionId) {
+        // User logged in - reset everything for fresh start
+        setMessages([INITIAL_GREETING]);
+        setConversationHistory([]);
+        setInputMessage("");
+        localStorage.removeItem("campus_ai_chat_history");
+        sessionIdRef.current = newSessionId;
+      }
+    } else if (userId === null || userId === undefined) {
+      // User logged out - reset everything
       setMessages([INITIAL_GREETING]);
       setConversationHistory([]);
       setInputMessage("");
       localStorage.removeItem("campus_ai_chat_history");
-      previousUserIdRef.current = userId;
+      sessionIdRef.current = null;
     }
   }, [userId]);
-
-  // Load chat history from localStorage when component mounts
-  useEffect(() => {
-    if (!hasLoadedRef.current) {
-      const savedMessages = localStorage.getItem("campus_ai_chat_history");
-      if (savedMessages) {
-        try {
-          const parsed = JSON.parse(savedMessages);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setMessages(parsed);
-          }
-        } catch (error) {
-          console.error("Failed to load chat history:", error);
-        }
-      }
-      hasLoadedRef.current = true;
-    }
-  }, []);
-
-  // Save chat history to localStorage whenever messages change
-  useEffect(() => {
-    if (hasLoadedRef.current && messages.length > 0) {
-      localStorage.setItem("campus_ai_chat_history", JSON.stringify(messages));
-    }
-  }, [messages]);
 
   // Auto-scroll to bottom when new messages arrive or when opened
   useEffect(() => {
