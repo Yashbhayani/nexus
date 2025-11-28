@@ -3,10 +3,10 @@ const { Sequelize } = require('sequelize');
 const sequelize = require('../db');
 
 // Import your credentials file
-const { Gemini } = require('../credentials');
+const { Gemini_full } = require('../credentials');
 
 // Initialize Gemini client
-const genAI = new GoogleGenerativeAI(Gemini.API_KEY);
+const genAI = new GoogleGenerativeAI(Gemini_full.API_KEY);
 
 /**
  * Gathers context from your Nexus MySQL database using Sequelize

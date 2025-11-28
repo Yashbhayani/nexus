@@ -27,6 +27,7 @@ const SkillsTable = require("./models/skillstable");
 const ManageOrganization = require("./models/manageorganization");
 const EventsAndActivitiesType = require("./models/eventsandactivitiestype");
 const { WebPort } = require("./credentials");
+const chatRouter = require('./routers/chat');
 
 const app = express();
 
@@ -45,6 +46,8 @@ app.use("/api/events", require("./routers/eventsactivities"));
 app.use("/api/post", require("./routers/post"));
 app.use("/api/useractivities", require("./routers/useractivities"));
 app.use("/api/auth", require("./routers/auth"));
+
+app.use('/api/chat', chatRouter);
 
 const PORT = WebPort.PORT;
 app.listen(PORT, () =>

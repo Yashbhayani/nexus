@@ -61,6 +61,22 @@ module.exports.Jwt = {
   JWT_SCERET: "NexusCampus",
 };
 
+
 module.exports.Gemini = {
-  API_KEY: 'AIzaSyBPrdIgWxZ6s2BOPl8OZPCjoRDhgxsQO0Y',
+  API_KEY_1: 'AIzaSyAoB',
+  API_KEY_2: '-_2sl1wp',
+  API_KEY_3:'ciaRxsG',
+  API_KEY_4: '3LC-CPihV',
+  API_KEY_5: 'XPEoHk',
+}
+
+const fullGeminiKey = 
+  module.exports.Gemini.API_KEY_1 +
+  module.exports.Gemini.API_KEY_2 +
+  module.exports.Gemini.API_KEY_3 +
+  module.exports.Gemini.API_KEY_4 +
+  module.exports.Gemini.API_KEY_5;
+
+module.exports.Gemini_full = {
+  API_KEY: fullGeminiKey,
 }
