@@ -49,7 +49,7 @@ router.put(
   put
 );
 
-router.patch("/join", fetchUser, join);
+router.get("/join", fetchUser, join);
 router.delete("/delete-event", fetchUser, deleteevent);
 router.patch("/approved", fetchUser, approved);
 router.patch("/rejected", fetchUser, rejected);

@@ -533,6 +533,7 @@ module.exports.put = async (req, res) => {
 
 module.exports.join = async (req, res) => {
   let success = false;
+
   try {
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
@@ -540,37 +541,21 @@ module.exports.join = async (req, res) => {
     });
 
     if (!Userdata) {
-      return res.status(404).send("Not Found User", success);
+      return res.status(404).json({ success, message: "Not Found User" });
     }
 
     const { OID } = req.query;
 
     if (!OID) {
-      return res.status(400).json({
-        success,
-        message: "Organization is required",
-      });
+      return res.status(400).json({ success, message: "Organization is required" });
     }
 
-    if (!(await Organization.findOne({ where: { ID: OID } }))) {
-      return res.status(404).json({
-        success,
-        message: "Organization not found",
-      });
+    const Org = await Organization.findOne({ where: { ID: OID } });
+    if (!Org) {
+      return res.status(404).json({ success, message: "Organization not found" });
     }
 
-    let ManageOrganizations = await ManageOrganization.findOne({
-      where: { OID: OID, UID: req.user.id, IsRemove: 0 },
-      attributes: ["ID"],
-    });
-
-    if (ManageOrganizations) {
-      res.status(404).json({
-        success,
-        message: "User already joined this organization",
-      });
-    }
-
+    // Fetch SID for ODUSER (JOIN STATUS)
     let SID = await Status.findOne({
       where: { Code: OrgDeptTypes.OdU.toUpperCase() },
       attributes: ["ID"],
@@ -583,72 +568,58 @@ module.exports.join = async (req, res) => {
       });
     }
 
-    if (
-      await ManageOrganization.findOne({
-        where: { OID: OID, UID: Userdata.ID, IsRemove: true },
-      })
-    ) {
-      let UpdatedManageOrganization = await ManageOrganization.update({
-        IsRemove: false,
-        where: { BID: BID, UID: Userdata.ID },
-      });
-      if (!UpdatedManageOrganization) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
-      success = true;
-      res
-        .status(200)
-        .json({ success, message: "You Join Organization Successfully!" });
-    }
+    const existing = await ManageOrganization.findOne({
+      where: { OID: OID, UID: Userdata.ID },
+    });
 
-    if (
-      !(await ManageOrganization.findOne({
-        where: { OID: OID, UID: Userdata.ID, IsRemove: fasle },
-      }))
-    ) {
-      let AddManageOrganizations = await ManageOrganization.create({
-        OID: OID,
-        UID: req.user.id,
-        SID: SID.ID,
-      });
+    // ➤ CASE 1: User currently joined → Remove (IsRemove = true)
+    if (existing && !Boolean(existing.IsRemove)) {
+      await ManageOrganization.update(
+        { IsRemove: true },
+        { where: { OID: OID, UID: Userdata.ID } }
+      );
 
-      if (!AddManageOrganizations) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
       success = true;
-      res
-        .status(200)
-        .json({ success, message: "You Join Organization Successfully!" });
-    } else {
-      let UpdatedManageOrganization = await ManageOrganization.update({
-        IsRemove: true,
-        where: { BID: BID, UID: Userdata.ID },
-      });
-      if (!UpdatedManageOrganization) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
-      success = true;
-      res
-        .status(200)
-        .json({ success, message: "You leave Organization Successfully!" });
-    }
-
-    /*    if (!ManageOrganizations) {
-      return res.status(500).json({
+      return res.status(200).json({
         success,
-        message: "Failed to join organization",
+        message: "You removed from this organization successfully!",
       });
     }
+
+    // ➤ CASE 2: User exists but removed → Re-Join (IsRemove = false)
+    if (existing && Boolean(existing.IsRemove)) {
+      await ManageOrganization.update(
+        { IsRemove: false },
+        { where: { OID: OID, UID: Userdata.ID } }
+      );
+
+      success = true;
+      return res.status(200).json({
+        success,
+        message: "You rejoined organization successfully!",
+      });
+    }
+
+    // ➤ CASE 3: User never joined → Insert new record
+    await ManageOrganization.create({
+      OID: OID,
+      UID: Userdata.ID,
+      SID: SID.ID,
+      IsRemove: false,
+    });
 
     success = true;
-    res.status(200).json({
-      message: "You Join Organization Successfully",
+    return res.status(200).json({
       success,
-    });*/
+      message: "You joined organization successfully!",
+    });
+
   } catch (err) {
-    res.status(500).json({ error: err.message, success });
+    console.error(err.message);
+    return res.status(500).json({ success, error: err.message });
   }
 };
+
 
 module.exports.vieworganization = async (req, res) => {
   let success = false;
