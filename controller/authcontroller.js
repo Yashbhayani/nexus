@@ -1,4 +1,5 @@
 const { request } = require("express");
+const { Op } = require("sequelize");
 const User = require("../models/user");
 const Staus = require("../models/status");
 const UserInfo = require("../models/userinfo");
@@ -318,7 +319,7 @@ module.exports.verifyusertype = async (req, res) => {
       return res.status(404).json({ error: "User is not Admin", success });
     } else {
       success = true;
-      return res.status(404).json({ error: "User is Admin", success });
+      return res.status(200).json({ error: "User is Admin", success });
     }
   } catch (err) {
     console.error(err.message);
@@ -326,12 +327,11 @@ module.exports.verifyusertype = async (req, res) => {
   }
 };
 
-module.exports.forgotpass = async (req, res) => {
+module.exports.verifyemail = async (req, res) => {
   let success = false;
 
   try {
-    const { email } = req.body;
-
+    const { email } = req.query;
     let UserData = await User.findOne({
       where: { Email: email },
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
@@ -441,7 +441,7 @@ module.exports.forgotpass = async (req, res) => {
     }
 
     success = true;
-    return res.status(404).json({
+    return res.status(200).json({
       message: `We've sent a verification code to: ${email}!`,
       success,
     });
@@ -467,7 +467,6 @@ module.exports.verifyotp = async (req, res) => {
       });
     }
 
-
     let Otpverify = await OtpTable.findOne({
       where: {
         UID: UserData.ID,
@@ -475,7 +474,6 @@ module.exports.verifyotp = async (req, res) => {
         IsUsed: false,
       },
     });
-
 
     if (!Otpverify) {
       return res.status(200).json({
@@ -516,10 +514,72 @@ module.exports.verifyotp = async (req, res) => {
     }
 
     success = true;
-    return res.status(404).json({
+    return res.status(200).json({
       message: "Otp Verified Sucessfully!",
       success,
     });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send({ success, error: err.message });
+  }
+};
+
+module.exports.newpassword = async (req, res) => {
+  let success = false;
+  try {
+    const { email, Password } = req.body;
+
+    let UserData = await User.findOne({
+      where: { Email: email },
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+    });
+    if (!UserData) {
+      return res.status(200).json({
+        error: "Sorry, email is not exists.",
+        success,
+      });
+    }
+
+    let UserOTPSucess = await OtpTable.findOne({
+      where: {
+        UID: UserData.ID,
+        // [Op.or]: [
+        //   { IsDeleted: { [Op.ne]: true } },
+        //   { IsUsed: { [Op.ne]: false } },
+        // ],
+      },
+      order: [["ID", "DESC"]],
+    });
+
+    console.log(UserOTPSucess.IsDeleted); // => 0 or 1
+    console.log(UserOTPSucess.IsUsed); // => 0 or 1
+
+    if (UserOTPSucess.IsDeleted) {
+      return res.status(404).send("otp is not verified!", success);
+    }
+
+    if (!UserOTPSucess.IsUsed) {
+      return res.status(404).send("otp is not verified!", success);
+    }
+    const secPass = await bcrypt.hash(Password, 10);
+
+    UserData = await User.update(
+      {
+        Password: Password,
+      },
+      { where: { ID: UserData.ID } }
+    );
+
+    if (!UserData) {
+      return res
+        .status(500)
+        .json({ error: "Password is not updated! ", success: false });
+    }
+
+    success = true;
+    return res
+      .status(200)
+      .json({ success, message: "Password Updated successfully" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success, error: err.message });

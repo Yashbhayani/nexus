@@ -46,5 +46,4 @@ router.put(
 router.put("/join", fetchUser, join);
 router.post("/view-organization", fetchUser, join);
 
-
 module.exports = router;

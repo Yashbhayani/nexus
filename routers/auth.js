@@ -9,8 +9,9 @@ const {
   createaccount,
   userinfo,
   verifyusertype,
-  forgotpass,
+  verifyemail,
   verifyotp,
+  newpassword,
 } = require("../controller/authcontroller");
 
 router.post("/login", login);
@@ -45,7 +46,8 @@ router.put(
   userinfo
 );
 router.get("/verifyusertype", fetchUser, verifyusertype);
-router.get("/forgotpass", forgotpass);
-router.get("/verifyotp", verifyotp);
+router.get("/verifyemail", verifyemail);
+router.patch("/verifyotp", verifyotp);
+router.patch("/newpassword", newpassword);
 
 module.exports = router;

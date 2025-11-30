@@ -208,11 +208,29 @@ module.exports.deletepost = async (req, res) => {
 
     const postToDelete = await BlogTable.findByPk(ID);
 
+    // If not success → return response
+
     if (!postToDelete) {
       return res.status(404).json({ success, error: "Post not found" });
     }
 
+    // Call the function
+    if (postToDelete.UID !== Userdata.ID) {
+      let check = await checkAdminStatus(Userdata.ID);
+      if (!check.success) {
+        return res.status(check.status).json({
+          success: false,
+          message: check.message,
+        });
+      }
+
+      if (check.user != Useres.ADMIN.toUpperCase()) {
+        return res.status(404).json({ error: "User is not Admin", success });
+      }
+    }
+
     postToDelete.IsDeleted = true;
+    postToDelete.UpdatedByID = Userdata.ID;
     await postToDelete.save();
 
     if (!postToDelete) {

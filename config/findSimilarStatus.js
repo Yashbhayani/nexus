@@ -81,3 +81,55 @@ module.exports.checkAdminStatus = async (ID) => {
     user: Code,
   };
 };
+
+module.exports.CheckOrgMemberStaus = async (OID, UID) => {
+  try {
+    const orgMemberData = await sequelize.query(
+      `
+        SELECT 
+            CASE 
+                WHEN M.ID IS NULL THEN FALSE
+                WHEN s.Code = 'ODMember' THEN FALSE
+                ELSE TRUE
+            END AS Result
+        FROM nexus.manageorganization AS M
+        LEFT JOIN nexus.status AS s
+            ON s.ID = M.SID
+        WHERE M.OID = :OID AND M.UID = :UID
+        
+        UNION ALL
+        
+        SELECT FALSE
+        LIMIT 1;
+      `,
+      {
+        replacements: { OID, UID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Extract the boolean result
+    const Result = orgMemberData?.[0]?.Result ?? false;
+
+    // if (!Boolean(Result)) {
+    //   return {
+    //     success: false,
+    //     message: "User not found",
+    //     status: 404,
+    //   };
+    // }
+
+    return {
+      success: true,
+      status: 200,
+      isMember: Boolean(Result),
+    };
+  } catch (error) {
+    console.error("CheckOrgMemberStaus Error:", error);
+    return {
+      success: false,
+      status: 500,
+      message: "Internal server error",
+    };
+  }
+};
