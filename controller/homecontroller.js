@@ -109,7 +109,7 @@ module.exports.feed = async (req, res) => {
   }
 };
 
-exports.module.explore = async (req, res) => {
+module.exports.explore = async (req, res) => {
   let success = false;
   try {
     let Userdata = await User.findByPk(req.user.id, {
