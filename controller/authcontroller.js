@@ -13,6 +13,8 @@ const nodemailer = require("nodemailer");
 const { checkAdminStatus } = require("../config/findSimilarStatus");
 const { Useres } = require("../enums/codes");
 const OtpTable = require("../models/otptable");
+const SkillsTable = require("../models/skillstable");
+const InterestTable = require("../models/interesttable");
 
 module.exports.login = async (req, res) => {
   let success = false;
@@ -233,8 +235,30 @@ module.exports.createaccount = async (req, res) => {
 module.exports.userinfo = async (req, res) => {
   let success = false;
   try {
-    const { BIO, Gender, Minor, GraduationYear } = req.body;
+    let { BIO, StudentType, Majors, skills, Interests } = req.body;
     const { path } = req.file;
+
+    if (typeof skills === "string") {
+      try {
+        skills = JSON.parse(skills); // convert to real array
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "skills must be a valid JSON array",
+        });
+      }
+    }
+
+    if (typeof Interests === "string") {
+      try {
+        Interests = JSON.parse(Interests); // convert to real array
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Interests must be a valid JSON array",
+        });
+      }
+    }
 
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
@@ -245,22 +269,30 @@ module.exports.userinfo = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    if (!BIO || !Gender || !Minor || !GraduationYear) {
+    if (!BIO || !StudentType || !Majors || !skills || !Interests) {
       return res
         .status(400)
         .json({ error: "Please enter all the fields", success });
     }
 
-    let GID = await Staus.findOne({
-      attributes: ["ID"],
-      where: { IsDeleted: false, Code: Gender.toUpperCase() },
-    });
-
-    if (!GID) {
-      return res
-        .status(400)
-        .json({ error: "Please enter a valid gender", success });
+    if (!Array.isArray(skills)) {
+      return res.status(400).json({
+        success,
+        message: "skills must be an array",
+      });
     }
+
+    if (!Array.isArray(Interests)) {
+      return res.status(400).json({
+        success,
+        message: "Interests must be an array",
+      });
+    }
+
+    let STID = await Staus.findOne({
+      attributes: ["ID"],
+      where: { Code: StudentType.toUpperCase() },
+    });
 
     let ImagesData = await Images.create({
       ImageURL: path,
@@ -276,9 +308,7 @@ module.exports.userinfo = async (req, res) => {
     let UInfo = await UserInfo.update(
       {
         BIO: BIO,
-        Gender: GID.ID,
         ImgID: ImagesData.ID,
-        Minor: Minor,
         GraduationYear: GraduationYear,
       },
       { where: { UID: Userdata.ID } }
@@ -289,6 +319,46 @@ module.exports.userinfo = async (req, res) => {
         .status(500)
         .json({ error: "Failed to update user info", success: false });
     }
+
+    skills.forEach(async (type) => {
+      let createSkills = await SkillsTable.create({
+        UID: Userdata.ID,
+        Skill: type
+          .trim()
+          .replace(/\s+/g, "")
+          .split(" ")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" "),
+        CreatedByID: req.user.id,
+      });
+
+      if (!createSkills) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to create skills",
+        });
+      }
+    });
+
+    Interests.forEach(async (type) => {
+      let createSkills = await InterestTable.create({
+        UID: Userdata.ID,
+        Interest: type
+          .trim()
+          .replace(/\s+/g, "")
+          .split(" ")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" "),
+        CreatedByID: req.user.id,
+      });
+
+      if (!createSkills) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to create Interests",
+        });
+      }
+    });
 
     res.json({
       success: true,

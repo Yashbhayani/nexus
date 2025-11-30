@@ -177,7 +177,7 @@ module.exports.explore = async (req, res) => {
                     im.ImageURL As image,
                     oi.AboutUs As description,
                     s.Name As category,
-                    CONCAT(r.RoomName,', ',bi.BuildingName) AS location,
+                   -- CONCAT(r.RoomName,', ',bi.BuildingName) AS location,
                     (Select Count(*) from nexus.manageorganization where OID =  o.ID) As members,
                     -- Check if CURRENT USER is joined → TRUE / FALSE
                     CASE 
@@ -198,10 +198,10 @@ module.exports.explore = async (req, res) => {
                     ON im.ID = o.ImgID
                 LEFT JOIN nexus.status As s
                     ON s.ID  = o.OrganizationType
-                LEFT JOIN nexus.building As bi
-                    ON bi.ID =  oi.BID
-                LEFT JOIN nexus.rooms As r
-                    ON r.ID =  oi.RID
+               -- LEFT JOIN nexus.building As bi
+               --     ON bi.ID =  oi.BID
+               -- LEFT JOIN nexus.rooms As r
+               --     ON r.ID =  oi.RID
                 Where o.IsDeleted = 0
                 Order By rand();  
         `,

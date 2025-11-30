@@ -285,13 +285,10 @@ module.exports.put = async (req, res) => {
 
     let {
       ID,
-      OrganizationUserName,
       OrganizationName,
       OrganizationType,
       Email,
       Phone,
-      BID,
-      RID,
       Mission,
       AboutUs,
       image,
@@ -315,7 +312,6 @@ module.exports.put = async (req, res) => {
 
     if (
       !ID ||
-      !OrganizationUserName ||
       !OrganizationName ||
       !OrganizationType ||
       !Email ||
