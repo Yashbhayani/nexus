@@ -45,6 +45,7 @@ app.use("/api/rooms", require("./routers/rooms"));
 app.use("/api/organization", require("./routers/organization"));
 app.use("/api/events", require("./routers/eventsactivities"));
 app.use("/api/post", require("./routers/post"));
+app.use("/api/home", require("./routers/home"));
 app.use("/api/useractivities", require("./routers/useractivities"));
 app.use("/api/auth", require("./routers/auth"));
 
