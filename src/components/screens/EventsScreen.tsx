@@ -340,6 +340,7 @@ export function EventsScreen({ onNavigate }: EventsScreenProps) {
                   <SelectItem value="tomorrow">Tomorrow</SelectItem>
                   <SelectItem value="this-week">This Week</SelectItem>
                   <SelectItem value="this-month">This Month</SelectItem>
+                  <SelectItem value="upcoming">Upcoming</SelectItem>
                 </SelectContent>
               </Select>
             </div>
