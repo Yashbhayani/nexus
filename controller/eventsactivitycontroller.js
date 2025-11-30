@@ -26,7 +26,69 @@ module.exports.get = async (req, res) => {
       return res.status(404).send("Not Found User", success);
     }
 
-    return res.status(200).json({ success: true });
+    const userlogData = await sequelize.query(
+      `
+        SELECT 
+            ea.ID,
+            im.ImageURL,
+            ea.EventActivityName,
+            b.BuildingName,
+            r.RoomName,
+
+            -- Dec 20 Format
+            DATE_FORMAT(ea.EventDate, '%b %d %Y') AS EventDate,
+
+            s.Name AS EventType,
+
+            -- ---------------------------
+            -- Date Category
+            -- ---------------------------
+            CASE 
+                WHEN DATE(ea.EventDate) = CURDATE() THEN 'Today'
+                WHEN DATE(ea.EventDate) = CURDATE() + INTERVAL 1 DAY THEN 'Tomorrow'
+                WHEN YEARWEEK(ea.EventDate, 1) = YEARWEEK(CURDATE(), 1) THEN 'This Week'
+                WHEN MONTH(ea.EventDate) = MONTH(CURDATE()) 
+                    AND YEAR(ea.EventDate) = YEAR(CURDATE()) THEN 'This Month'
+                ELSE 'Upcoming'
+            END AS DateCategory,
+        -- ---------------------------
+            -- RSVP Status TRUE / FALSE
+            -- ---------------------------
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM nexus.manageeventandactivities mea 
+                    WHERE mea.UID = :UserID
+                    AND mea.EAAID = ea.ID
+                ) 
+                THEN TRUE
+                ELSE FALSE
+            END AS RSVPStatu
+        FROM nexus.eventsandactivities AS ea
+        LEFT JOIN nexus.status AS s
+            ON s.ID = ea.EventType
+        LEFT JOIN nexus.images AS im
+            ON im.ID = ea.ImgID
+        LEFT JOIN nexus.building AS b
+            ON b.ID = ea.BuildingID
+        LEFT JOIN nexus.rooms AS r
+            ON r.ID = ea.RoomID
+
+        -- Exclude yesterday, only show from TODAY → FUTURE
+        WHERE ea.IsDeleted = 0
+        AND DATE(ea.EventDate) >= CURDATE() AND ea.ApproverByID IS NOT NULL
+
+        ORDER BY ea.EventDate ASC;
+
+
+      `,
+      {
+        replacements: { UserID: Userdata.ID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+    success = true;
+    return res.status(200).json({ success, userlogData });
   } catch (error) {
     console.error(error.message);
     return res.status(500).json({ success, error: "Internal Server Error" });
@@ -743,7 +805,7 @@ module.exports.approved = async (req, res) => {
 };
 
 module.exports.rejected = async (req, res) => {
-   let success = false;
+  let success = false;
   try {
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
