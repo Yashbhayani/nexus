@@ -1570,18 +1570,18 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       <div className="text-sm text-muted-foreground mb-1">Major</div>
                       <div className="font-medium">{studentProfile.major}</div>
                     </div>
-                    <div>
+                    {/* <div>
                       <div className="text-sm text-muted-foreground mb-1">Minor</div>
                       <div className="font-medium">{studentProfile.minor}</div>
-                    </div>
+                    </div> */}
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Academic Level</div>
                       <div className="font-medium">{studentProfile.academicLevel}</div>
                     </div>
-                    <div>
+                    {/* <div>
                       <div className="text-sm text-muted-foreground mb-1">Graduation Year</div>
                       <div className="font-medium">{studentProfile.graduationYear}</div>
-                    </div>
+                    </div> */}
                   </div>
                 </CardContent>
               </Card>
@@ -1738,7 +1738,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       <Separator />
 
                       {/* Social Media Section */}
-                      <div>
+                      {/* <div>
                         <h4 className="text-sm font-semibold mb-2">Social Media</h4>
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="secondary" className="flex items-center gap-1 text-xs">
@@ -1754,7 +1754,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                             LinkedIn: {org.socialMedia.linkedin}
                           </Badge>
                         </div>
-                      </div>
+                      </div> */}
                     </CardContent>
                   </Card>
                 ))}
@@ -1812,13 +1812,13 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                         <div className="font-medium">{organizationProfile.contactInfo.phone}</div>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    {/* <div className="flex items-start gap-3">
                       <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div className="min-w-0">
                         <div className="text-sm text-muted-foreground">Location</div>
                         <div className="font-medium">{organizationProfile.location}</div>
                       </div>
-                    </div>
+                    </div> */}
                     <div className="flex items-start gap-3">
                       <Globe className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div className="min-w-0">
@@ -1843,8 +1843,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       </div>
                     </div>
                   </div>
-                  <Separator />
-                  <div>
+                  {/*<Separator />
+                   <div>
                     <h3 className="font-semibold mb-3">Social Media</h3>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="secondary" className="flex items-center gap-1">
@@ -1860,7 +1860,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                         LinkedIn: {organizationProfile.socialMedia.linkedin}
                       </Badge>
                     </div>
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
 
@@ -2128,7 +2128,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {/* Members Tab */}
             <TabsContent value="members" className="space-y-6">
               {/* Pending Requests Section */}
-              {canManageMembers() && pendingRequests.length > 0 && (
+              {/* {canManageMembers() && pendingRequests.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold">Pending Requests ({pendingRequests.length})</h2>
@@ -2172,18 +2172,18 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Current Members Section */}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">Members ({organizationProfile.stats.members})</h2>
-                  {canManageMembers() && (
+                  {/* {canManageMembers() && (
                     <Button size="sm" onClick={() => setIsInviteMemberDialogOpen(true)}>
                       <UserPlus className="h-4 w-4 mr-2" />
                       Invite Members
-                    </Button>
-                  )}
+                    </Button> 
+                  )} */}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
@@ -2364,7 +2364,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    {/* <div className="space-y-2">
                       <Label htmlFor="minor">Minor</Label>
                       <Select
                         value={editFormData.minor}
@@ -2398,7 +2398,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                           <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                    </div> */}
 
                     <div className="space-y-2">
                       <Label htmlFor="academicLevel">Academic Level</Label>
@@ -2419,7 +2419,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    {/* <div className="space-y-2">
                       <Label htmlFor="graduationYear">Graduation Year</Label>
                       <Select
                         value={editFormData.graduationYear}
@@ -2437,7 +2437,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                           <SelectItem value="2029">2029</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -2673,10 +2673,10 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                   </div>
                 </div>
 
-                <Separator />
+                {/* <Separator /> */}
 
                 {/* Social Media */}
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     <LinkIcon className="h-4 w-4" />
                     Social Media
@@ -2713,7 +2713,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
               </>
             )}
           </div>
@@ -2840,12 +2840,30 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {/* Location */}
             <div className="space-y-2">
               <Label htmlFor="event-location">Location *</Label>
-              <Input
+              {/* <Input
                 id="event-location"
                 placeholder="e.g., Engineering Building Room 203"
                 value={createEventFormData.location}
                 onChange={(e) => setCreateEventFormData(prev => ({ ...prev, location: e.target.value }))}
-              />
+              /> */}
+              <Select
+                  value={createEventFormData.location}
+                  onValueChange={(value) => setCreateEventFormData(prev => ({ ...prev, location: value }))}
+                >
+                  <SelectTrigger id="event-location">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="workshop">Workshop</SelectItem>
+                    <SelectItem value="seminar">Seminar</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="networking">Networking</SelectItem>
+                    <SelectItem value="competition">Competition</SelectItem>
+                    <SelectItem value="conference">Conference</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
             </div>
 
             {/* Category and Capacity */}
@@ -3018,12 +3036,30 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             {/* Location */}
             <div className="space-y-2">
               <Label htmlFor="edit-event-location">Location *</Label>
-              <Input
+              {/* <Input
                 id="edit-event-location"
                 placeholder="e.g., Engineering Building Room 203"
                 value={editEventFormData.location}
                 onChange={(e) => setEditEventFormData(prev => ({ ...prev, location: e.target.value }))}
-              />
+              /> */}
+              <Select
+                  value={editEventFormData.location}
+                  onValueChange={(value) => setEditEventFormData(prev => ({ ...prev, location: value }))}
+                >
+                  <SelectTrigger id="edit-event-location">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="workshop">Workshop</SelectItem>
+                    <SelectItem value="seminar">Seminar</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="networking">Networking</SelectItem>
+                    <SelectItem value="competition">Competition</SelectItem>
+                    <SelectItem value="conference">Conference</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
             </div>
 
             {/* Category and Capacity */}
@@ -3652,10 +3688,10 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
               </div>
             </div>
 
-            <Separator />
+            {/* <Separator /> */}
 
             {/* Social Media */}
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               <h3 className="font-semibold flex items-center gap-2">
                 <LinkIcon className="h-4 w-4" />
                 Social Media
@@ -3692,7 +3728,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Action Buttons */}
