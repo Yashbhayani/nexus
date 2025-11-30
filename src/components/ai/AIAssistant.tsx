@@ -123,7 +123,6 @@ export function AIAssistant({ isOpen, onToggle, userId = null }: AIAssistantProp
         {
           message: messageText,
           conversationHistory: conversationHistory,
-          userId: userId
         },
         CHAT_URL
       );
