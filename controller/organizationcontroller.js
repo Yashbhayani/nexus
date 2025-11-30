@@ -583,13 +583,57 @@ module.exports.join = async (req, res) => {
       });
     }
 
-    ManageOrganizations = await ManageOrganization.create({
-      OID: OID,
-      UID: req.user.id,
-      SID: SID.ID,
-    });
+    if (
+      await ManageOrganization.findOne({
+        where: { OID: OID, UID: Userdata.ID, IsRemove: true },
+      })
+    ) {
+      let UpdatedManageOrganization = await ManageOrganization.update({
+        IsRemove: false,
+        where: { BID: BID, UID: Userdata.ID },
+      });
+      if (!UpdatedManageOrganization) {
+        res.status(400).json({ error: "Server Error!", success });
+      }
+      success = true;
+      res
+        .status(200)
+        .json({ success, message: "You Join Organization Successfully!" });
+    }
 
-    if (!ManageOrganizations) {
+    if (
+      !(await ManageOrganization.findOne({
+        where: { OID: OID, UID: Userdata.ID, IsRemove: fasle },
+      }))
+    ) {
+      let AddManageOrganizations = await ManageOrganization.create({
+        OID: OID,
+        UID: req.user.id,
+        SID: SID.ID,
+      });
+
+      if (!AddManageOrganizations) {
+        res.status(400).json({ error: "Server Error!", success });
+      }
+      success = true;
+      res
+        .status(200)
+        .json({ success, message: "You Join Organization Successfully!" });
+    } else {
+      let UpdatedManageOrganization = await ManageOrganization.update({
+        IsRemove: true,
+        where: { BID: BID, UID: Userdata.ID },
+      });
+      if (!UpdatedManageOrganization) {
+        res.status(400).json({ error: "Server Error!", success });
+      }
+      success = true;
+      res
+        .status(200)
+        .json({ success, message: "You leave Organization Successfully!" });
+    }
+
+    /*    if (!ManageOrganizations) {
       return res.status(500).json({
         success,
         message: "Failed to join organization",
@@ -600,7 +644,7 @@ module.exports.join = async (req, res) => {
     res.status(200).json({
       message: "You Join Organization Successfully",
       success,
-    });
+    });*/
   } catch (err) {
     res.status(500).json({ error: err.message, success });
   }
@@ -638,4 +682,3 @@ module.exports.vieworganization = async (req, res) => {
     res.status(500).json({ error: error.message, success });
   }
 };
-

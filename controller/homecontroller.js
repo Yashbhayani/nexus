@@ -69,8 +69,8 @@ module.exports.feed = async (req, res) => {
                 ON u.ID = b.UID 
             LEFT JOIN nexus.organization AS o
                 ON o.ID = b.OID 
-
-            ORDER BY b.CreatedDate DESC;
+            Order by rand();
+           -- ORDER BY b.CreatedDate DESC;
         `,
       {
         replacements: { UID: Userdata.ID },
