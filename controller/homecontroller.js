@@ -24,35 +24,56 @@ module.exports.feed = async (req, res) => {
 
     const Blogsfeeds = await sequelize.query(
       `
-            select 
-                b.ID As ID,
+            SELECT 
+                b.ID AS ID,
+
                 -- Name field
                 CASE 
-                    WHEN u.ID IS NOT NULL THEN COALESCE(CONCAT(u.FirstName, ' ', u.LastName), SUBSTRING_INDEX(u.Email, '@', 1))
-                    WHEN o.ID IS NOT NULL THEN COALESCE(o.OrganizationName)
+                    WHEN u.ID IS NOT NULL THEN 
+                        COALESCE(CONCAT(u.FirstName, ' ', u.LastName), SUBSTRING_INDEX(u.Email, '@', 1))
+                    WHEN o.ID IS NOT NULL THEN 
+                        COALESCE(o.OrganizationName)
                     ELSE 'Unknown'
                 END AS Name,
-                
+
                 -- UserName field
                 CASE 
                     WHEN u.ID IS NOT NULL THEN SUBSTRING_INDEX(u.Email, '@', 1)
                     WHEN o.ID IS NOT NULL THEN o.OrganizationUserName
                     ELSE NULL
                 END AS UserName,
-                
-            b.PostTitle,
-            b.Content,
-            b.Image,
-            (Select Count(*) FROM nexus.like where BID = b.ID) AS Likes,
-            (Select Count(*) FROM nexus.comments where BID = b.ID) AS Comments
-            from nexus.blogtable As b
-            Left join nexus.user As u
-            ON u.ID = b.UID 
-            Left join nexus.organization As o
-            ON o.ID = b.OID 
-            order by b.CreatedDate Desc;
+
+                b.PostTitle,
+                b.Content,
+                b.Image,
+
+                -- Total Likes of this post
+                (SELECT COUNT(*) FROM nexus.like WHERE BID = b.ID) AS Likes,
+
+                -- Total Comments of this post
+                (SELECT COUNT(*) FROM nexus.comments WHERE BID = b.ID) AS Comments,
+
+                -- Is user already liked?
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM nexus.like 
+                        WHERE BID = b.ID AND UID = :UID
+                    ) 
+                    THEN TRUE 
+                    ELSE FALSE 
+                END AS IsLiked
+
+            FROM nexus.blogtable AS b
+            LEFT JOIN nexus.user AS u
+                ON u.ID = b.UID 
+            LEFT JOIN nexus.organization AS o
+                ON o.ID = b.OID 
+
+            ORDER BY b.CreatedDate DESC;
         `,
       {
+        replacements: { UID: Userdata.ID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
