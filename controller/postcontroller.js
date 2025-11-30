@@ -51,24 +51,6 @@ module.exports.get = async (req, res) => {
       }
     );
 
-    // let userBlogs = await BlogTable.findOne({
-    //   where: { UID: UID, IsDeleted: false },
-    //   include: [
-    //     {
-    //       model: Status,
-    //       attributes: ["Name"],
-    //     },
-    //   ],
-    //   attributes: [
-    //     ["ID", "BID"],
-    //     "PostTitle",
-    //     "Content",
-    //     ["Image", "image"],
-    //     "CreatedDate",
-    //     "UpdatedDate",
-    //   ],
-    // });
-
     success = true;
     return res.status(200).json({ success, userBlogs });
   } catch (error) {
@@ -283,23 +265,6 @@ module.exports.userblog = async (req, res) => {
       }
     );
 
-    // let userBlogs = await BlogTable.findOne({
-    //   where: { UID: UID, IsDeleted: false },
-    //   include: [
-    //     {
-    //       model: Status,
-    //       attributes: ["Name"],
-    //     },
-    //   ],
-    //   attributes: [
-    //     ["ID", "BID"],
-    //     "PostTitle",
-    //     "Content",
-    //     ["Image", "image"],
-    //     "CreatedDate",
-    //     "UpdatedDate",
-    //   ],
-    // });
     console.log(userBlogs);
 
     success = true;

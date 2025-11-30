@@ -63,7 +63,7 @@ module.exports.get = async (req, res) => {
                 ) 
                 THEN TRUE
                 ELSE FALSE
-            END AS RSVPStatu
+            END AS RSVPStatus
         FROM nexus.eventsandactivities AS ea
         LEFT JOIN nexus.status AS s
             ON s.ID = ea.EventType

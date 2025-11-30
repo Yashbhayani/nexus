@@ -50,19 +50,6 @@ module.exports.adminpanel = async (req, res) => {
       },
     });
 
-    /*    const TotalUsers = await User.count({
-      include: [
-        {
-          model: UserInfo,
-          as: "UserInfo", // if alias used
-          required: false, // LEFT JOIN
-          where: {
-            IsDeleted: false,
-          },
-        },
-      ],
-    });*/
-
     const TotalOrganizations = await Organization.count({
       where: {
         IsDeleted: false,

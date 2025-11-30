@@ -11,8 +11,6 @@ const User = require("../models/user");
 module.exports.feed = async (req, res) => {
   let success = false;
   try {
-    success = true;
-
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
       raw: true,
@@ -105,6 +103,116 @@ module.exports.feed = async (req, res) => {
     );
     success = true;
     return res.status(200).json({ success, Blogsfeeds, EventFeeds });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send(success, error.message);
+  }
+};
+
+exports.module.explore = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const userDate = await sequelize.query(
+      `
+              SELECT 
+                    u.ID As id,
+                    CONCAT(u.FirstName, ' ', u.LastName) AS name,
+                    im.ImageURL As image,
+                    ui.BIO As bio,
+                    s.Name As year,
+                    ss.Name As major,
+                    ut.Name AS SourceTable,
+                    (
+                        SELECT JSON_ARRAYAGG(it.Interest)
+                        FROM nexus.interesttable AS it
+                        WHERE it.UID = u.ID
+                    ) AS skills,
+                    -- Follow Status: Does current user follow THIS user?
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM nexus.followers AS f
+                            WHERE f.FollowerID = u.ID   
+                            AND f.FollowingID = :UID -- CURRENT USER ID
+                            AND f.IsDeleted = 0
+                        )
+                        THEN TRUE
+                        ELSE FALSE
+                    END AS isFollowing
+                    
+                FROM nexus.user AS u
+                LEFT JOIN nexus.userinfo AS ui
+                    ON ui.UID = u.ID
+                LEFT JOIN nexus.status AS s
+                    ON s.ID = ui.StudentType
+                LEFT JOIN nexus.status AS ss
+                    ON ss.ID = ui.Majors
+                LEFT JOIN nexus.usertype AS ut
+                ON ut.ID = u.UTID 
+                LEFT JOIN nexus.images AS im
+                    ON im.ID = ui.ImgID
+                Where ui.IsDeleted = 0 AND ut.IsDeleted = 0 AND ut.ID !=1 AND u.ID != :UID
+                Order By rand(); 
+        `,
+      {
+        replacements: { UID: Userdata.ID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const orgDate = await sequelize.query(
+      `
+                SELECT 
+                    o.ID,
+                    o.OrganizationName AS Name,
+                    im.ImageURL As image,
+                    oi.AboutUs As description,
+                    s.Name As category,
+                    CONCAT(r.RoomName,', ',bi.BuildingName) AS location,
+                    (Select Count(*) from nexus.manageorganization where OID =  o.ID) As members,
+                    -- Check if CURRENT USER is joined → TRUE / FALSE
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 
+                            FROM nexus.manageorganization 
+                            WHERE OID = o.ID 
+                            AND UID = :UID          -- 👈 CURRENT USER ID
+                            AND IsRemove = 0
+                        ) 
+                        THEN TRUE 
+                        ELSE FALSE 
+                    END AS isJoined
+                FROM nexus.organization AS o
+                LEFT JOIN nexus.organizationinfo AS oi
+                ON oi.OID = o.ID
+                LEFT JOIN nexus.images AS im
+                    ON im.ID = o.ImgID
+                LEFT JOIN nexus.status As s
+                    ON s.ID  = o.OrganizationType
+                LEFT JOIN nexus.building As bi
+                    ON bi.ID =  oi.BID
+                LEFT JOIN nexus.rooms As r
+                    ON r.ID =  oi.RID
+                Where o.IsDeleted = 0
+                Order By rand();  
+        `,
+      {
+        replacements: { UID: Userdata.ID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    success = true;
+    return res.status(200).json({ success, userDate, orgDate });
   } catch (error) {
     console.error(error.message);
     res.status(500).send(success, error.message);
