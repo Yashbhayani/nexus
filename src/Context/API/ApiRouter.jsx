@@ -25,7 +25,7 @@ export const chathealth = "chat/health";
 
 // rooms Routes
 //export const getroomurl = "room";
-export const addroomurl = "room/";
+export const addroomurl = "rooms/";
 
 //organization Routes
 export const organizationurl = "organization/";
@@ -33,12 +33,12 @@ export const joinorganizationurl = "organization/join";
 export const vieworganizationurl = "organization/view-organization";
 
 //events Routes
-export const eventurl = "event/";
-export const joineventurl = "event/join";
-export const deleteeventurl = "event/delete-event";
-export const approveeventurl = "event/approved";
-export const rejecteventurl = "event/rejected";
-export const admineventurl = "event/adminevent";
+export const eventurl = "events/";
+export const joineventurl = "events/join";
+export const deleteeventurl = "events/delete-event";
+export const approveeventurl = "events/approved";
+export const rejecteventurl = "events/rejected";
+export const admineventurl = "events/adminevent";
 
 //Homefeed Routes
 export const homeurl = "home/";
