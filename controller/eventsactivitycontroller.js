@@ -60,6 +60,7 @@ module.exports.get = async (req, res) => {
                     SELECT 1 
                     FROM nexus.manageeventandactivities mea 
                     WHERE mea.UID = :UserID
+                    AND mea.IsDeleted = 0
                     AND mea.EAAID = ea.ID
                 ) 
                 THEN TRUE

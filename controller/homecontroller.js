@@ -45,6 +45,15 @@ module.exports.feed = async (req, res) => {
                 b.Content,
                 b.Image,
 
+                -- Time ago in human-readable format
+                CASE 
+                    WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+                        CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
+                    WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+                        CONCAT(TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' minutes ago')
+                    ELSE 
+                        CONCAT(TIMESTAMPDIFF(SECOND, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' seconds ago')
+                END AS TimeAgo,
                 -- Total Likes of this post
                 (SELECT COUNT(*) FROM nexus.like WHERE BID = b.ID) AS Likes,
 
@@ -216,5 +225,17 @@ module.exports.explore = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).send(success, error.message);
+  }
+};
+
+module.exports.userinfo = async (req, res) => {
+  let success = false;
+  try {
+
+    
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send(success, err.message);
   }
 };

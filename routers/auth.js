@@ -52,4 +52,5 @@ router.patch("/verifyotp", verifyotp);
 router.patch("/newpassword", newpassword);
 router.get("/user-log-data", fetchUser, loginData);
 
+
 module.exports = router;
