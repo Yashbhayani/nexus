@@ -543,16 +543,9 @@ module.exports.newpassword = async (req, res) => {
     let UserOTPSucess = await OtpTable.findOne({
       where: {
         UID: UserData.ID,
-        // [Op.or]: [
-        //   { IsDeleted: { [Op.ne]: true } },
-        //   { IsUsed: { [Op.ne]: false } },
-        // ],
       },
       order: [["ID", "DESC"]],
     });
-
-    console.log(UserOTPSucess.IsDeleted); // => 0 or 1
-    console.log(UserOTPSucess.IsUsed); // => 0 or 1
 
     if (UserOTPSucess.IsDeleted) {
       return res.status(404).send("otp is not verified!", success);
@@ -583,5 +576,67 @@ module.exports.newpassword = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success, error: err.message });
+  }
+};
+
+module.exports.loginData = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+
+    if (!Userdata) {
+      return res.status(404).json({ success, message: "User not found" });
+    }
+
+    const userlogData = await sequelize.query(
+      `
+        SELECT 
+          u.ID,
+          CONCAT(u.FirstName, ' ', u.LastName) AS Name,
+          im.ImageURL AS image,
+          ut.Name AS SourceTable
+        FROM nexus.user AS u
+        LEFT JOIN nexus.userinfo AS ui
+          ON ui.UID = u.ID
+        LEFT JOIN nexus.usertype AS ut
+          ON ut.ID = u.UTID  
+        LEFT JOIN nexus.images AS im
+          ON im.ID = ui.ImgID
+        WHERE ui.IsDeleted = 0 
+          AND u.ID = :UserID
+
+        UNION ALL 
+
+        SELECT 
+          o.ID,
+          o.OrganizationName AS Name,
+          im.ImageURL AS image,
+          'Organization' AS SourceTable
+        FROM nexus.organization AS o
+        LEFT JOIN nexus.manageorganization AS mo
+          ON mo.OID = o.ID
+        LEFT JOIN nexus.status AS s
+          ON s.ID = mo.SID 
+        LEFT JOIN nexus.images AS im
+          ON im.ID = o.ImgID
+        WHERE mo.UID = :UserID
+          AND o.IsDeleted = 0 
+          AND s.IsDeleted = 0 
+          AND s.Code != 'ODMember';
+      `,
+      {
+        replacements: { UserID: Userdata.ID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    success = true;
+    return res.status(200).json({ success, userlogData });
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ success, error: err.message });
   }
 };

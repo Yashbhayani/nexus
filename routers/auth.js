@@ -12,6 +12,7 @@ const {
   verifyemail,
   verifyotp,
   newpassword,
+  loginData,
 } = require("../controller/authcontroller");
 
 router.post("/login", login);
@@ -49,5 +50,6 @@ router.get("/verifyusertype", fetchUser, verifyusertype);
 router.get("/verifyemail", verifyemail);
 router.patch("/verifyotp", verifyotp);
 router.patch("/newpassword", newpassword);
+router.get("/user-log-data", fetchUser, loginData);
 
 module.exports = router;
