@@ -13,7 +13,7 @@ const fetchUser = require("../midlewere/fetchuser");
 // Get all user types
 router.get("/academic-level", academiclevel);
 router.get("/major", major);
-router.patch("/like", fetchUser, like);
+router.get("/like", fetchUser, like);
 router.post("/comments", fetchUser, comments);
 router.get("/comments", fetchUser, getcomments);
 router.get("/followuser", fetchUser, followuser);

@@ -81,7 +81,9 @@ module.exports.like = async (req, res) => {
     const { BID } = req.query;
 
     // Check Blog Exists
-    const blogExists = await BlogTable.findOne({ where: { ID: BID } });
+    const blogExists = await BlogTable.findOne({
+      where: { ID: BID },
+    });
     if (!blogExists) {
       return res.status(400).json({ success, error: "Blog not available!" });
     }
@@ -90,8 +92,9 @@ module.exports.like = async (req, res) => {
     const existingLike = await Like.findOne({
       where: { BID, UID: Userdata.ID },
     });
+
     // CASE 1: Already liked → Unlike (soft delete)
-    if (existingLike && existingLike.IsDeleted === false) {
+    if (existingLike &&  Boolean(!existingLike.IsDeleted)) {
       await Like.update(
         { IsDeleted: true },
         { where: { BID, UID: Userdata.ID } }
@@ -104,7 +107,7 @@ module.exports.like = async (req, res) => {
     }
 
     // CASE 2: Previously unliked → Like again
-    if (existingLike && existingLike.IsDeleted === true) {
+    if (existingLike && Boolean(existingLike.IsDeleted)) {
       await Like.update(
         { IsDeleted: false },
         { where: { BID, UID: Userdata.ID } }
