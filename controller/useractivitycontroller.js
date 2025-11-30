@@ -80,53 +80,53 @@ module.exports.like = async (req, res) => {
 
     const { BID } = req.query;
 
-    if (!(await BlogTable.findOne({ where: { ID: BID } }))) {
-      res.status(400).json({ error: "Blog is not available!", success });
+    // Check Blog Exists
+    const blogExists = await BlogTable.findOne({ where: { ID: BID } });
+    if (!blogExists) {
+      return res.status(400).json({ success, error: "Blog not available!" });
     }
 
-    if (
-      await Like.findOne({
-        where: { BID: BID, UID: Userdata.ID, IsDeleted: true },
-      })
-    ) {
-      let UpdatedLikes = await Like.update({
-        IsDeleted: false,
-        where: { BID: BID, UID: Userdata.ID },
-      });
-      if (!UpdatedLikes) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
+    // Check if LIKE exists
+    const existingLike = await Like.findOne({
+      where: { BID, UID: Userdata.ID },
+    });
+    // CASE 1: Already liked → Unlike (soft delete)
+    if (existingLike && existingLike.IsDeleted === false) {
+      await Like.update(
+        { IsDeleted: true },
+        { where: { BID, UID: Userdata.ID } }
+      );
+
       success = true;
-      res.status(200).json({ success, message: "Like added SucessFully!" });
+      return res
+        .status(200)
+        .json({ success, message: "UnLiked Successfully!" });
     }
 
-    if (
-      !(await Like.findOne({
-        where: { BID: BID, UID: Userdata.ID, IsDeleted: false },
-      }))
-    ) {
-      const addlike = await Like.create({
-        BID: BID,
-        UID: Userdata.ID,
-        CreatedByID: Userdata.ID,
-      });
+    // CASE 2: Previously unliked → Like again
+    if (existingLike && existingLike.IsDeleted === true) {
+      await Like.update(
+        { IsDeleted: false },
+        { where: { BID, UID: Userdata.ID } }
+      );
 
-      if (!addlike) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
       success = true;
-      res.status(200).json({ success, message: "Like added SucessFully!" });
-    } else {
-      let UpdatedLikes = await Like.update({
-        IsDeleted: true,
-        where: { BID: BID, UID: Userdata.ID },
-      });
-      if (!UpdatedLikes) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
-      success = true;
-      res.status(200).json({ success, message: "UnLike SucessFully!" });
+      return res
+        .status(200)
+        .json({ success, message: "Like added Successfully!" });
     }
+
+    // CASE 3: No like entry → Create new like
+    await Like.create({
+      BID,
+      UID: Userdata.ID,
+      CreatedByID: Userdata.ID,
+    });
+
+    success = true;
+    return res
+      .status(200)
+      .json({ success, message: "Like added Successfully!" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send(success, err.message);
@@ -232,6 +232,7 @@ module.exports.getcomments = async (req, res) => {
 };
 
 module.exports.followuser = async (req, res) => {
+  let success = false;
   try {
     let Userdata = await User.findByPk(req.user.id, {
       attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
@@ -252,64 +253,70 @@ module.exports.followuser = async (req, res) => {
       });
     }
 
-    if (
-      await Followers.findOne({
-        where: {
-          FollowerID: UserID,
-          FollowingID: Userdata.ID,
-          IsDeleted: true,
-        },
-      })
-    ) {
-      let FollowUser = await Followers.update({
-        IsDeleted: false,
-        where: {
-          FollowerID: UserID,
-          FollowingID: Userdata.ID,
-          IsDeleted: true,
-        },
-      });
-      if (!FollowUser) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
-      success = true;
-      res.status(200).json({ success, message: "Added SucessFully!" });
-    }
-
-    if (
-      !(await Followers.findOne({
-        where: {
-          FollowerID: UserID,
-          FollowingID: Userdata.ID,
-          IsDeleted: false,
-        },
-      }))
-    ) {
-      const addFollowers = await Followers.create({
+    // Check if follow row exists
+    const existing = await Followers.findOne({
+      where: {
         FollowerID: UserID,
         FollowingID: Userdata.ID,
+      },
+    });
+
+    // ------------------------------------
+    // IF NOT EXISTS → FOLLOW USER
+    // ------------------------------------
+    if (!existing) {
+      await Followers.create({
+        FollowerID: UserID,
+        FollowingID: Userdata.ID,
+        IsDeleted: false,
       });
 
-      if (!addFollowers) {
-        res.status(400).json({ error: "Server Error!", success });
-      }
       success = true;
-      res.status(200).json({ success, message: "Added SucessFully!" });
-    } else {
-      let FollowUser = await Followers.update({
-        IsDeleted: true,
+      return res.status(200).json({
+        success,
+        message: "Followed successfully!",
+      });
+    }
+
+    // ------------------------------------
+    // IF EXISTS AND IsDeleted = 1 → RE-FOLLOW
+    // ------------------------------------
+    if (existing.IsDeleted) {
+      await Followers.update(
+        { IsDeleted: false },
+        {
+          where: {
+            FollowerID: UserID,
+            FollowingID: Userdata.ID,
+          },
+        }
+      );
+
+      success = true;
+      return res.status(200).json({
+        success,
+        message: "Followed again!",
+      });
+    }
+
+    // ------------------------------------
+    // IF EXISTS AND IsDeleted = 0 → UNFOLLOW
+    // ------------------------------------
+    await Followers.update(
+      { IsDeleted: true },
+      {
         where: {
           FollowerID: UserID,
           FollowingID: Userdata.ID,
-          IsDeleted: fasle,
         },
-      });
-      if (!FollowUser) {
-        res.status(400).json({ error: "Server Error!", success });
       }
-      success = true;
-      res.status(200).json({ success, message: "Remove SucessFully!" });
-    }
+    );
+
+    success = true;
+    return res.status(200).json({
+      success,
+      message: "Unfollowed successfully!",
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send(success, err.message);
