@@ -12,7 +12,7 @@ interface OrganizationCardProps {
     description: string;
     category: string;
     members: number;
-    location: string;
+    // location: string;
     isJoined: boolean;
   };
   onJoin?: (orgId: string) => void;
@@ -48,10 +48,10 @@ export function OrganizationCard({ organization, onJoin, onNavigate, variant = "
               <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                 {organization.description}
               </p>
-              <div className="flex items-center gap-2 mb-2">
+              {/* <div className="flex items-center gap-2 mb-2">
                 <MapPin className="h-3 w-3 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground truncate">{organization.location}</span>
-              </div>
+              </div> */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="h-3 w-3 text-muted-foreground" />
@@ -110,10 +110,10 @@ export function OrganizationCard({ organization, onJoin, onNavigate, variant = "
             {organization.description}
           </p>
           
-          <div className="flex items-center gap-2 mb-3">
+          {/* <div className="flex items-center gap-2 mb-3">
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground truncate">{organization.location}</span>
-          </div>
+          </div> */}
           
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">

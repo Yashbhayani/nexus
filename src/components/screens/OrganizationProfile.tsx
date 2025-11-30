@@ -52,7 +52,7 @@ export function OrganizationProfile({
       "Join fellow CS students for coding challenges, tech talks, and networking events.",
     category: "Academic",
     members: 156,
-    location: "Engineering Building, Room 301",
+    // location: "Engineering Building, Room 301",
     email: "cs.club@university.edu",
     phone: "(555) 123-4567",
     website: "https://csclub.university.edu",
@@ -65,11 +65,11 @@ export function OrganizationProfile({
       president: "Sarah Johnson",
       vicePresident: "Michael Chen",
     },
-    socialMedia: {
-      discord: "cs_club",
-      instagram: "@csclub",
-      linkedin: "csclub-university",
-    },
+    // socialMedia: {
+    //   discord: "cs_club",
+    //   instagram: "@csclub",
+    //   linkedin: "csclub-university",
+    // },
   };
 
   // Mock events data
@@ -278,10 +278,10 @@ export function OrganizationProfile({
                 <Users className="w-4 h-4" />
                 <span>{organization.members} members</span>
               </div>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              {/* <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
                 <span>{organization.location}</span>
-              </div>
+              </div> */}
             </div>
 
             {/* Action Buttons */}
@@ -359,13 +359,13 @@ export function OrganizationProfile({
                       <div className="font-medium">{organization.phone}</div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
+                  {/* <div className="flex items-start gap-3">
                     <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="min-w-0">
                       <div className="text-sm text-muted-foreground">Location</div>
                       <div className="font-medium">{organization.location}</div>
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex items-start gap-3">
                     <Globe className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="min-w-0">
@@ -395,7 +395,7 @@ export function OrganizationProfile({
                     </div>
                   </div>
                 </div>
-                <Separator />
+                {/* <Separator />
                 <div>
                   <h3 className="font-semibold mb-3">Social Media</h3>
                   <div className="flex flex-wrap gap-2">
@@ -412,7 +412,7 @@ export function OrganizationProfile({
                       LinkedIn: {organization.socialMedia.linkedin}
                     </Badge>
                   </div>
-                </div>
+                </div> */}
               </CardContent>
             </Card>
           </TabsContent>

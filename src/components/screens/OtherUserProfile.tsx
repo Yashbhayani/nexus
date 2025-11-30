@@ -67,8 +67,8 @@ export function OtherUserProfile({
     bio: "Software Engineering major with a passion for mobile development and UX design. Love building apps that make a difference!",
     academicLevel: "Senior",
     major: "Software Engineering",
-    minor: "Design",
-    graduationYear: "2025",
+    // minor: "Design",
+    // graduationYear: "2025",
     location: "Student Center, 2nd Floor",
     joinedDate: "Fall 2021",
     stats: {
@@ -256,11 +256,11 @@ export function OtherUserProfile({
                     {otherUserProfile.academicLevel} •{" "}
                     {otherUserProfile.major}
                   </p>
-                  {otherUserProfile.minor && (
+                  {/* {otherUserProfile.minor && (
                     <p className="text-sm text-muted-foreground">
                       Minor: {otherUserProfile.minor}
                     </p>
-                  )}
+                  )} */}
                 </div>
 
                 {/* Stats */}
@@ -396,7 +396,7 @@ export function OtherUserProfile({
                       <div className="text-xs">Major</div>
                     </div>
                   </div>
-                  {otherUserProfile.minor && (
+                  {/* {otherUserProfile.minor && (
                     <>
                       <Separator />
                       <div className="flex items-center gap-3 text-muted-foreground">
@@ -410,8 +410,8 @@ export function OtherUserProfile({
                       </div>
                     </>
                   )}
-                  <Separator />
-                  <div className="flex items-center gap-3 text-muted-foreground">
+                  <Separator /> */}
+                  {/* <div className="flex items-center gap-3 text-muted-foreground">
                     <Calendar className="h-5 w-5 text-primary" />
                     <div>
                       <div className="text-sm text-foreground">
@@ -421,7 +421,7 @@ export function OtherUserProfile({
                         Expected Graduation
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
 

@@ -15,10 +15,10 @@ interface StudentCardProps {
     name: string;
     image: string;
     bio: string;
-    year: string;
+    // year: string;
     major: string;
     interests: string[];
-    location: string;
+    // location: string;
     isFollowing: boolean;
   };
   onFollow?: (studentId: string) => void;
@@ -52,9 +52,9 @@ export function StudentCard({
                 >
                   {student.name}
                 </h3>
-                <Badge variant="outline" className="text-xs">
+                {/* <Badge variant="outline" className="text-xs">
                   {student.year}
-                </Badge>
+                </Badge> */}
               </div>
               <div className="flex items-center gap-2 mb-1">
                 <BookOpen className="h-3 w-3 text-muted-foreground" />
@@ -66,12 +66,12 @@ export function StudentCard({
                 {student.bio}
               </p>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <MapPin className="h-3 w-3 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground truncate">
                     {student.location}
                   </span>
-                </div>
+                </div> */}
                 {onFollow && (
                   <Button
                     size="sm"
@@ -108,14 +108,14 @@ export function StudentCard({
               className="w-16 h-16 rounded-full object-cover border-4 border-background"
             />
           </div>
-          <div className="absolute top-3 right-3">
+          {/* <div className="absolute top-3 right-3">
             <Badge
               variant="secondary"
               className="bg-background/80 backdrop-blur-sm"
             >
               {student.year}
             </Badge>
-          </div>
+          </div> */}
           {student.isFollowing && (
             <div className="absolute top-3 left-3">
               <Badge
