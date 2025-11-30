@@ -865,13 +865,13 @@ module.exports.rejected = async (req, res) => {
     if (!updateEventActivity) {
       return res
         .status(500)
-        .json({ success, error: "Failed to approver event/activity" });
+        .json({ success, error: "Failed to rejected event/activity" });
     }
 
     success = true;
     return res
       .status(200)
-      .json({ success, message: "Event approved successfully!" });
+      .json({ success, message: "Event rejected successfully!" });
   } catch (err) {
     console.error(err.message);
     return res.status(500).json({ success, error: err.message });
