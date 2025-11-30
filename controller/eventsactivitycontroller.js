@@ -32,6 +32,7 @@ module.exports.get = async (req, res) => {
             ea.ID,
             im.ImageURL,
             ea.EventActivityName,
+            org.OrganizationName,
             b.BuildingName,
             r.RoomName,
 
@@ -73,6 +74,8 @@ module.exports.get = async (req, res) => {
             ON b.ID = ea.BuildingID
         LEFT JOIN nexus.rooms AS r
             ON r.ID = ea.RoomID
+        LEFT JOIN nexus.organization As org
+          ON org.ID  = ea.OID
 
         -- Exclude yesterday, only show from TODAY → FUTURE
         WHERE ea.IsDeleted = 0
