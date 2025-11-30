@@ -544,7 +544,8 @@ function generateSuggestions(userMessage, context) {
  * POST /api/chat
  */
 const handleChat = async (req, res) => {
-  const { message, conversationHistory = [], userId = null } = req.body;
+  const { message, conversationHistory = [] } = req.body;
+  const userId = req.user?.id || null;
 
   // Validate input
   if (!message || typeof message !== 'string' || message.trim().length === 0) {
