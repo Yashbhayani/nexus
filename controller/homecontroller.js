@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize, Model } = require("sequelize");
 const sequelize = require("../db");
 const { Useres } = require("../enums/codes");
 const BlogTable = require("../models/blogtable");
@@ -228,7 +228,7 @@ module.exports.explore = async (req, res) => {
   }
 };
 
-module.exports.userinfo = async (req, res) => {
+module.exports.otheruserinfo = async (req, res) => {
   let success = false;
   try {
     let Userdata = await User.findByPk(req.user.id, {
@@ -412,3 +412,176 @@ module.exports.userinfo = async (req, res) => {
     res.status(500).send(success, err.message);
   }
 };
+
+
+module.exports.userinfo = async(req, res) =>{
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+
+    if (!Userdata) {
+      return res.status(404).json({ success, message: "User not found" });
+    }
+
+    const userinfo = await sequelize.query(
+      `
+         SELECT 
+            CONCAT(u.FirstName, ' ', u.LastName) AS Name,
+            s.Name AS StudentType,
+            ss.Name AS Majors,
+            im.ImageURL AS Image,
+
+            -- Total organizations joined
+            (SELECT COUNT(*) 
+            FROM nexus.manageorganization 
+            WHERE UID = :UID AND IsRemove = 0) AS Organizations,
+
+            -- Total events attended
+            (SELECT COUNT(*) 
+            FROM nexus.manageeventandactivities 
+            WHERE UID = :UID AND IsDeleted = 0) AS EventsAttended,
+
+            -- Followers count
+            (SELECT COUNT(*) 
+            FROM nexus.followers 
+            WHERE FollowingID = u.ID AND IsDeleted = 0) AS Followers
+
+        FROM nexus.user AS u
+        LEFT JOIN nexus.userinfo AS ui ON ui.UID = u.ID
+        LEFT JOIN nexus.status AS s ON s.ID = ui.StudentType
+        LEFT JOIN nexus.status AS ss ON ss.ID = ui.Majors
+        LEFT JOIN nexus.images AS im ON im.ID = ui.ImgID
+        WHERE u.ID = :UID;
+      
+      `,
+      {
+        replacements: { UID: Userdata.ID, AUID: AUID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const useraboutinfo = await sequelize.query(
+      `
+      select 
+        ui.bio, 
+          (SELECT 
+          JSON_ARRAYAGG(it.Interest)
+        FROM nexus.interesttable AS it
+          WHERE it.UID = ui.UID) AS interest,
+        (SELECT 
+          JSON_ARRAYAGG(sk.Skill)
+        FROM nexus.skillstable AS sk
+          WHERE sk.UID = ui.UID) AS skills
+      From nexus.userinfo As ui 
+      where ui.UID = :UID
+      `,
+      {
+        replacements: { UID: Userdata.ID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const userposts = await sequelize.query(
+      `
+     SELECT 
+                b.ID AS ID,
+
+                -- Name field
+                CASE 
+                    WHEN u.ID IS NOT NULL THEN 
+                        COALESCE(CONCAT(u.FirstName, ' ', u.LastName), SUBSTRING_INDEX(u.Email, '@', 1))
+                    WHEN o.ID IS NOT NULL THEN 
+                        COALESCE(o.OrganizationName)
+                    ELSE 'Unknown'
+                END AS Name,
+
+                -- UserName field
+                CASE 
+                    WHEN u.ID IS NOT NULL THEN SUBSTRING_INDEX(u.Email, '@', 1)
+                    WHEN o.ID IS NOT NULL THEN o.OrganizationUserName
+                    ELSE NULL
+                END AS UserName,
+
+                b.PostTitle,
+                b.Content,
+                b.Image,
+
+    -- Time ago in human-readable format
+    CASE 
+        WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
+        WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' minutes ago')
+        ELSE 
+            CONCAT(TIMESTAMPDIFF(SECOND, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' seconds ago')
+    END AS TimeAgo,
+                -- Total Likes of this post
+                (SELECT COUNT(*) FROM nexus.like WHERE BID = b.ID) AS Likes,
+
+                -- Total Comments of this post
+                (SELECT COUNT(*) FROM nexus.comments WHERE BID = b.ID) AS Comments,
+
+                -- Is user already liked?
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM nexus.like 
+                        WHERE BID = b.ID AND UID = :UID 
+                    ) 
+                    THEN TRUE 
+                    ELSE FALSE 
+                END AS IsLiked
+
+            FROM nexus.blogtable AS b
+            LEFT JOIN nexus.user AS u
+                ON u.ID = b.UID 
+            LEFT JOIN nexus.organization AS o
+                ON o.ID = b.OID 
+            Where b.UID = :AUID
+            ORDER BY b.CreatedDate DESC;  
+      `,
+      {
+        replacements: { UID: Userdata.ID, AUID: AUID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const userorg = await sequelize.query(
+      `
+      Select 
+        o.ID As orgID,
+        o.OrganizationName As OrganizationName,
+          s.Name As OrganizationType,
+          im.ImageURL As image,
+          srole.Name As UserRole
+      from nexus.organization As o
+      Left Join nexus.manageorganization As mo
+        ON mo.OID  =  o.ID
+      Left Join nexus.status As srole
+        ON srole.ID  =  mo.SID
+      Left Join nexus.images As im	
+        ON im.ID =  o.ImgID
+      Left Join nexus.status As s	
+        ON s.ID =  o.OrganizationType
+      Left Join nexus.user As u
+        ON u.ID  = mo.UID
+      Where u.ID = :AUID;
+      `,
+      {
+        replacements: { AUID: AUID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    success = true;
+    res
+      .status(200)
+      .json({ success, userinfo, useraboutinfo, userposts, userorg });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send(success, err.message);
+  }
+}

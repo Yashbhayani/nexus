@@ -255,3 +255,65 @@ module.exports.deleteaccount = async (req, res) => {
     });
   }
 };
+
+module.exports.adminevent = async (req, res) => {
+  let success = false;
+  try {
+    let ID = req.user.id;
+
+    // Call the function
+    let check = await checkAdminStatus(ID);
+
+    // If not success → return response
+    if (!check.success) {
+      return res.status(check.status).json({
+        success: false,
+        message: check.message,
+      });
+    }
+
+    if (check.user != Useres.ADMIN.toUpperCase()) {
+      return res.status(404).json({ error: "User is not Admin", success });
+    }
+
+    const eventActivities = await sequelize.query(
+      `
+    SELECT 
+        ea.ID,
+        im.ImageURL,
+        ea.EventActivityName,
+        b.BuildingName,
+        r.RoomName,
+        CASE 
+          WHEN ea.ApproverByID IS NULL AND ea.Isrejected = 0 THEN 'Pending'
+          WHEN ea.ApproverByID = 1 AND ea.Isrejected = 0 THEN 'Approved'
+          WHEN ea.ApproverByID IS NULL AND ea.Isrejected = 1 THEN 'Rejected'
+          ELSE 'Unknown'
+        END AS Status,
+        DATE_FORMAT(ea.EventDate, '%b %d') AS EventDate,
+        s.Name,
+        ea.Capacity,
+        'Organization' AS SourceTable
+    FROM nexus.eventsandactivities AS ea
+    LEFT JOIN nexus.status AS s
+        ON s.ID = ea.EventType
+    LEFT JOIN nexus.images AS im
+        ON im.ID = ea.ImgID
+    LEFT JOIN nexus.building AS b
+        ON b.ID = ea.BuildingID
+    LEFT JOIN nexus.rooms AS r
+        ON r.ID = ea.RoomID
+    WHERE ea.IsDeleted = 0
+    ORDER BY ea.EventDate DESC;
+  `,
+      {
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    success = true;
+    return res.status(200).json({ success, eventActivities });
+  } catch (err) {
+    res.status(500).json({ error: err.message, success });
+  }
+};
