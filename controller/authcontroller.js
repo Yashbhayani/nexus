@@ -386,7 +386,7 @@ module.exports.verifyusertype = async (req, res) => {
     }
 
     if (check.user != Useres.ADMIN.toUpperCase()) {
-      return res.status(404).json({ error: "User is not Admin", success });
+      return res.status(200).json({ error: "User is not Admin", success });
     } else {
       success = true;
       return res.status(200).json({ error: "User is Admin", success });
