@@ -33,6 +33,12 @@ const OrganizationInfo = sequelize.define(
       unique: true,
     },
 
+    
+    website: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+    },
+
     BID: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -47,7 +53,7 @@ const OrganizationInfo = sequelize.define(
       type: DataTypes.TEXT("long"),
       allowNull: true,
     },
-    
+
     Mission: {
       type: DataTypes.TEXT("long"),
       allowNull: true,

@@ -75,6 +75,7 @@ module.exports.get = async (req, res) => {
           oi.Mission AS Mission,
           oi.phone AS Phone,
           oi.email AS Email,
+          oi.website AS Website,
 
           -- President
           (
@@ -275,6 +276,7 @@ module.exports.post = async (req, res) => {
       RID,
       Mission,
       AboutUs,
+      website,
     } = req.body;
     const { path } = req.file;
 
@@ -300,6 +302,7 @@ module.exports.post = async (req, res) => {
       !Mission ||
       !AboutUs ||
       !OrganizationType ||
+      !website ||
       !path
     ) {
       return res.status(400).json({
@@ -391,6 +394,7 @@ module.exports.post = async (req, res) => {
       RID: RID,
       AboutUs: AboutUs,
       Mission: Mission,
+      website: website,
       CreatedByID: req.user.id,
     });
 

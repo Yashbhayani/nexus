@@ -306,7 +306,7 @@ module.exports.otheruserinfo = async (req, res) => {
       where ui.UID = :UID
       `,
       {
-        replacements: { UID: Userdata.ID },
+        replacements: { UID: AUID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
@@ -413,8 +413,7 @@ module.exports.otheruserinfo = async (req, res) => {
   }
 };
 
-
-module.exports.userinfo = async(req, res) =>{
+module.exports.userinfo = async (req, res) => {
   let success = false;
   try {
     let Userdata = await User.findByPk(req.user.id, {
@@ -458,7 +457,7 @@ module.exports.userinfo = async(req, res) =>{
       
       `,
       {
-        replacements: { UID: Userdata.ID, AUID: AUID },
+        replacements: { UID: Userdata.ID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
@@ -486,7 +485,7 @@ module.exports.userinfo = async(req, res) =>{
 
     const userposts = await sequelize.query(
       `
-     SELECT 
+         SELECT 
                 b.ID AS ID,
 
                 -- Name field
@@ -540,11 +539,11 @@ module.exports.userinfo = async(req, res) =>{
                 ON u.ID = b.UID 
             LEFT JOIN nexus.organization AS o
                 ON o.ID = b.OID 
-            Where b.UID = :AUID
+            Where b.UID = :UID
             ORDER BY b.CreatedDate DESC;  
       `,
       {
-        replacements: { UID: Userdata.ID, AUID: AUID },
+        replacements: { UID: Userdata.ID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
@@ -568,10 +567,10 @@ module.exports.userinfo = async(req, res) =>{
         ON s.ID =  o.OrganizationType
       Left Join nexus.user As u
         ON u.ID  = mo.UID
-      Where u.ID = :AUID;
+      Where u.ID = :UID;
       `,
       {
-        replacements: { AUID: AUID },
+        replacements: { UID: Userdata.ID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
@@ -584,4 +583,243 @@ module.exports.userinfo = async(req, res) =>{
     console.error(err.message);
     res.status(500).send(success, err.message);
   }
-}
+};
+
+module.exports.orgdata = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { OID } = req.query;
+
+    const orgData = await sequelize.query(
+      `
+        SELECT 
+          o.ID AS OrganizationID,
+          o.OrganizationName AS OrganizationName,
+          i.ImageURL AS Image,
+          s.Name AS OrganizationType,
+
+          -- Total Members
+          (SELECT COUNT(*) 
+            FROM nexus.manageorganization 
+            WHERE OID = o.ID) AS Member,
+
+          -- TRUE/FALSE if user joined
+          CASE 
+              WHEN EXISTS (
+                  SELECT 1 
+                  FROM nexus.manageorganization 
+                  WHERE OID = o.ID AND UID = :UID
+              ) 
+              THEN TRUE 
+              ELSE FALSE
+          END AS IsJoin
+
+        FROM nexus.organization AS o
+        LEFT JOIN nexus.organizationinfo AS oi
+          ON oi.OID = o.ID
+        LEFT JOIN nexus.status AS s
+          ON s.ID = o.OrganizationType
+        LEFT JOIN nexus.images AS i
+          ON i.ID = o.ImgID
+        WHERE o.ID = :OID;  
+      `,
+      {
+        replacements: { UID: Userdata.ID, OID: OID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const aboutUs = await sequelize.query(
+      `
+      SELECT 
+          oi.AboutUs AS AboutUs,
+          oi.Mission AS Mission,
+          oi.phone AS Phone,
+          oi.email AS Email,
+
+          -- President
+          (
+              SELECT CONCAT(u.FirstName, ' ', u.LastName)
+              FROM nexus.manageorganization mo
+              LEFT JOIN nexus.user u ON u.ID = mo.UID
+              LEFT JOIN nexus.status s ON s.ID = mo.SID
+              WHERE mo.OID = oi.OID 
+              AND s.Code = 'ODPRESIDENT'
+              LIMIT 1
+          ) AS President,
+
+          -- Vice President
+          (
+              SELECT CONCAT(u.FirstName, ' ', u.LastName)
+              FROM nexus.manageorganization mo
+              LEFT JOIN nexus.user u ON u.ID = mo.UID
+              LEFT JOIN nexus.status s ON s.ID = mo.SID
+              WHERE mo.OID = oi.OID 
+              AND s.Code = 'ODVICEPRESIDENT'
+              LIMIT 1
+          ) AS VicePresident
+
+      FROM nexus.organizationinfo AS oi
+      WHERE oi.OID = :OID;
+      `,
+      {
+        replacements: { OID: OID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const eventData = await sequelize.query(
+      `
+        SELECT 
+            ea.ID,
+            im.ImageURL,
+            ea.EventActivityName,
+            b.BuildingName,
+            r.RoomName,
+
+            -- Dec 20 Format
+            DATE_FORMAT(ea.EventDate, '%b %d, %Y') AS EventDate,
+
+            s.Name AS EventType,
+
+            -- ---------------------------
+            -- Date Category
+            -- ---------------------------
+            CASE 
+                WHEN DATE(ea.EventDate) = CURDATE() THEN 'Today'
+                WHEN DATE(ea.EventDate) = CURDATE() + INTERVAL 1 DAY THEN 'Tomorrow'
+                WHEN YEARWEEK(ea.EventDate, 1) = YEARWEEK(CURDATE(), 1) THEN 'This Week'
+                WHEN MONTH(ea.EventDate) = MONTH(CURDATE()) 
+                    AND YEAR(ea.EventDate) = YEAR(CURDATE()) THEN 'This Month'
+                ELSE 'Upcoming'
+            END AS DateCategory,
+
+            -- ---------------------------
+            -- RSVP Count
+            -- ---------------------------
+            (
+                SELECT COUNT(*) 
+                FROM nexus.manageeventandactivities mea 
+                WHERE mea.EAAID = ea.ID 
+                AND mea.IsDeleted = 0
+            ) AS Attending,
+
+            -- ---------------------------
+            -- RSVP Status TRUE / FALSE
+            -- ---------------------------
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM nexus.manageeventandactivities mea 
+                    WHERE mea.UID = :UID 
+                    AND mea.IsDeleted = 0
+                    AND mea.EAAID = ea.ID
+                ) 
+                THEN TRUE
+                ELSE FALSE
+            END AS RSVPStatus
+
+          FROM nexus.eventsandactivities AS ea
+          LEFT JOIN nexus.status AS s
+            ON s.ID = ea.EventType
+          LEFT JOIN nexus.images AS im
+            ON im.ID = ea.ImgID
+          LEFT JOIN nexus.building AS b
+            ON b.ID = ea.BuildingID
+          LEFT JOIN nexus.rooms AS r
+            ON r.ID = ea.RoomID
+          LEFT JOIN nexus.organization AS org
+            ON org.ID = ea.OID
+
+          -- Only Today → Future
+          WHERE ea.IsDeleted = 0 AND ea.OID = :OID
+          AND ea.ApproverByID IS NOT NULL
+
+          ORDER BY ea.EventDate ASC;  
+      `,
+      {
+        replacements: { UID: Userdata.ID, OID: OID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const post = await sequelize.query(
+      `
+         SELECT 
+                b.ID AS ID,
+
+                -- Name field
+                CASE 
+                    WHEN u.ID IS NOT NULL THEN 
+                        COALESCE(CONCAT(u.FirstName, ' ', u.LastName), SUBSTRING_INDEX(u.Email, '@', 1))
+                    WHEN o.ID IS NOT NULL THEN 
+                        COALESCE(o.OrganizationName)
+                    ELSE 'Unknown'
+                END AS Name,
+
+                -- UserName field
+                CASE 
+                    WHEN u.ID IS NOT NULL THEN SUBSTRING_INDEX(u.Email, '@', 1)
+                    WHEN o.ID IS NOT NULL THEN o.OrganizationUserName
+                    ELSE NULL
+                END AS UserName,
+
+                b.PostTitle,
+                b.Content,
+                b.Image,
+
+    -- Time ago in human-readable format
+    CASE 
+        WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
+        WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' minutes ago')
+        ELSE 
+            CONCAT(TIMESTAMPDIFF(SECOND, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' seconds ago')
+    END AS TimeAgo,
+                -- Total Likes of this post
+                (SELECT COUNT(*) FROM nexus.like WHERE BID = b.ID) AS Likes,
+
+                -- Total Comments of this post
+                (SELECT COUNT(*) FROM nexus.comments WHERE BID = b.ID) AS Comments,
+
+                -- Is user already liked?
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM nexus.like 
+                        WHERE BID = b.ID AND UID = :UID 
+                    ) 
+                    THEN TRUE 
+                    ELSE FALSE 
+                END AS IsLiked
+
+            FROM nexus.blogtable AS b
+            LEFT JOIN nexus.user AS u
+                ON u.ID = b.UID 
+            LEFT JOIN nexus.organization AS o
+                ON o.ID = b.OID 
+            Where b.OID = :OID
+            ORDER BY b.CreatedDate DESC;  
+      `,
+      {
+        replacements: { UID: Userdata.ID, OID: OID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    success = true;
+    res.status(200).json({ orgData, aboutUs, eventData, post, success });
+  } catch (error) {
+    res.status(500).json({ error: error.message, success });
+  }
+};
+

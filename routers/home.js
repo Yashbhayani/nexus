@@ -6,11 +6,13 @@ const {
   explore,
   userinfo,
   otheruserinfo,
+  orgdata,
 } = require("../controller/homecontroller");
 
 router.get("/", fetchUser, feed);
 router.get("/explore", fetchUser, explore);
 router.get("/otheruserinfo", fetchUser, otheruserinfo);
 router.get("/userinfo", fetchUser, userinfo);
+router.get("/orgdata", fetchUser, orgdata);
 
 module.exports = router;
