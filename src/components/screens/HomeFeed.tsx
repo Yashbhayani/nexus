@@ -39,9 +39,7 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
   };
 
   const handleComment = async (postId: string) => {
-    const params = {
-      BID: postId,
-    };
+    const params = { BID: postId };
     let DataComment = await GETFunction(apiroute.comments, params);
 
     if (DataComment?.success && Array.isArray(DataComment.getcommenst)) {
@@ -52,14 +50,14 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
             name: c.Name,
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
               c.Name
-            )}`, // auto avatar
-            username: c.Name.replace(/\s+/g, "").toLowerCase(), // temporary username
+            )}`,
+            username: c.Name.replace(/\s+/g, "").toLowerCase(),
           },
           content: c.comment,
           timestamp: c.TimeAgo,
         })
       );
-      // Update only the clicked post
+
       setPosts((prev) =>
         prev.map((post) =>
           post.id === postId
@@ -75,38 +73,12 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
   };
 
   const handleAddComment = async (postId: string, commentText: string) => {
-    console.log(postId, commentText);
     let body = {
       BID: postId,
       comment: commentText,
     };
-    const addcomment = await POSTFunction(body, apiroute.comments);
-    console.log(addcomment);
+    await POSTFunction(body, apiroute.comments);
     handleComment(postId);
-    // setPosts((prev) =>
-    //   prev.map((post) =>
-    //     post.id === postId
-    //       ? {
-    //           ...post,
-    //           comments: post.comments + 1,
-    //           commentsList: [
-    //             ...(post.commentsList || []),
-    //             {
-    //               id: `c${Date.now()}`,
-    //               user: {
-    //                 name: "Alex Johnson",
-    //                 avatar:
-    //                   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-    //                 username: "alex_j",
-    //               },
-    //               content: commentText,
-    //               timestamp: "Just now",
-    //             },
-    //           ],
-    //         }
-    //       : post
-    //   )
-    // );
   };
 
   const handleShare = (postId: string) => {};
@@ -183,16 +155,25 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
   const GetFeeds = async () => {
     setIsLoading(true);
     const FeedData = await GETFunction(apiroute.feedurl);
+
     if (FeedData.success) {
-      if (FeedData?.success && Array.isArray(FeedData.Blogsfeeds)) {
+      // ---------- FIXED USERNAME HERE ----------
+      if (Array.isArray(FeedData.Blogsfeeds)) {
         setPosts(
           FeedData.Blogsfeeds.map((item: any) => ({
             id: item.ID?.toString(),
             user: {
               name: item.OrganizationName || item.Name,
-              avatar: item.ImageURL || item.Image || "https://placehold.co/150",
-              username: item.UserName,
+              avatar: item.UserImage || "https://placehold.co/150",
+
+              // 🔥 ALWAYS RETURNS A VALID USERNAME
+              username:
+                item.UserName ||
+                (item.OrganizationName
+                  ? item.OrganizationName.replace(/\s+/g, "").toLowerCase()
+                  : item.Name.replace(/\s+/g, "").toLowerCase()),
             },
+
             content: item.Content || "",
             image: item.ImageURL || item.Image || null,
             timestamp: item.TimeAgo || "Just now",
@@ -222,32 +203,25 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
           }))
         );
       }
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
     return true;
   };
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold">Campus Feed</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-              <Bell className="h-5 w-5" />
-            </Button>
-          </div>
+          <h1 className="text-lg font-semibold">Campus Feed</h1>
+          <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+            <Bell className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-md mx-auto">
-        {/* Campus Feed */}
         <div className="p-4 space-y-6">
-          {/* Recent Posts */}
           {isLoading ? (
             <>
               <SkeletonPostCard />
@@ -270,7 +244,6 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
               ))
           )}
 
-          {/* Recommended Events Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Upcoming for you</h2>
@@ -292,7 +265,6 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
             </div>
           </div>
 
-          {/* More Posts */}
           {isLoading ? (
             <>
               <SkeletonPostCard />

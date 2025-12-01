@@ -1,9 +1,4 @@
-import {
-  GraduationCap,
-  MapPin,
-  UserPlus,
-  BookOpen,
-} from "lucide-react";
+import { GraduationCap, MapPin, UserPlus, BookOpen } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -15,10 +10,10 @@ interface StudentCardProps {
     name: string;
     image: string;
     bio: string;
-    // year: string;
+    year: string;
     major: string;
     interests: string[];
-    // location: string;
+    location: string;
     isFollowing: boolean;
   };
   onFollow?: (studentId: string) => void;
@@ -76,16 +71,10 @@ export function StudentCard({
                   <Button
                     size="sm"
                     className="h-7 px-3"
-                    variant={
-                      student.isFollowing
-                        ? "outline"
-                        : "default"
-                    }
+                    variant={student.isFollowing ? "outline" : "default"}
                     onClick={() => onFollow(student.id)}
                   >
-                    {student.isFollowing
-                      ? "Following"
-                      : "Follow"}
+                    {student.isFollowing ? "Following" : "Follow"}
                   </Button>
                 )}
               </div>
@@ -155,22 +144,13 @@ export function StudentCard({
           {student.interests.length > 0 && (
             <div className="mb-3">
               <div className="flex flex-wrap gap-1">
-                {student.interests
-                  .slice(0, 3)
-                  .map((interest, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="text-xs"
-                    >
-                      {interest}
-                    </Badge>
-                  ))}
+                {student.interests.slice(0, 3).map((interest, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {interest}
+                  </Badge>
+                ))}
                 {student.interests.length > 3 && (
-                  <Badge
-                    variant="secondary"
-                    className="text-xs"
-                  >
+                  <Badge variant="secondary" className="text-xs">
                     +{student.interests.length - 3}
                   </Badge>
                 )}
@@ -181,15 +161,11 @@ export function StudentCard({
           {onFollow && (
             <Button
               className="w-full"
-              variant={
-                student.isFollowing ? "outline" : "default"
-              }
+              variant={student.isFollowing ? "outline" : "default"}
               onClick={() => onFollow(student.id)}
             >
               <UserPlus className="h-4 w-4 mr-2" />
-              {student.isFollowing
-                ? "Following"
-                : "Follow Student"}
+              {student.isFollowing ? "Following" : "Follow Student"}
             </Button>
           )}
         </div>

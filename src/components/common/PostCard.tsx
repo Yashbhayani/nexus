@@ -196,10 +196,10 @@ export function PostCard({ post, onLike, onComment, onShare, onAddComment, onUse
 
             {/* Add Comment Form */}
             <form onSubmit={handleAddComment} className="flex gap-2">
-              {/* <Avatar className="h-8 w-8 mt-1">
+              <Avatar className="h-8 w-8 mt-1">
                 <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop" alt="You" />
                 <AvatarFallback>You</AvatarFallback>
-              </Avatar> */}
+              </Avatar>
               <div className="flex-1 flex gap-2">
                 <Input
                   type="text"

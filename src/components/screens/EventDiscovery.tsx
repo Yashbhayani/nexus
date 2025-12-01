@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { OrganizationCard } from "../common/OrganizationCard";
@@ -6,198 +6,283 @@ import { StudentCard } from "../common/StudentCard";
 import { Badge } from "../ui/badge";
 import { Search, Grid3X3, List } from "lucide-react";
 import { LoadingSpinner } from "../common/LoadingSpinner";
-import { SkeletonOrganizationCard, SkeletonStudentCard } from "../common/SkeletonCard";
+import {
+  SkeletonOrganizationCard,
+  SkeletonStudentCard,
+} from "../common/SkeletonCard";
+import APIContext from "../../Context/apimethods/APIContext";
+import * as apiroute from "../../Context/API/ApiRouter";
 
 interface EventDiscoveryProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
+  const context = useContext(APIContext);
+  const { GETFunction } = context;
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedType, setSelectedType] = useState<"all" | "organizations" | "students">("all");
+  const [selectedType, setSelectedType] = useState<
+    "all" | "organizations" | "students"
+  >("all");
 
-  const categories = ["all", "Academic", "Sports", "Arts", "Greek Life", "Service", "Cultural"];
+  const categories = [
+    "all",
+    "Academic",
+    "Sports",
+    "Arts",
+    "Greek Life",
+    "Service",
+    "Cultural",
+  ];
   const types = ["all", "organizations", "students"];
-
+  const [dummyorganizations, setdummyOrganizations] = useState<any[]>([]);
+  const [dumystudents, setdummyStudents] = useState<any[]>([]);
   const [organizations, setOrganizations] = useState([
     {
       id: "org1",
       name: "Computer Science Club",
-      image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=300&fit=crop",
-      description: "Join fellow CS students for coding challenges, tech talks, and networking events.",
+      image:
+        "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=300&fit=crop",
+      description:
+        "Join fellow CS students for coding challenges, tech talks, and networking events.",
       category: "Academic",
       members: 156,
       location: "Engineering Building",
-      isJoined: false
+      isJoined: false,
     },
     {
       id: "org2",
       name: "Campus Basketball League",
-      image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&h=300&fit=crop",
-      description: "Competitive and recreational basketball for all skill levels.",
+      image:
+        "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&h=300&fit=crop",
+      description:
+        "Competitive and recreational basketball for all skill levels.",
       category: "Sports",
       members: 89,
       location: "Recreation Center",
-      isJoined: true
+      isJoined: true,
     },
     {
       id: "org3",
       name: "Art & Design Society",
-      image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop",
-      description: "Creative community for artists, designers, and art enthusiasts.",
+      image:
+        "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop",
+      description:
+        "Creative community for artists, designers, and art enthusiasts.",
       category: "Arts",
       members: 67,
       location: "Art Building",
-      isJoined: false
+      isJoined: false,
     },
     {
       id: "org4",
       name: "Alpha Beta Gamma",
-      image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop",
-      description: "Academic fraternity focused on leadership and community service.",
+      image:
+        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop",
+      description:
+        "Academic fraternity focused on leadership and community service.",
       category: "Greek Life",
       members: 45,
       location: "Greek Row",
-      isJoined: false
+      isJoined: false,
     },
     {
       id: "org5",
       name: "Volunteer Corps",
-      image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=300&fit=crop",
-      description: "Make a difference in our community through organized volunteer work.",
+      image:
+        "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=300&fit=crop",
+      description:
+        "Make a difference in our community through organized volunteer work.",
       category: "Service",
       members: 123,
       location: "Student Union",
-      isJoined: true
+      isJoined: true,
     },
     {
       id: "org6",
       name: "International Student Association",
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
-      description: "Celebrating diversity and connecting students from around the world.",
+      image:
+        "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
+      description:
+        "Celebrating diversity and connecting students from around the world.",
       category: "Cultural",
       members: 234,
       location: "International Center",
-      isJoined: false
-    }
+      isJoined: false,
+    },
   ]);
 
   const [students, setStudents] = useState([
     {
       id: "stu1",
       name: "Emily Chen",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b286?w=400&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b286?w=400&h=400&fit=crop",
       bio: "CS major passionate about AI and machine learning. Love to collaborate on projects!",
       year: "Junior",
       major: "Computer Science",
       interests: ["AI", "Web Dev", "Gaming"],
       location: "Engineering Quad",
-      isFollowing: false
+      isFollowing: false,
     },
     {
       id: "stu2",
       name: "Marcus Johnson",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
       bio: "Business student and basketball team captain. Always looking for new connections.",
       year: "Senior",
       major: "Business Administration",
       interests: ["Basketball", "Leadership", "Entrepreneurship"],
       location: "Business Building",
-      isFollowing: true
+      isFollowing: true,
     },
     {
       id: "stu3",
       name: "Sophia Rodriguez",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
       bio: "Art major specializing in digital design. Love exploring creative collaborations.",
       year: "Sophomore",
       major: "Fine Arts",
       interests: ["Digital Art", "Photography", "Design"],
       location: "Art Building",
-      isFollowing: false
+      isFollowing: false,
     },
     {
       id: "stu4",
       name: "Alex Thompson",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
       bio: "Psychology major interested in research and community mental health initiatives.",
       year: "Graduate",
       major: "Psychology",
       interests: ["Research", "Mental Health", "Community Service"],
       location: "Psychology Building",
-      isFollowing: false
+      isFollowing: false,
     },
     {
       id: "stu5",
       name: "Sarah Kim",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
       bio: "International student from South Korea studying Environmental Science.",
       year: "Junior",
       major: "Environmental Science",
       interests: ["Sustainability", "Climate Action", "Cultural Exchange"],
       location: "Science Building",
-      isFollowing: true
+      isFollowing: true,
     },
     {
       id: "stu6",
       name: "David Martinez",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
       bio: "Engineering student and fraternity member. Passionate about renewable energy.",
       year: "Senior",
       major: "Mechanical Engineering",
       interests: ["Engineering", "Greek Life", "Renewable Energy"],
       location: "Engineering Building",
-      isFollowing: false
-    }
+      isFollowing: false,
+    },
   ]);
 
-  const filteredOrganizations = organizations.filter(org => {
-    const matchesSearch = org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         org.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         org.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || org.category === selectedCategory;
-    const matchesType = selectedType === "all" || selectedType === "organizations";
-    
+  const filteredOrganizations = dummyorganizations.filter((org) => {
+    const matchesSearch =
+      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      org.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "all" || org.category === selectedCategory;
+
+    const matchesType =
+      selectedType === "all" || selectedType === "organizations";
+
     return matchesSearch && matchesCategory && matchesType;
   });
 
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.major.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.interests.some(interest => interest.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === "all" || 
-                           (selectedCategory === "Academic" && (student.major.toLowerCase().includes("computer") || student.major.toLowerCase().includes("engineering") || student.major.toLowerCase().includes("science"))) ||
-                           (selectedCategory === "Sports" && student.interests.some(interest => interest.toLowerCase().includes("basketball") || interest.toLowerCase().includes("sports"))) ||
-                           (selectedCategory === "Arts" && (student.major.toLowerCase().includes("art") || student.interests.some(interest => interest.toLowerCase().includes("art") || interest.toLowerCase().includes("design")))) ||
-                           (selectedCategory === "Greek Life" && student.interests.some(interest => interest.toLowerCase().includes("greek"))) ||
-                           (selectedCategory === "Service" && student.interests.some(interest => interest.toLowerCase().includes("service") || interest.toLowerCase().includes("community"))) ||
-                           (selectedCategory === "Cultural" && student.interests.some(interest => interest.toLowerCase().includes("cultural") || interest.toLowerCase().includes("exchange")));
+  const filteredStudents = dumystudents.filter((student) => {
+    const search = searchTerm.toLowerCase();
+
+    const name = student.name?.toLowerCase() || "";
+    const bio = student.bio?.toLowerCase() || "";
+    const major = student.major?.toLowerCase() || "";
+
+    // ALWAYS an array (because API returns null sometimes)
+    const interests: string[] = Array.isArray(student.skills)
+      ? student.skills
+      : [];
+
+    // 🔍 Search filter
+    const matchesSearch =
+      name.includes(search) ||
+      bio.includes(search) ||
+      major.includes(search) ||
+      interests.some((interests) => interests.toLowerCase().includes(search));
+
+    // 🎭 Category Filter
+    const matchesCategory =
+      selectedCategory === "all" ||
+      (selectedCategory === "Academic" &&
+        (major.includes("computer") ||
+          major.includes("engineering") ||
+          major.includes("science"))) ||
+      (selectedCategory === "Sports" &&
+        interests.some(
+          (s) =>
+            s.toLowerCase().includes("basketball") ||
+            s.toLowerCase().includes("sports")
+        )) ||
+      (selectedCategory === "Arts" &&
+        (major.includes("art") ||
+          interests.some(
+            (s) =>
+              s.toLowerCase().includes("art") ||
+              s.toLowerCase().includes("design")
+          ))) ||
+      (selectedCategory === "Greek Life" &&
+        interests.some((s) => s.toLowerCase().includes("greek"))) ||
+      (selectedCategory === "Service" &&
+        interests.some(
+          (s) =>
+            s.toLowerCase().includes("service") ||
+            s.toLowerCase().includes("community")
+        )) ||
+      (selectedCategory === "Cultural" &&
+        interests.some(
+          (s) =>
+            s.toLowerCase().includes("cultural") ||
+            s.toLowerCase().includes("exchange")
+        ));
+
+    // 🎚️ Type Filter
     const matchesType = selectedType === "all" || selectedType === "students";
-    
+
     return matchesSearch && matchesCategory && matchesType;
   });
 
   const allFiltered = [...filteredOrganizations, ...filteredStudents];
 
-  const handleJoinOrganization = (orgId: string) => {
-    setOrganizations(prev => prev.map(org => 
-      org.id === orgId 
-        ? { ...org, isJoined: !org.isJoined }
-        : org
-    ));
+  const handleJoinOrganization = async (orgId: string) => {
+    let parms = {
+      OID: orgId,
+    };
+    const JoinOrg = await GETFunction(apiroute.joinorganizationurl, parms);
+
+    await EexploreData();
   };
 
   const handleFollowStudent = (studentId: string) => {
-    setStudents(prev => prev.map(student => 
-      student.id === studentId 
-        ? { ...student, isFollowing: !student.isFollowing }
-        : student
-    ));
+    setStudents((prev) =>
+      prev.map((student) =>
+        student.id === studentId
+          ? { ...student, isFollowing: !student.isFollowing }
+          : student
+      )
+    );
   };
 
   const handleNavigateToOrganization = (orgId: string) => {
@@ -209,13 +294,47 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
   };
 
   useEffect(() => {
-    // Simulate a delay to mimic data fetching
-    const timer = setTimeout(() => {
+    const fetchData = async () => {
+      await EexploreData();
       setIsLoading(false);
-    }, 2000);
+    };
 
-    return () => clearTimeout(timer);
+    fetchData();
   }, []);
+
+  const EexploreData = async () => {
+    const exdata = await GETFunction(apiroute.explore);
+
+    // Normalize Organizations
+    const normalizedOrgs = exdata.orgDate.map((org: any) => ({
+      id: org.ID,
+      name: org.Name,
+      image: org.image,
+      description: org.description || "",
+      category: org.category || "General",
+      members: org.members || 0,
+      location: org.Location || "",
+      isJoined: org.isJoined || false,
+    }));
+
+    // Normalize Students
+    const normalizedStudents = exdata.userDate.map((stu: any) => ({
+      id: stu.id,
+      name: stu.name,
+      image: stu.image,
+      bio: stu.bio,
+      year: stu.StudentType,
+      major: stu.major,
+      interests: Array.isArray(stu.skills) ? stu.skills : [],
+      location: stu.Location,
+      isFollowing: stu.isFollowing || false,
+    }));
+
+    setdummyOrganizations(normalizedOrgs);
+    setdummyStudents(normalizedStudents);
+
+    return true;
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -254,11 +373,19 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
                 key={type}
                 variant={selectedType === type ? "default" : "secondary"}
                 className={`cursor-pointer whitespace-nowrap ${
-                  selectedType === type ? "bg-primary text-primary-foreground" : ""
+                  selectedType === type
+                    ? "bg-primary text-primary-foreground"
+                    : ""
                 }`}
-                onClick={() => setSelectedType(type as "all" | "organizations" | "students")}
+                onClick={() =>
+                  setSelectedType(type as "all" | "organizations" | "students")
+                }
               >
-                {type === "all" ? "All" : type === "organizations" ? "Organizations" : "Students"}
+                {type === "all"
+                  ? "All"
+                  : type === "organizations"
+                  ? "Organizations"
+                  : "Students"}
               </Badge>
             ))}
           </div>
@@ -268,9 +395,13 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
             {categories.map((category) => (
               <Badge
                 key={category}
-                variant={selectedCategory === category ? "default" : "secondary"}
+                variant={
+                  selectedCategory === category ? "default" : "secondary"
+                }
                 className={`cursor-pointer whitespace-nowrap ${
-                  selectedCategory === category ? "bg-primary text-primary-foreground" : ""
+                  selectedCategory === category
+                    ? "bg-primary text-primary-foreground"
+                    : ""
                 }`}
                 onClick={() => setSelectedCategory(category)}
               >
@@ -294,9 +425,12 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
             <div className="mb-4">
               <p className="text-sm text-muted-foreground">
                 {allFiltered.length} results found
-                {selectedType === "organizations" && ` (${filteredOrganizations.length} organizations)`}
-                {selectedType === "students" && ` (${filteredStudents.length} students)`}
-                {selectedType === "all" && ` (${filteredOrganizations.length} organizations, ${filteredStudents.length} students)`}
+                {selectedType === "organizations" &&
+                  ` (${filteredOrganizations.length} organizations)`}
+                {selectedType === "students" &&
+                  ` (${filteredStudents.length} students)`}
+                {selectedType === "all" &&
+                  ` (${filteredOrganizations.length} organizations, ${filteredStudents.length} students)`}
               </p>
             </div>
 
