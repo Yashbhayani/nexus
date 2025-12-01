@@ -759,7 +759,7 @@ module.exports.join = async (req, res) => {
 
     // Fetch SID for ODUSER (JOIN STATUS)
     let SID = await Status.findOne({
-      where: { Code: OrgDeptTypes.OdU.toUpperCase() },
+      where: { Code: OrgDeptTypes.Om.toUpperCase() },
       attributes: ["ID"],
     });
 

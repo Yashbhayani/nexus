@@ -628,7 +628,7 @@ module.exports.newpassword = async (req, res) => {
 
     UserData = await User.update(
       {
-        Password: Password,
+        Password: secPass,
       },
       { where: { ID: UserData.ID } }
     );

@@ -18,20 +18,9 @@ module.exports.MasterTypes = Object.freeze({
 });
 
 module.exports.OrgDeptTypes = Object.freeze({
-  Odpt: "odproductteam",
-  Odl: "odlogistics",
-  Odpn: "odprocurement",
-  Odbd: "odbusinessdevelopment",
-  Odo: "odoperations",
-  Odcs: "odcustomersupport",
-  Odm: "odmarketing",
-  Ods: "odsales",
-  Odit: "odit",
-  Odlg: "odlegal",
-  Odf: "odfinance",
-  Odhr: "odhr",
-  Odadmin: "odadministration",
+  Odem: "odeventmanager",
+  Odce: "odcontenteditor",
+  Om: "odmember",
   Odvp: "odvicepresident",
   Odp: "odpresident",
-  OdU: "oduser",
 });
