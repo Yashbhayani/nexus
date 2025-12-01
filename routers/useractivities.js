@@ -17,7 +17,7 @@ router.get("/like", fetchUser, like);
 router.post("/comments", fetchUser, comments);
 router.get("/comments", fetchUser, getcomments);
 router.get("/followuser", fetchUser, followuser);
-router.get("/followuser", fetchUser, followuser);
+//router.get("/followuser", fetchUser, followuser);
 // Create new user type
 
 module.exports = router;
