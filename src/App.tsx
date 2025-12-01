@@ -211,6 +211,7 @@ export default function App() {
 
       case "profile":
         return (
+         
           <APIState>
             <UserProfile
               selectedProfileId={currentView.data?.profileId}
@@ -370,12 +371,10 @@ export default function App() {
                 <DropdownMenuItem
                   key={profile.ID}
                   onClick={() => {
-                    setCurrentProfile(profile);
-
+                    const isOrg = profile.SourceTable === "organization" || profile.SourceTable === "organizations";
                     handleNavigate("profile", {
-                      profileId: profile.ID,
-                      usertype: profile.SourceTable,   // ✅ REQUIRED
-                      activeTab: "about",
+                      profileId: isOrg ? String(profile.ID) : "student",
+                      profileType: isOrg ? "organization" : "student"
                     });
                   }}
                 >

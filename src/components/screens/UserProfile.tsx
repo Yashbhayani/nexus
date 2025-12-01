@@ -330,8 +330,11 @@ export function UserProfile({
     },
   ]);
 
+
+  
   // Mock student data
   const studentProfile = {
+    
     name: "Alex Johnson",
     email: "alex.johnson@university.edu",
     avatar:
@@ -718,8 +721,12 @@ export function UserProfile({
   useEffect(() => {
     console.log("Fetching data for profile ID:", effectiveProfileId, effectiveusertype);
     const fetchData = async () => {
+      // await GetUserinfo();
       setIsLoading(true);
       await Data();
+      await GetUserInfo();
+      await GetUserPost();
+      
       setIsLoading(false);
     }
 
@@ -735,6 +742,27 @@ export function UserProfile({
     return true;
 
   }
+
+  const GetUserInfo = async () => {
+    let userinfo = await GETFunction(apiroute.userlogdata);
+    console.log("home user info", userinfo);
+    return true;
+
+  }
+
+  const GetUserPost = async () => {
+    let userpost = await GETFunction(apiroute.userblogurl);
+    console.log("home user post", userpost);
+    return true;
+  }
+
+  // const GetUserOrg = async () => {
+  //   let userorg = await GETFunction(apiroute.userorgdata);
+  //   console.log("home user org", userorg);
+  //   return true;
+  // }
+
+  
   // Profile image upload handlers
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1386,6 +1414,9 @@ export function UserProfile({
 
     console.table(formValues);
 
+    
+
+
     // In a real app, this would send the post data to the database
     const newPost = {
       id: `studentpost${Date.now()}`,
@@ -1393,6 +1424,11 @@ export function UserProfile({
       date: "Just now",
     };
 
+    const addpostdata = {
+      Title: title,
+      Content: content,
+      Category: category,
+    }
     setStudentPosts([newPost, ...studentPosts]);
 
     // Reset form and close dialog
