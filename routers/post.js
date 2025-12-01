@@ -10,6 +10,7 @@ const {
   adminblogurl,
   orgget,
   orgpost,
+  orgput,
   orgdeletepost
 } = require("../controller/postcontroller");
 const fetchUser = require("../midlewere/fetchuser");
