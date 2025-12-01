@@ -47,6 +47,8 @@ module.exports.feed = async (req, res) => {
 
                 -- Time ago in human-readable format
                 CASE 
+                    WHEN TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+                        CONCAT(TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' days ago')
                     WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
                         CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
                     WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
@@ -338,6 +340,8 @@ module.exports.otheruserinfo = async (req, res) => {
 
     -- Time ago in human-readable format
     CASE 
+        WHEN TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' days ago')
         WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
             CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
         WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
@@ -446,7 +450,7 @@ module.exports.userinfo = async (req, res) => {
             -- Followers count
             (SELECT COUNT(*) 
             FROM nexus.followers 
-            WHERE FollowingID = u.ID AND IsDeleted = 0) AS Followers
+            WHERE FollowingID = u.ID AND IsDeleted = 0) AS Followers,
 
         FROM nexus.user AS u
         LEFT JOIN nexus.userinfo AS ui ON ui.UID = u.ID
@@ -509,7 +513,9 @@ module.exports.userinfo = async (req, res) => {
                 b.Image,
 
     -- Time ago in human-readable format
-    CASE 
+    CASE
+        WHEN TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' days ago') 
         WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
             CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
         WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
@@ -601,35 +607,48 @@ module.exports.orgdata = async (req, res) => {
     const orgData = await sequelize.query(
       `
         SELECT 
-          o.ID AS OrganizationID,
-          o.OrganizationName AS OrganizationName,
-          i.ImageURL AS Image,
-          s.Name AS OrganizationType,
+              o.ID AS OrganizationID,
+              o.OrganizationName AS OrganizationName,
+              i.ImageURL AS Image,
+              s.Name AS OrganizationType,
 
-          -- Total Members
-          (SELECT COUNT(*) 
-            FROM nexus.manageorganization 
-            WHERE OID = o.ID) AS Member,
+              -- Total Members
+              (
+            SELECT COUNT(*) 
+            FROM nexus.manageorganization mo
+            WHERE IsRemove = 0 AND mo.OID = o.ID
+        ) AS Member,
 
-          -- TRUE/FALSE if user joined
-          CASE 
-              WHEN EXISTS (
-                  SELECT 1 
-                  FROM nexus.manageorganization 
-                  WHERE OID = o.ID AND UID = :UID
-              ) 
-              THEN TRUE 
-              ELSE FALSE
-          END AS IsJoin
+        -- Total Events Hosted
+        (
+            SELECT COUNT(*)
+            FROM nexus.eventsandactivities ea
+            WHERE ea.OID = o.ID AND ea.Isrejected = 0 AND ea.IsDeleted=0
+        ) AS EventsHosted,
+        (
+            SELECT COUNT(*)
+            FROM nexus.blogtable bo
+            WHERE bo.OID = o.ID AND bo.IsDeleted = 0
+        ) AS PublishedPosts
+    ,
+              -- TRUE/FALSE if user joined
+              (
+          SELECT s2.Name
+          FROM nexus.manageorganization mo
+          LEFT JOIN nexus.status s2 ON s2.ID = mo.SID
+          WHERE mo.OID = o.ID AND mo.UID = :UID AND mo.IsRemove = 0
+          LIMIT 1
+        ) AS UserRole,
+        'Organization' AS SourceTable
 
-        FROM nexus.organization AS o
-        LEFT JOIN nexus.organizationinfo AS oi
-          ON oi.OID = o.ID
-        LEFT JOIN nexus.status AS s
-          ON s.ID = o.OrganizationType
-        LEFT JOIN nexus.images AS i
-          ON i.ID = o.ImgID
-        WHERE o.ID = :OID;  
+            FROM nexus.organization AS o
+            LEFT JOIN nexus.organizationinfo AS oi
+              ON oi.OID = o.ID
+            LEFT JOIN nexus.status AS s
+              ON s.ID = o.OrganizationType
+            LEFT JOIN nexus.images AS i
+              ON i.ID = o.ImgID
+            WHERE o.ID = :OID;
       `,
       {
         replacements: { UID: Userdata.ID, OID: OID },
@@ -644,6 +663,7 @@ module.exports.orgdata = async (req, res) => {
           oi.Mission AS Mission,
           oi.phone AS Phone,
           oi.email AS Email,
+          oi.website AS Website,
 
           -- President
           (
@@ -679,128 +699,90 @@ module.exports.orgdata = async (req, res) => {
     const eventData = await sequelize.query(
       `
         SELECT 
-            ea.ID,
-            im.ImageURL,
-            ea.EventActivityName,
-            b.BuildingName,
-            r.RoomName,
+              ea.ID,
+              im.ImageURL,
+              ea.EventActivityName,
+              b.BuildingName,
+              r.RoomName,
 
-            -- Dec 20 Format
-            DATE_FORMAT(ea.EventDate, '%b %d, %Y') AS EventDate,
+              -- Dec 20 Format
+              DATE_FORMAT(ea.EventDate, '%b %d, %Y') AS EventDate,
+        CONCAT(LPAD(HOUR(ea.StartingTime) % 12, 1, ''), ':', 
+            LPAD(MINUTE(ea.StartingTime), 2, '0'), ' ',
+            IF(HOUR(ea.StartingTime) < 12, 'AM', 'PM')
+        ) AS EventTime,
+              s.Name AS EventType,
 
-            s.Name AS EventType,
+              -- ---------------------------
+              -- Date Category
+              -- ---------------------------
+              CASE 
+                  WHEN DATE(ea.EventDate) = CURDATE() THEN 'Today'
+                  WHEN DATE(ea.EventDate) = CURDATE() + INTERVAL 1 DAY THEN 'Tomorrow'
+                  WHEN YEARWEEK(ea.EventDate, 1) = YEARWEEK(CURDATE(), 1) THEN 'This Week'
+                  WHEN MONTH(ea.EventDate) = MONTH(CURDATE()) 
+                      AND YEAR(ea.EventDate) = YEAR(CURDATE()) THEN 'This Month'
+                  ELSE 'Upcoming'
+              END AS DateCategory,
 
-            -- ---------------------------
-            -- Date Category
-            -- ---------------------------
-            CASE 
-                WHEN DATE(ea.EventDate) = CURDATE() THEN 'Today'
-                WHEN DATE(ea.EventDate) = CURDATE() + INTERVAL 1 DAY THEN 'Tomorrow'
-                WHEN YEARWEEK(ea.EventDate, 1) = YEARWEEK(CURDATE(), 1) THEN 'This Week'
-                WHEN MONTH(ea.EventDate) = MONTH(CURDATE()) 
-                    AND YEAR(ea.EventDate) = YEAR(CURDATE()) THEN 'This Month'
-                ELSE 'Upcoming'
-            END AS DateCategory,
+              -- ---------------------------
+              -- RSVP Count
+              -- ---------------------------
+              (
+                  SELECT COUNT(*) 
+                  FROM nexus.manageeventandactivities mea 
+                  WHERE mea.EAAID = ea.ID 
+                  AND mea.IsDeleted = 0
+              ) AS Attending
 
-            -- ---------------------------
-            -- RSVP Count
-            -- ---------------------------
-            (
-                SELECT COUNT(*) 
-                FROM nexus.manageeventandactivities mea 
-                WHERE mea.EAAID = ea.ID 
-                AND mea.IsDeleted = 0
-            ) AS Attending,
+            FROM nexus.eventsandactivities AS ea
+            LEFT JOIN nexus.status AS s
+              ON s.ID = ea.EventType
+            LEFT JOIN nexus.images AS im
+              ON im.ID = ea.ImgID
+            LEFT JOIN nexus.building AS b
+              ON b.ID = ea.BuildingID
+            LEFT JOIN nexus.rooms AS r
+              ON r.ID = ea.RoomID
+            LEFT JOIN nexus.organization AS org
+              ON org.ID = ea.OID
 
-            -- ---------------------------
-            -- RSVP Status TRUE / FALSE
-            -- ---------------------------
-            CASE 
-                WHEN EXISTS (
-                    SELECT 1 
-                    FROM nexus.manageeventandactivities mea 
-                    WHERE mea.UID = :UID 
-                    AND mea.IsDeleted = 0
-                    AND mea.EAAID = ea.ID
-                ) 
-                THEN TRUE
-                ELSE FALSE
-            END AS RSVPStatus
+            -- Only Today → Future
+            WHERE ea.IsDeleted = 0 AND ea.OID = :OID
+            AND ea.ApproverByID IS NOT NULL
 
-          FROM nexus.eventsandactivities AS ea
-          LEFT JOIN nexus.status AS s
-            ON s.ID = ea.EventType
-          LEFT JOIN nexus.images AS im
-            ON im.ID = ea.ImgID
-          LEFT JOIN nexus.building AS b
-            ON b.ID = ea.BuildingID
-          LEFT JOIN nexus.rooms AS r
-            ON r.ID = ea.RoomID
-          LEFT JOIN nexus.organization AS org
-            ON org.ID = ea.OID
-
-          -- Only Today → Future
-          WHERE ea.IsDeleted = 0 AND ea.OID = :OID
-          AND ea.ApproverByID IS NOT NULL
-
-          ORDER BY ea.EventDate ASC;  
+            ORDER BY ea.EventDate ASC;  
       `,
       {
-        replacements: { UID: Userdata.ID, OID: OID },
+        replacements: { OID: OID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
 
     const post = await sequelize.query(
       `
-         SELECT 
-                b.ID AS ID,
+        SELECT 
+            b.ID AS ID,
+            b.PostTitle,
+            b.Content,
+            b.Image,
 
-                -- Name field
-                CASE 
-                    WHEN u.ID IS NOT NULL THEN 
-                        COALESCE(CONCAT(u.FirstName, ' ', u.LastName), SUBSTRING_INDEX(u.Email, '@', 1))
-                    WHEN o.ID IS NOT NULL THEN 
-                        COALESCE(o.OrganizationName)
-                    ELSE 'Unknown'
-                END AS Name,
-
-                -- UserName field
-                CASE 
-                    WHEN u.ID IS NOT NULL THEN SUBSTRING_INDEX(u.Email, '@', 1)
-                    WHEN o.ID IS NOT NULL THEN o.OrganizationUserName
-                    ELSE NULL
-                END AS UserName,
-
-                b.PostTitle,
-                b.Content,
-                b.Image,
-
-    -- Time ago in human-readable format
-    CASE 
-        WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
-            CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
-        WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
-            CONCAT(TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' minutes ago')
-        ELSE 
-            CONCAT(TIMESTAMPDIFF(SECOND, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' seconds ago')
-    END AS TimeAgo,
+            -- Time ago in human-readable format
+            CASE 
+              WHEN TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+                    CONCAT(TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' days ago')
+                WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+                    CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
+                WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+                    CONCAT(TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' minutes ago')
+                ELSE 
+                    CONCAT(TIMESTAMPDIFF(SECOND, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' seconds ago')
+            END AS TimeAgo,
                 -- Total Likes of this post
-                (SELECT COUNT(*) FROM nexus.like WHERE BID = b.ID) AS Likes,
+                    (SELECT COUNT(*) FROM nexus.like WHERE BID = b.ID) AS Likes,
 
                 -- Total Comments of this post
-                (SELECT COUNT(*) FROM nexus.comments WHERE BID = b.ID) AS Comments,
-
-                -- Is user already liked?
-                CASE 
-                    WHEN EXISTS (
-                        SELECT 1 
-                        FROM nexus.like 
-                        WHERE BID = b.ID AND UID = :UID 
-                    ) 
-                    THEN TRUE 
-                    ELSE FALSE 
-                END AS IsLiked
+                    (SELECT COUNT(*) FROM nexus.comments WHERE BID = b.ID) AS Comments
 
             FROM nexus.blogtable AS b
             LEFT JOIN nexus.user AS u
@@ -809,9 +791,10 @@ module.exports.orgdata = async (req, res) => {
                 ON o.ID = b.OID 
             Where b.OID = :OID
             ORDER BY b.CreatedDate DESC;  
+  
       `,
       {
-        replacements: { UID: Userdata.ID, OID: OID },
+        replacements: { OID: OID },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
@@ -822,4 +805,3 @@ module.exports.orgdata = async (req, res) => {
     res.status(500).json({ error: error.message, success });
   }
 };
-

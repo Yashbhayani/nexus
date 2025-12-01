@@ -210,6 +210,8 @@ module.exports.get = async (req, res) => {
 
     -- Time ago in human-readable format
     CASE 
+        WHEN TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
+            CONCAT(TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' days ago')
         WHEN TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
             CONCAT(TIMESTAMPDIFF(HOUR, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()), ' hours ago')
         WHEN TIMESTAMPDIFF(MINUTE, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
