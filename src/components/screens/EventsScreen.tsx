@@ -22,28 +22,16 @@ import {
   Aperture,
 } from "lucide-react";
 import { SkeletonEventCard } from "../common/SkeletonCard";
-<<<<<<< HEAD
 import APIContext from "../../Context/apimethods/APIContext";
 import * as apiroute from "../../Context/API/ApiRouter";
-=======
-import * as apiroute from "../../Context/API/ApiRouter";
-import APIContext from "../../Context/apimethods/APIContext";
->>>>>>> 905519b29a11611656f8fcf3c0a2cb37aeaed068
 
 interface EventsScreenProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function EventsScreen({ onNavigate }: EventsScreenProps) {
-<<<<<<< HEAD
   const context = useContext(APIContext);
   const { GETFunction } = context;
-=======
-
-  const context = useContext(APIContext);
-  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
-
->>>>>>> 905519b29a11611656f8fcf3c0a2cb37aeaed068
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
