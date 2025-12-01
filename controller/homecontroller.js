@@ -93,6 +93,7 @@ module.exports.feed = async (req, res) => {
                 ea.ID As ID,
                 ea.EventActivityName,
                 CONCAT(r.RoomName,', ',b.BuildingName) AS Name,
+                im.ImageURL As Image,
                 DATE_FORMAT(ea.EventDate, '%b %d') AS EventDate,     
                 DATE_FORMAT(ea.StartingTime, '%l:%i %p') AS StartingTime, 
                 s.Name As EventTypeName
@@ -105,7 +106,8 @@ module.exports.feed = async (req, res) => {
                 ON r.ID = ea.RoomID
             LEFT JOIN nexus.status AS s
                 ON s.ID = ea.EventType
-            WHERE DATE(ea.StartingTime) >= CURDATE()
+            Where ea.Isrejected = 0 AND ea.ApproverByID IS NOT NULL 
+              AND DATE(ea.StartingTime) >= CURDATE()
             ORDER BY ea.StartingTime;
         `,
       {
