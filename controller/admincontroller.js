@@ -41,6 +41,7 @@ module.exports.adminpanel = async (req, res) => {
       where: {
         ApproverByID: null,
         IsDeleted: false,
+        Isrejected: false,
       },
     });
 
@@ -98,7 +99,7 @@ module.exports.getuserorg = async (req, res) => {
             SUBSTRING_INDEX(u.Email, '@', 1) AS UserName,
             CONCAT(u.FirstName, ' ', u.LastName) AS Name,
             im.ImageURL As image,
-            u.CreatedByDate As CreatedByDate,
+            DATE_FORMAT(u.CreatedByDate, '%b %Y') AS CreatedByDate,
             u.Email As Email,
             (Select Count(*) FROM nexus.blogtable where UID = u.ID) AS TotalPost, 
             ut.Name AS SourceTable
@@ -118,7 +119,7 @@ module.exports.getuserorg = async (req, res) => {
             o.OrganizationUserName AS UserName,
             o.OrganizationName AS Name,
             im.ImageURL As image,
-            o.CreatedByDate As CreatedByDate,
+            DATE_FORMAT(o.CreatedByDate, '%b %Y') AS CreatedByDate,
             oi.email As Email,
             (Select Count(*) FROM nexus.blogtable where OID = o.ID) AS TotalPost,
             'Organization' AS SourceTable
@@ -155,7 +156,7 @@ module.exports.deleteaccount = async (req, res) => {
       return res.status(404).json({ success, message: "User not found" });
     }
 
-    const { SourceType, ID } = req.body;
+    const { SourceType, ID } = req.query;
 
     if (!SourceType || !ID) {
       return res.status(400).json({
@@ -284,17 +285,20 @@ module.exports.adminevent = async (req, res) => {
         ea.EventActivityName,
         b.BuildingName,
         r.RoomName,
+        o.OrganizationName,
         CASE 
           WHEN ea.ApproverByID IS NULL AND ea.Isrejected = 0 THEN 'Pending'
           WHEN ea.ApproverByID = 1 AND ea.Isrejected = 0 THEN 'Approved'
-          WHEN ea.ApproverByID IS NULL AND ea.Isrejected = 1 THEN 'Rejected'
+          WHEN ea.Isrejected = 1 THEN 'Rejected'
           ELSE 'Unknown'
         END AS Status,
         DATE_FORMAT(ea.EventDate, '%b %d') AS EventDate,
-        s.Name,
+        s.Name As EventType,
         ea.Capacity,
         'Organization' AS SourceTable
     FROM nexus.eventsandactivities AS ea
+    LEFT JOIN nexus.organization AS o
+        ON o.ID = ea.OID
     LEFT JOIN nexus.status AS s
         ON s.ID = ea.EventType
     LEFT JOIN nexus.images AS im
@@ -315,5 +319,74 @@ module.exports.adminevent = async (req, res) => {
     return res.status(200).json({ success, eventActivities });
   } catch (err) {
     res.status(500).json({ error: err.message, success });
+  }
+};
+
+module.exports.deleteevent = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+
+    if (!Userdata) {
+      return res.status(404).json({ success, message: "User not found" });
+    }
+
+    const { ID } = req.query;
+
+    if (!ID) {
+      return res.status(400).json({
+        success,
+        error: "Please fill all required fields",
+      });
+    }
+
+    let check = await checkAdminStatus(Userdata.ID);
+
+    if (!check.success) {
+      return res.status(check.status).json({
+        success: success,
+        message: check.message,
+      });
+    }
+
+    if (check.user !== Useres.ADMIN.toUpperCase()) {
+      return res.status(401).json({
+        success: success,
+        message: "Unauthorized User!",
+      });
+    }
+
+    let updateEventActivity = await EventsAndActivities.findByPk(ID);
+
+    if (!updateEventActivity) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Events",
+      });
+    }
+
+    updateEventActivity.IsDeleted = true;
+    updateEventActivity.UpdatedByID = Userdata.ID;
+    await updateEventActivity.save();
+
+    if (!updateEventActivity) {
+      return res
+        .status(500)
+        .json({ success, error: "Failed to delete event/activity" });
+    }
+
+    success = true;
+    return res
+      .status(200)
+      .json({ success, message: "Event deleted successfully!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };

@@ -6,11 +6,13 @@ const {
   getuserorg,
   deleteaccount,
   adminevent,
+  deleteevent,
 } = require("../controller/admincontroller");
 
 router.get("/adminpanel", fetchUser, adminpanel);
 router.get("/getuserorg", fetchUser, getuserorg);
-router.patch("/delete-account", fetchUser, deleteaccount);
+router.delete("/delete-account", fetchUser, deleteaccount);
+router.delete("/delete-event", fetchUser, deleteevent);
 router.get("/adminevent", fetchUser, adminevent);
 
 module.exports = router;

@@ -342,7 +342,9 @@ module.exports.adminblogurl = async (req, res) => {
           WHEN u.ID IS NOT NULL THEN 'Student'
           WHEN o.ID IS NOT NULL THEN 'Organization'
           ELSE 'Unknown'
-      END AS RecordType
+      END AS RecordType,
+      (Select count(*) from nexus.like where BID = b.ID AND IsDeleted = 0) As TotalLIke,
+      (Select count(*) from nexus.comments where BID = b.ID AND IsDeleted = 0) As TotalComments
 
   FROM nexus.blogtable AS b
   LEFT JOIN nexus.user AS u
@@ -355,6 +357,7 @@ module.exports.adminblogurl = async (req, res) => {
       ON o.ID = b.OID
   LEFT JOIN nexus.images AS oImg
       ON oImg.ID = o.ImgID
+  Where b.IsDeleted = 0
   ORDER BY COALESCE(b.UpdatedDate, b.CreatedDate) DESC;
   `,
       {

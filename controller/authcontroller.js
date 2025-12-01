@@ -15,6 +15,7 @@ const { Useres } = require("../enums/codes");
 const OtpTable = require("../models/otptable");
 const SkillsTable = require("../models/skillstable");
 const InterestTable = require("../models/interesttable");
+const Status = require("../models/status");
 
 module.exports.login = async (req, res) => {
   let success = false;
@@ -385,11 +386,16 @@ module.exports.verifyusertype = async (req, res) => {
       });
     }
 
+    success = true;
     if (check.user != Useres.ADMIN.toUpperCase()) {
-      return res.status(200).json({ error: "User is not Admin", success });
+      return res
+        .status(200)
+        .json({ error: "User is not Admin", success, status: false });
     } else {
       success = true;
-      return res.status(200).json({ error: "User is Admin", success });
+      return res
+        .status(200)
+        .json({ error: "User is Admin", success, status: true });
     }
   } catch (err) {
     console.error(err.message);
@@ -667,7 +673,8 @@ module.exports.loginData = async (req, res) => {
           u.ID,
           CONCAT(u.FirstName, ' ', u.LastName) AS Name,
           im.ImageURL AS image,
-          ut.Name AS SourceTable
+          ut.Name AS SourceTable,
+          'User' As icon
         FROM nexus.user AS u
         LEFT JOIN nexus.userinfo AS ui
           ON ui.UID = u.ID
@@ -684,7 +691,8 @@ module.exports.loginData = async (req, res) => {
           o.ID,
           o.OrganizationName AS Name,
           im.ImageURL AS image,
-          'Organization' AS SourceTable
+          'Organization' AS SourceTable,
+          'Building2' As icon
         FROM nexus.organization AS o
         LEFT JOIN nexus.manageorganization AS mo
           ON mo.OID = o.ID
