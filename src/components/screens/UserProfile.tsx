@@ -6,6 +6,7 @@ import {
   ReactElement,
   ReactNode,
   ReactPortal,
+  useContext,
 } from "react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -59,6 +60,8 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 /**
  * Role-Based Permissions System for Organizations:
@@ -91,15 +94,23 @@ import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 interface UserProfileProps {
   selectedProfileId?: string;
+  usertype?: string;
   activeTab?: string;
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function UserProfile({
   selectedProfileId = "student",
+  usertype = "student",
   activeTab = "about",
   onNavigate,
 }: UserProfileProps) {
+
+
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
@@ -319,8 +330,11 @@ export function UserProfile({
     },
   ]);
 
+
+  
   // Mock student data
   const studentProfile = {
+    
     name: "Alex Johnson",
     email: "alex.johnson@university.edu",
     avatar:
@@ -649,11 +663,15 @@ export function UserProfile({
   // Determine profile type based on selectedProfileId
   const profileType =
     selectedProfileId === "student" ? "student" : "organization";
+  // ✅ FIX — ensure correct profile is always used
+  const effectiveProfileId = selectedProfileId;
+  const effectiveusertype = usertype;
+
 
   // Get the correct organization profile based on selectedProfileId
   const organizationProfile =
     profileType === "organization"
-      ? allOrganizations[selectedProfileId] || allOrganizations["1"]
+      ? allOrganizations[effectiveProfileId] || allOrganizations["1"]
       : allOrganizations["1"]; // Default fallback
 
   // Get current profile data based on type
@@ -666,7 +684,7 @@ export function UserProfile({
   const currentUserRole =
     profileType === "organization"
       ? organizationProfile.members.find((m: any) => m.id === currentUserId)
-          ?.role || "Member"
+        ?.role || "Member"
       : "Member";
 
   // Role-based permission helper functions (only applicable for organization profiles)
@@ -701,13 +719,50 @@ export function UserProfile({
 
   // Simulate loading delay
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
+    console.log("Fetching data for profile ID:", effectiveProfileId, effectiveusertype);
+    const fetchData = async () => {
+      // await GetUserinfo();
+      setIsLoading(true);
+      await Data();
+      await GetUserInfo();
+      await GetUserPost();
+      
       setIsLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, [selectedProfileId]);
+    }
 
+    fetchData();
+
+
+  }, [effectiveProfileId, effectiveusertype]);
+
+
+  const Data = async () => {
+    let homeuserinfo = await GETFunction(apiroute.homeuserinfo);
+    console.log("home user info", homeuserinfo);
+    return true;
+
+  }
+
+  const GetUserInfo = async () => {
+    let userinfo = await GETFunction(apiroute.userlogdata);
+    console.log("home user info", userinfo);
+    return true;
+
+  }
+
+  const GetUserPost = async () => {
+    let userpost = await GETFunction(apiroute.userblogurl);
+    console.log("home user post", userpost);
+    return true;
+  }
+
+  // const GetUserOrg = async () => {
+  //   let userorg = await GETFunction(apiroute.userorgdata);
+  //   console.log("home user org", userorg);
+  //   return true;
+  // }
+
+  
   // Profile image upload handlers
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1300,12 +1355,12 @@ export function UserProfile({
       organizationPosts.map((post) =>
         post.id === editPostFormData.id
           ? {
-              ...post,
-              title: editPostFormData.title,
-              content: editPostFormData.content,
-              category: editPostFormData.category,
-              imageUrl: editPostFormData.imageUrl,
-            }
+            ...post,
+            title: editPostFormData.title,
+            content: editPostFormData.content,
+            category: editPostFormData.category,
+            imageUrl: editPostFormData.imageUrl,
+          }
           : post
       )
     );
@@ -1359,6 +1414,9 @@ export function UserProfile({
 
     console.table(formValues);
 
+    
+
+
     // In a real app, this would send the post data to the database
     const newPost = {
       id: `studentpost${Date.now()}`,
@@ -1366,6 +1424,11 @@ export function UserProfile({
       date: "Just now",
     };
 
+    const addpostdata = {
+      Title: title,
+      Content: content,
+      Category: category,
+    }
     setStudentPosts([newPost, ...studentPosts]);
 
     // Reset form and close dialog
@@ -1423,12 +1486,12 @@ export function UserProfile({
       studentPosts.map((post) =>
         post.id === editPostFormData.id
           ? {
-              ...post,
-              title: editPostFormData.title,
-              content: editPostFormData.content,
-              category: editPostFormData.category,
-              imageUrl: editPostFormData.imageUrl,
-            }
+            ...post,
+            title: editPostFormData.title,
+            content: editPostFormData.content,
+            category: editPostFormData.category,
+            imageUrl: editPostFormData.imageUrl,
+          }
           : post
       )
     );
@@ -2493,85 +2556,85 @@ export function UserProfile({
                       id: Key | null | undefined;
                       avatar: string | undefined;
                       name:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                        unknown,
+                        string | JSXElementConstructor<any>
+                      >
+                      | Iterable<ReactNode>
+                      | Promise<
                         | string
                         | number
                         | bigint
                         | boolean
+                        | ReactPortal
                         | ReactElement<
-                            unknown,
-                            string | JSXElementConstructor<any>
-                          >
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
                         | Iterable<ReactNode>
-                        | Promise<
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactPortal
-                            | ReactElement<
-                                unknown,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | null
-                            | undefined
-                          >
                         | null
-                        | undefined;
+                        | undefined
+                      >
+                      | null
+                      | undefined;
                       major:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                        unknown,
+                        string | JSXElementConstructor<any>
+                      >
+                      | Iterable<ReactNode>
+                      | ReactPortal
+                      | Promise<
                         | string
                         | number
                         | bigint
                         | boolean
-                        | ReactElement<
-                            unknown,
-                            string | JSXElementConstructor<any>
-                          >
-                        | Iterable<ReactNode>
                         | ReactPortal
-                        | Promise<
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactPortal
-                            | ReactElement<
-                                unknown,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | null
-                            | undefined
-                          >
+                        | ReactElement<
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
+                        | Iterable<ReactNode>
                         | null
-                        | undefined;
+                        | undefined
+                      >
+                      | null
+                      | undefined;
                       role:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                        unknown,
+                        string | JSXElementConstructor<any>
+                      >
+                      | Iterable<ReactNode>
+                      | ReactPortal
+                      | Promise<
                         | string
                         | number
                         | bigint
                         | boolean
-                        | ReactElement<
-                            unknown,
-                            string | JSXElementConstructor<any>
-                          >
-                        | Iterable<ReactNode>
                         | ReactPortal
-                        | Promise<
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactPortal
-                            | ReactElement<
-                                unknown,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | null
-                            | undefined
-                          >
+                        | ReactElement<
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
+                        | Iterable<ReactNode>
                         | null
-                        | undefined;
+                        | undefined
+                      >
+                      | null
+                      | undefined;
                     }) => (
                       <Card key={member.id}>
                         <CardContent className="p-4">

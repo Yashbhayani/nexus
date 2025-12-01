@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useContext,  } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Badge } from "../ui/badge";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -17,6 +19,10 @@ const interests = [
 ];
 
 export function Onboarding({ onComplete }: OnboardingProps) {
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",

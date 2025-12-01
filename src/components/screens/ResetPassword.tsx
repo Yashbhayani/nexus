@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardDescription } from "../ui/card";
 import { ArrowLeft, Eye, EyeOff, CheckCircle2, Lock } from "lucide-react";
 import { NexusLogo } from "../common/NexusLogo";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 interface ResetPasswordProps {
   onBack: () => void;
@@ -12,6 +14,10 @@ interface ResetPasswordProps {
 }
 
 export function ResetPassword({ onBack, onSuccess }: ResetPasswordProps) {
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);

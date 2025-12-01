@@ -6,20 +6,34 @@ import { StudentCard } from "../common/StudentCard";
 import { Badge } from "../ui/badge";
 import { Search, Grid3X3, List } from "lucide-react";
 import { LoadingSpinner } from "../common/LoadingSpinner";
+<<<<<<< HEAD
 import {
   SkeletonOrganizationCard,
   SkeletonStudentCard,
 } from "../common/SkeletonCard";
 import APIContext from "../../Context/apimethods/APIContext";
 import * as apiroute from "../../Context/API/ApiRouter";
+=======
+import { SkeletonOrganizationCard, SkeletonStudentCard } from "../common/SkeletonCard";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
+
+>>>>>>> 905519b29a11611656f8fcf3c0a2cb37aeaed068
 
 interface EventDiscoveryProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
+<<<<<<< HEAD
   const context = useContext(APIContext);
   const { GETFunction } = context;
+=======
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
+>>>>>>> 905519b29a11611656f8fcf3c0a2cb37aeaed068
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");

@@ -20,6 +20,7 @@ interface ForgotPasswordProps {
 }
 
 export function ForgotPassword({ onBack, onResetLink }: ForgotPasswordProps) {
+  
   const context = useContext(APIContext);
   const { GETFunction, PATCHFunctionBody } = context;
 

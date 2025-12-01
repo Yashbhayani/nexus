@@ -15,10 +15,11 @@ interface HomeFeedProps {
 }
 
 export function HomeFeed({ onNavigate }: HomeFeedProps) {
+
   const context = useContext(APIContext);
   const { GETFunction, POSTFunction } = context;
-  const [isLoading, setIsLoading] = useState(true);
 
+  const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState<any[]>([]);
   const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
 

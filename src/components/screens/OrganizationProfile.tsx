@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -25,6 +25,8 @@ import {
   Target,
   Link as LinkIcon,
 } from "lucide-react";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 interface OrganizationProfileProps {
   organizationId: string;
@@ -37,6 +39,13 @@ export function OrganizationProfile({
   onBack,
   onNavigate,
 }: OrganizationProfileProps) {
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
+  
+  const [isLoading, setIsLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState("about");
   const [isJoined, setIsJoined] = useState(false);
 
