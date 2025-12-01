@@ -6,6 +6,7 @@ export const adminpanel = "admin/adminpanel";
 export const getuserorg = "admin/getuserorg";
 export const deleteaccount = "admin/delete-account";
 export const adminevent = "admin/adminevent";
+export const deleteevent = "admin/delete-event";
 
 // Auth Routes
 export const loginurl = "auth/login";

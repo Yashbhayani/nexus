@@ -342,56 +342,6 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
 
       {/* Content */}
       <div className="max-w-md mx-auto">
-        {/* Big Events Section */}
-        {/* <div className="p-4 border-b border-border">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold">Major Campus Events</h2>
-            </div>
-            <Button variant="ghost" size="sm">
-              See all
-            </Button>
-          </div>
-          
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {bigEvents.map((event) => (
-              <div 
-                key={event.id} 
-                className="flex-shrink-0 w-48 cursor-pointer"
-                onClick={() => handleBigEventClick(event.id)}
-              >
-                <div className="relative rounded-lg overflow-hidden mb-2">
-                  <ImageWithFallback
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full h-32 object-cover"
-                  />
-                  <div className="absolute top-2 left-2">
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      event.status === 'happening' 
-                        ? 'bg-green-500 text-white' 
-                        : event.status === 'upcoming'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-500 text-white'
-                    }`}>
-                      {event.status === 'happening' ? 'Live' : 
-                       event.status === 'upcoming' ? 'Soon' : 'Past'}
-                    </div>
-                  </div>
-                  <div className="absolute top-2 right-2">
-                    <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
-                      {event.attendees.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-                <h3 className="font-medium text-sm line-clamp-2 mb-1">{event.title}</h3>
-                <p className="text-xs text-muted-foreground">{event.date} • {event.location}</p>
-              </div>
-            ))}
-          </div>
-        </div> */}
-
         {/* Campus Feed */}
         <div className="p-4 space-y-6">
           {/* Recent Posts */}
