@@ -94,17 +94,18 @@ import APIContext from "../../Context/apimethods/APIContext";
 
 interface UserProfileProps {
   selectedProfileId?: string;
+  usertype?: string;
   activeTab?: string;
   onNavigate?: (screen: string, data?: any) => void;
-  usertype?: string;
 }
 
 export function UserProfile({
   selectedProfileId = "student",
+  usertype = "student",
   activeTab = "about",
   onNavigate,
-  usertype,
 }: UserProfileProps) {
+
 
 
   const context = useContext(APIContext);
@@ -659,11 +660,15 @@ export function UserProfile({
   // Determine profile type based on selectedProfileId
   const profileType =
     selectedProfileId === "student" ? "student" : "organization";
+  // ✅ FIX — ensure correct profile is always used
+  const effectiveProfileId = selectedProfileId;
+  const effectiveusertype = usertype;
+
 
   // Get the correct organization profile based on selectedProfileId
   const organizationProfile =
     profileType === "organization"
-      ? allOrganizations[selectedProfileId] || allOrganizations["1"]
+      ? allOrganizations[effectiveProfileId] || allOrganizations["1"]
       : allOrganizations["1"]; // Default fallback
 
   // Get current profile data based on type
@@ -676,7 +681,7 @@ export function UserProfile({
   const currentUserRole =
     profileType === "organization"
       ? organizationProfile.members.find((m: any) => m.id === currentUserId)
-          ?.role || "Member"
+        ?.role || "Member"
       : "Member";
 
   // Role-based permission helper functions (only applicable for organization profiles)
@@ -711,16 +716,25 @@ export function UserProfile({
 
   // Simulate loading delay
   useEffect(() => {
-  setIsLoading(true);
-  console.log("Loading profile for ID:", selectedProfileId);
+    console.log("Fetching data for profile ID:", effectiveProfileId, effectiveusertype);
+    const fetchData = async () => {
+      setIsLoading(true);
+      await Data();
+      setIsLoading(false);
+    }
 
-  const timer = setTimeout(() => {
-    setIsLoading(false);
-  }, 1200);
+    fetchData();
 
-  return () => clearTimeout(timer);
-}, [selectedProfileId]);
 
+  }, [effectiveProfileId, effectiveusertype]);
+
+
+  const Data = async () => {
+    let homeuserinfo = await GETFunction(apiroute.homeuserinfo);
+    console.log("home user info", homeuserinfo);
+    return true;
+
+  }
   // Profile image upload handlers
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1313,12 +1327,12 @@ export function UserProfile({
       organizationPosts.map((post) =>
         post.id === editPostFormData.id
           ? {
-              ...post,
-              title: editPostFormData.title,
-              content: editPostFormData.content,
-              category: editPostFormData.category,
-              imageUrl: editPostFormData.imageUrl,
-            }
+            ...post,
+            title: editPostFormData.title,
+            content: editPostFormData.content,
+            category: editPostFormData.category,
+            imageUrl: editPostFormData.imageUrl,
+          }
           : post
       )
     );
@@ -1436,12 +1450,12 @@ export function UserProfile({
       studentPosts.map((post) =>
         post.id === editPostFormData.id
           ? {
-              ...post,
-              title: editPostFormData.title,
-              content: editPostFormData.content,
-              category: editPostFormData.category,
-              imageUrl: editPostFormData.imageUrl,
-            }
+            ...post,
+            title: editPostFormData.title,
+            content: editPostFormData.content,
+            category: editPostFormData.category,
+            imageUrl: editPostFormData.imageUrl,
+          }
           : post
       )
     );
@@ -2506,85 +2520,85 @@ export function UserProfile({
                       id: Key | null | undefined;
                       avatar: string | undefined;
                       name:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                        unknown,
+                        string | JSXElementConstructor<any>
+                      >
+                      | Iterable<ReactNode>
+                      | Promise<
                         | string
                         | number
                         | bigint
                         | boolean
+                        | ReactPortal
                         | ReactElement<
-                            unknown,
-                            string | JSXElementConstructor<any>
-                          >
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
                         | Iterable<ReactNode>
-                        | Promise<
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactPortal
-                            | ReactElement<
-                                unknown,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | null
-                            | undefined
-                          >
                         | null
-                        | undefined;
+                        | undefined
+                      >
+                      | null
+                      | undefined;
                       major:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                        unknown,
+                        string | JSXElementConstructor<any>
+                      >
+                      | Iterable<ReactNode>
+                      | ReactPortal
+                      | Promise<
                         | string
                         | number
                         | bigint
                         | boolean
-                        | ReactElement<
-                            unknown,
-                            string | JSXElementConstructor<any>
-                          >
-                        | Iterable<ReactNode>
                         | ReactPortal
-                        | Promise<
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactPortal
-                            | ReactElement<
-                                unknown,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | null
-                            | undefined
-                          >
+                        | ReactElement<
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
+                        | Iterable<ReactNode>
                         | null
-                        | undefined;
+                        | undefined
+                      >
+                      | null
+                      | undefined;
                       role:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                        unknown,
+                        string | JSXElementConstructor<any>
+                      >
+                      | Iterable<ReactNode>
+                      | ReactPortal
+                      | Promise<
                         | string
                         | number
                         | bigint
                         | boolean
-                        | ReactElement<
-                            unknown,
-                            string | JSXElementConstructor<any>
-                          >
-                        | Iterable<ReactNode>
                         | ReactPortal
-                        | Promise<
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactPortal
-                            | ReactElement<
-                                unknown,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | null
-                            | undefined
-                          >
+                        | ReactElement<
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
+                        | Iterable<ReactNode>
                         | null
-                        | undefined;
+                        | undefined
+                      >
+                      | null
+                      | undefined;
                     }) => (
                       <Card key={member.id}>
                         <CardContent className="p-4">
