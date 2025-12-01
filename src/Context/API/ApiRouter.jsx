@@ -43,7 +43,7 @@ export const rejecteventurl = "events/rejected";
 //export const admineventurl = "events/adminevent";
 
 //Homefeed Routes
-export const homeurl = "home/";
+export const feedurl = "home/";
 export const explore = "home/explore";
 export const otheruserinfo = "home/otheruserinfo";
 export const homeuserinfo = "home/userinfo";
