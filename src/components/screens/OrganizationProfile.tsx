@@ -311,11 +311,11 @@ export function OrganizationProfile({
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="about">About</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="members">Members</TabsTrigger>
+            {/* <TabsTrigger value="members">Members</TabsTrigger> */}
           </TabsList>
 
           {/* About Tab */}
@@ -539,7 +539,7 @@ export function OrganizationProfile({
           </TabsContent>
 
           {/* Members Tab */}
-          <TabsContent value="members" className="space-y-4 mt-6">
+          {/* <TabsContent value="members" className="space-y-4 mt-6">
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -579,7 +579,7 @@ export function OrganizationProfile({
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </div>

@@ -111,7 +111,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     description: "",
     date: "",
     time: "",
-    location: "",
+    building: "",
+    room: "",
     category: "",
     capacity: "",
     imageUrl: ""
@@ -134,7 +135,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     description: "",
     date: "",
     time: "",
-    location: "",
+    building: "",
+    room: "",
     category: "",
     capacity: "",
     imageUrl: ""
@@ -282,7 +284,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     major: "Computer Science",
     minor: "Mathematics",
     graduationYear: "2026",
-    location: "Engineering Building, Room 304",
+    building: "Engineering Building",
+    room: "Room 304",
     joinedDate: "Fall 2023",
     stats: {
       enrolledOrgs: 3,
@@ -342,7 +345,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       description: "The premier organization for Computer Science students at the university. We host tech talks, hackathons, and networking events to help students grow their skills and connect with industry professionals.",
       mission: "To foster a collaborative community of aspiring technologists through educational events, hands-on projects, and industry connections.",
       category: "Academic",
-      location: "Engineering Building, Room 215",
+      building: "Engineering Building",
+      room: "Room 215",
       foundedDate: "2015",
       website: "https://cssociety.university.edu",
       socialMedia: {
@@ -367,7 +371,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
           title: "CS Study Group for Finals",
           date: "Dec 18",
           time: "6:00 PM",
-          location: "Library Room 204",
+          building: "Library",
+          room: "Room 204",
           attendees: 23,
           image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300&h=200&fit=crop",
           status: "approved"
@@ -377,7 +382,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
           title: "Tech Innovation Showcase",
           date: "May 20",
           time: "4:00 PM",
-          location: "Engineering Building Atrium",
+          building: "Engineering Building",
+          room: "Atrium",
           attendees: 289,
           image: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&h=200&fit=crop",
           status: "pending"
@@ -431,7 +437,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       description: "Dedicated to advancing AI research and applications on campus. We organize research paper discussions, ML workshops, and collaborate on cutting-edge AI projects.",
       mission: "To create an inclusive environment where students can explore, learn, and contribute to the field of artificial intelligence.",
       category: "Academic",
-      location: "Research Lab, Building C",
+      building: "Research Lab",
+      room: "Building C",
       foundedDate: "2018",
       website: "https://airesearch.university.edu",
       socialMedia: {
@@ -456,7 +463,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
           title: "Deep Learning Workshop",
           date: "Dec 22",
           time: "2:00 PM",
-          location: "Research Lab 301",
+          building: "Research Lab",
+          room: "Room 301",
           attendees: 45,
           image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=300&h=200&fit=crop",
           status: "approved"
@@ -495,7 +503,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       description: "Weekly coding sessions and hackathons for students to build projects, learn new technologies, and collaborate with peers.",
       mission: "To foster a culture of hands-on learning and innovation through regular coding events and project collaboration.",
       category: "Technical",
-      location: "Innovation Hub, Room 101",
+      building: "Innovation Hub",
+      room: "Room 101",
       foundedDate: "2020",
       website: "https://hacknight.university.edu",
       socialMedia: {
@@ -520,7 +529,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
           title: "Build-a-thon Weekend",
           date: "Dec 28",
           time: "5:00 PM",
-          location: "Innovation Hub",
+          building: "Innovation Hub",
+          room: "Room 101",
           attendees: 67,
           image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300&h=200&fit=crop",
           status: "approved"
@@ -839,7 +849,7 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   // Handle create event
   const handleCreateEvent = () => {
 
-    let { title, description, date, time, location, category, capacity } = createEventFormData;
+    let { title, description, date, time, building, room, category, capacity } = createEventFormData;
 
 
     const formdata = new FormData();
@@ -847,7 +857,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     formdata.append('Description', description);
     formdata.append('Date', date);
     formdata.append('Time', time);
-    formdata.append('Location', location);
+    formdata.append('Building', building);
+    formdata.append('Room', room);
     formdata.append('Category', category);
     formdata.append('Capacity', capacity.toString());
     formdata.append('Image', eventImageFile || new Blob());
@@ -869,7 +880,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       description: "",
       date: "",
       time: "",
-      location: "",
+      building: "",
+      room: "",
       category: "",
       capacity: "",
       imageUrl: ""
@@ -889,7 +901,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
     description?: string;
     date: string;
     time: string;
-    location: string;
+    building: string;
+    room: string;
     category?: string;
     capacity?: number | string;
     image?: string;
@@ -902,7 +915,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
       description: event.description || "",
       date: event.date,
       time: event.time,
-      location: event.location,
+      building: event.building,
+      room: event.room,
       category: event.category || "",
       capacity: event.capacity?.toString() || "",
       imageUrl: event.image || ""
@@ -922,14 +936,15 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
   // Handle save edited event
   const handleSaveEditedEvent = () => {
 
-    let { title, description, date, time, location, category, capacity } = editEventFormData;
+    let { title, description, date, time, building, room, category, capacity } = editEventFormData;
     const formdata = new FormData();
 
     formdata.append('Title', title);
     formdata.append('Description', description);
     formdata.append('Date', date);
     formdata.append('Time', time);
-    formdata.append('Location', location);
+    formdata.append('Building', building);
+    formdata.append('Room', room);
     formdata.append('Category', category);
     formdata.append('Capacity', capacity.toString());
     formdata.append('Image', editEventImageFile || new Blob());
@@ -953,7 +968,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
         description: editEventFormData.description,
         date: editEventFormData.date,
         time: editEventFormData.time,
-        location: editEventFormData.location,
+        building: editEventFormData.building,
+        room: editEventFormData.room,
         category: editEventFormData.category,
         capacity: editEventFormData.capacity,
         image: editEventImagePreview || editEventFormData.imageUrl
@@ -1981,7 +1997,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                   title: string;
                   date: string;
                   time: string;
-                  location: string;
+                  building: string;
+                  room: string;
                   attendees: number;
                   image: string;
                   status: string;
@@ -2016,7 +2033,11 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                               <MapPin className="h-4 w-4" />
-                              <span className="truncate">{event.location}</span>
+                              <span className="truncate">{event.building}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                              <MapPin className="h-4 w-4" />
+                              <span className="truncate">{event.room}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Users className="h-4 w-4" />
@@ -2838,34 +2859,56 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             </div>
 
             {/* Location */}
-            <div className="space-y-2">
-              <Label htmlFor="event-location">Location *</Label>
-              {/* <Input
-                id="event-location"
-                placeholder="e.g., Engineering Building Room 203"
-                value={createEventFormData.location}
-                onChange={(e) => setCreateEventFormData(prev => ({ ...prev, location: e.target.value }))}
-              /> */}
-              <Select
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="event-building">Building *</Label>
+                {/* <Input
+                  id="event-location"
+                  placeholder="e.g., Engineering Building Room 203"
                   value={createEventFormData.location}
-                  onValueChange={(value) => setCreateEventFormData(prev => ({ ...prev, location: value }))}
-                >
-                  <SelectTrigger id="event-location">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="workshop">Workshop</SelectItem>
-                    <SelectItem value="seminar">Seminar</SelectItem>
-                    <SelectItem value="social">Social</SelectItem>
-                    <SelectItem value="networking">Networking</SelectItem>
-                    <SelectItem value="competition">Competition</SelectItem>
-                    <SelectItem value="conference">Conference</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-            </div>
-
+                  onChange={(e) => setCreateEventFormData(prev => ({ ...prev, location: e.target.value }))}
+                /> */}
+                <Select
+                    value={createEventFormData.building}
+                    onValueChange={(value) => setCreateEventFormData(prev => ({ ...prev, building: value }))}
+                  >
+                    <SelectTrigger id="event-building">
+                      <SelectValue placeholder="Select building" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="workshop">Workshop</SelectItem>
+                      <SelectItem value="seminar">Seminar</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                      <SelectItem value="networking">Networking</SelectItem>
+                      <SelectItem value="competition">Competition</SelectItem>
+                      <SelectItem value="conference">Conference</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="event-room">Room *</Label>
+                <Select
+                    value={createEventFormData.room}
+                    onValueChange={(value) => setCreateEventFormData(prev => ({ ...prev, room: value }))}
+                  >
+                    <SelectTrigger id="event-room">
+                      <SelectValue placeholder="Select room" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="workshop">Workshop</SelectItem>
+                      <SelectItem value="seminar">Seminar</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                      <SelectItem value="networking">Networking</SelectItem>
+                      <SelectItem value="competition">Competition</SelectItem>
+                      <SelectItem value="conference">Conference</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
+            </div>    
             {/* Category and Capacity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -2915,7 +2958,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                 !createEventFormData.description ||
                 !createEventFormData.date ||
                 !createEventFormData.time ||
-                !createEventFormData.location ||
+                !createEventFormData.building ||
+                !createEventFormData.room ||
                 !createEventFormData.category
               }
             >
@@ -3034,34 +3078,50 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
             </div>
 
             {/* Location */}
-            <div className="space-y-2">
-              <Label htmlFor="edit-event-location">Location *</Label>
-              {/* <Input
-                id="edit-event-location"
-                placeholder="e.g., Engineering Building Room 203"
-                value={editEventFormData.location}
-                onChange={(e) => setEditEventFormData(prev => ({ ...prev, location: e.target.value }))}
-              /> */}
-              <Select
-                  value={editEventFormData.location}
-                  onValueChange={(value) => setEditEventFormData(prev => ({ ...prev, location: value }))}
-                >
-                  <SelectTrigger id="edit-event-location">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="workshop">Workshop</SelectItem>
-                    <SelectItem value="seminar">Seminar</SelectItem>
-                    <SelectItem value="social">Social</SelectItem>
-                    <SelectItem value="networking">Networking</SelectItem>
-                    <SelectItem value="competition">Competition</SelectItem>
-                    <SelectItem value="conference">Conference</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-event-building">Building *</Label>
+                <Select
+                    value={editEventFormData.building}
+                    onValueChange={(value) => setEditEventFormData(prev => ({ ...prev, building: value }))}
+                  >
+                    <SelectTrigger id="edit-event-building">
+                      <SelectValue placeholder="Select building" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="workshop">Workshop</SelectItem>
+                      <SelectItem value="seminar">Seminar</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                      <SelectItem value="networking">Networking</SelectItem>
+                      <SelectItem value="competition">Competition</SelectItem>
+                      <SelectItem value="conference">Conference</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-event-room">Room *</Label>
+                <Select
+                    value={editEventFormData.room}
+                    onValueChange={(value) => setEditEventFormData(prev => ({ ...prev, room: value }))}
+                  >
+                    <SelectTrigger id="edit-event-room">
+                      <SelectValue placeholder="Select Room" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="workshop">Workshop</SelectItem>
+                      <SelectItem value="seminar">Seminar</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                      <SelectItem value="networking">Networking</SelectItem>
+                      <SelectItem value="competition">Competition</SelectItem>
+                      <SelectItem value="conference">Conference</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
             </div>
-
             {/* Category and Capacity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -3111,7 +3171,8 @@ export function UserProfile({ selectedProfileId = "student", activeTab = "about"
                 !editEventFormData.description ||
                 !editEventFormData.date ||
                 !editEventFormData.time ||
-                !editEventFormData.location ||
+                !editEventFormData.building ||
+                !editEventFormData.room ||
                 !editEventFormData.category
               }
             >
