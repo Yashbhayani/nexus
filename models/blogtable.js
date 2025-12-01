@@ -14,11 +14,11 @@ const BlogTable = sequelize.define(
     },
     UID: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     OID: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     PostTitle: {
       type: DataTypes.STRING(255),

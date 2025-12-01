@@ -198,19 +198,9 @@ module.exports.deletepost = async (req, res) => {
 
     // Call the function
     if (postToDelete.UID !== Userdata.ID) {
-      let check = await checkAdminStatus(Userdata.ID);
-      if (!check.success) {
-        return res.status(check.status).json({
-          success: false,
-          message: check.message,
-        });
-      }
-
-      if (check.user != Useres.ADMIN.toUpperCase()) {
-        return res.status(404).json({ error: "User is not Admin", success });
-      }
+      return res.status(404).json({ error: "User is not Admin", success });
     }
-
+    
     postToDelete.IsDeleted = true;
     postToDelete.UpdatedByID = Userdata.ID;
     await postToDelete.save();
@@ -370,5 +360,209 @@ module.exports.adminblogurl = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send({ success, error: err.message });
+  }
+};
+
+module.exports.orgget = async (req, res) => {
+  let success = false;
+  try {
+    // Your logic here
+    let ID = req.user.id;
+    // Call the function
+    let check = await CheckUsers(ID);
+
+    // If not success → return response
+    if (!check.success) {
+      return res.status(check.status).json({
+        success: false,
+        message: check.message,
+      });
+    }
+
+    const { OID } = req.query;
+
+    const UserData = await User.findByPk(UID);
+    if (!UserData) {
+      return res.status(404).json({ error: "Account has not found", success });
+    }
+    const userBlogs = await sequelize.query(
+      `
+      SELECT 
+        b.ID AS BID, 
+        b.PostTitle AS PostTitle,
+        b.Content AS Content, 
+        b.Image AS Images, 
+        b.CreatedDate AS CreatedDate, 
+        b.UpdatedDate AS UpdatedDate,
+        st.Name AS Category
+      FROM nexus.blogtable AS b
+      LEFT JOIN nexus.status AS st
+          ON st.ID = b.CategoryID
+      WHERE b.OID = :OID
+    `,
+      {
+        replacements: { OID },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    success = true;
+    return res.status(200).json({ success, userBlogs });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ success, error: error.message });
+  }
+};
+
+module.exports.orgpost = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+
+    if (!Userdata) {
+      return res.status(404).json({ success, message: "User not found" });
+    }
+
+    const { OID, PostTitle, Content, CategoryID, image } = req.body;
+    let { path } = req.file;
+
+    if (image) {
+      path = req.file;
+    }
+
+    if (!OID || !PostTitle || !Content || !CategoryID) {
+      return res
+        .status(400)
+        .json({ success, error: "Please fill all the required fields" });
+    }
+
+    if (
+      !(await Status.findOne({ where: { ID: CategoryID, IsDeleted: false } }))
+    ) {
+      return res.status(400).json({ success, error: "Invalid CategoryID" });
+    }
+
+    const createPost = await BlogTable.create({
+      OID: OID,
+      PostTitle,
+      Content,
+      CategoryID,
+      Image: path,
+      CreatedByID: req.user.id,
+    });
+
+    if (!createPost) {
+      return res.status(500).json({ success, error: "Failed to create post" });
+    }
+
+    success = true;
+    res.status(200).json({ success, message: "Post created successfully!" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ success, error: error.message });
+  }
+};
+
+module.exports.orgput = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { ID, OID, PostTitle, Content, CategoryID, image } = req.body;
+
+    let { path } = req.file;
+    if (!path) {
+      path = null;
+    }
+
+    if (!ID || !OID || !PostTitle || !Content || !CategoryID) {
+      return res
+        .status(400)
+        .json({ success, error: "Please fill all the required fields" });
+    }
+
+    if (
+      !(await Status.findOne({ where: { ID: CategoryID, IsDeleted: false } }))
+    ) {
+      return res.status(400).json({ success, error: "Invalid CategoryID" });
+    }
+
+    const updatedPost = await BlogTable.findByPk(ID);
+
+    if (!updatedPost) {
+      return res.status(404).json({ success, error: "Post not found" });
+    }
+
+    updatedPost.PostTitle = PostTitle;
+    updatedPost.Content = Content;
+    updatedPost.CategoryID = CategoryID;
+    if (path) {
+      updatedPost.Image = path;
+    }
+    updatedPost.UpdatedByID = req.user.id;
+
+    const createPost = await updatedPost.save();
+
+    if (!createPost) {
+      return res.status(500).json({ success, error: "Failed to create post" });
+    }
+
+    success = true;
+    res.status(200).json({ success, message: "Post created successfully!" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ success, error: error.message });
+  }
+};
+
+module.exports.orgdeletepost = async (req, res) => {
+  let success = false;
+  try {
+    let Userdata = await User.findByPk(req.user.id, {
+      attributes: ["ID", "UTID", "FirstName", "LastName", "Email"],
+      raw: true,
+    });
+    if (!Userdata) {
+      return res.status(404).send("Not Found User", success);
+    }
+
+    const { ID } = req.query;
+
+    if (!ID) {
+      return res
+        .status(400)
+        .json({ success, error: "Please provide the Post ID" });
+    }
+
+    const postToDelete = await BlogTable.findByPk(ID);
+
+    // If not success → return response
+
+    if (!postToDelete) {
+      return res.status(404).json({ success, error: "Post not found" });
+    }
+
+    postToDelete.IsDeleted = true;
+    postToDelete.UpdatedByID = Userdata.ID;
+    await postToDelete.save();
+
+    if (!postToDelete) {
+      return res.status(500).json({ success, error: "Failed to delete post" });
+    }
+
+    success = true;
+    res.status(200).json({ success, message: "Post deleted successfully!" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send({ success, error: error.message });
   }
 };
