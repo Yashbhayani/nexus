@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { OrganizationCard } from "../common/OrganizationCard";
@@ -7,12 +7,19 @@ import { Badge } from "../ui/badge";
 import { Search, Grid3X3, List } from "lucide-react";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 import { SkeletonOrganizationCard, SkeletonStudentCard } from "../common/SkeletonCard";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
+
 
 interface EventDiscoveryProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");

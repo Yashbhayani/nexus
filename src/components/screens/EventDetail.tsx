@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -15,6 +15,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 interface EventDetailProps {
   eventId: string;
@@ -24,6 +26,9 @@ interface EventDetailProps {
 export function EventDetail({ eventId, onBack }: EventDetailProps) {
   const [isRSVPed, setIsRSVPed] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams,  } = context;
 
   // Mock event data
   const event = {

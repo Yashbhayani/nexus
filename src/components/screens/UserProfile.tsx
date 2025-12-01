@@ -6,6 +6,7 @@ import {
   ReactElement,
   ReactNode,
   ReactPortal,
+  useContext,
 } from "react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -59,6 +60,8 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 /**
  * Role-Based Permissions System for Organizations:
@@ -93,13 +96,20 @@ interface UserProfileProps {
   selectedProfileId?: string;
   activeTab?: string;
   onNavigate?: (screen: string, data?: any) => void;
+  usertype?: string;
 }
 
 export function UserProfile({
   selectedProfileId = "student",
   activeTab = "about",
   onNavigate,
+  usertype,
 }: UserProfileProps) {
+
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
@@ -701,12 +711,15 @@ export function UserProfile({
 
   // Simulate loading delay
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, [selectedProfileId]);
+  setIsLoading(true);
+  console.log("Loading profile for ID:", selectedProfileId);
+
+  const timer = setTimeout(() => {
+    setIsLoading(false);
+  }, 1200);
+
+  return () => clearTimeout(timer);
+}, [selectedProfileId]);
 
   // Profile image upload handlers
   const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

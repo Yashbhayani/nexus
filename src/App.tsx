@@ -108,6 +108,7 @@ export default function App() {
   // ----------------------- LOAD PROFILES -----------------------
   const AvaliProfiles = async () => {
     try {
+      console.log("Fetching available profiles...");
       const response = await GETFunction(apiroute.userlogdata);
       const profiles = response?.userlogData ?? [];
 
@@ -361,17 +362,24 @@ export default function App() {
             <DropdownMenuLabel>Switch Profile</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {availableProfiles.map((profile: any) => {
+              { console.log("Rendering profile:", profile); }
+              console.log("profile:", profile);
               const Icon = iconMap[profile.icon] || User; // fallback icon
 
               return (
                 <DropdownMenuItem
                   key={profile.ID}
                   onClick={() => {
-                    setCurrentProfile(profile); // <-- store clicked profile
-                    handleNavigate("profile", profile); // <-- pass entire profile data
+                    setCurrentProfile(profile);
+
+                    handleNavigate("profile", {
+                      profileId: profile.ID,
+                      usertype: profile.SourceTable,   // ✅ REQUIRED
+                      activeTab: "about",
+                    });
                   }}
-                  className="cursor-pointer"
                 >
+
                   <div className="flex items-center gap-3 w-full">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={profile.image} alt={profile.Name} />

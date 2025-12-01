@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
 import {
   Avatar,
@@ -40,6 +40,8 @@ import {
   Check,
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 interface OtherUserProfileProps {
   userId: string;
@@ -52,6 +54,10 @@ export function OtherUserProfile({
   onNavigate,
   onBack,
 }: OtherUserProfileProps) {
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("about");
   const [isFollowing, setIsFollowing] = useState(false);

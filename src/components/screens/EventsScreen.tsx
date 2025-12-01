@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { EventCard } from "../common/EventCard";
@@ -6,12 +6,18 @@ import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Search, Grid3X3, List, Calendar, MapPin, Filter, Check, CheckCheck } from "lucide-react";
 import { SkeletonEventCard } from "../common/SkeletonCard";
+import * as apiroute from "../../Context/API/ApiRouter";
+import APIContext from "../../Context/apimethods/APIContext";
 
 interface EventsScreenProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function EventsScreen({ onNavigate }: EventsScreenProps) {
+
+  const context = useContext(APIContext);
+  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
