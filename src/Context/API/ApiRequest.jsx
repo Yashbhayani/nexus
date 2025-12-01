@@ -5,7 +5,6 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
     const fullUrl = queryString ? `${url}?${queryString}` : url;
 
     // Make request
-    console.log(fullUrl);
     const response = await fetch(fullUrl, {
       method,
       headers: {

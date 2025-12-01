@@ -51,7 +51,7 @@ import APIContext from "../../Context/apimethods/APIContext";
 import * as apiroute from "../../Context/API/ApiRouter";
 
 interface StartPageProps {
-  onLogin: (isAdmin: boolean) => void;
+  onLogin: (isAdmin: boolean, token: string) => void;
   onForgotPassword: () => void;
 }
 
@@ -147,9 +147,9 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
       localStorage.setItem("auth-token", PostData.authToken);
       let useradd = await verifyuserisAdmin();
       if (useradd) {
-        onLogin(useradd);
+        onLogin(useradd, PostData.authToken);
       } else {
-        onLogin(useradd);
+        onLogin(useradd, PostData.authToken);
       }
     }
     // const isAdmin =
@@ -164,13 +164,11 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
 
   const AcademicLevel = async () => {
     const Data = await GETFunction(apiroute.academiclevel);
-    console.log("Academic Data:", Data);
     setAcademicLevels(Data.statusdata || []);
   };
 
   const MajorLevel = async () => {
     const Data = await GETFunction(apiroute.major);
-    console.log("Major Data:", Data);
     setAMajors(Data.statusdata); // THIS is enough
   };
 
@@ -272,9 +270,9 @@ export function StartPage({ onLogin, onForgotPassword }: StartPageProps) {
       localStorage.setItem("auth-token", PostData.authToken);
       let useradd = await verifyuserisAdmin();
       if (useradd) {
-        onLogin(useradd);
+        onLogin(useradd, PostData.authToken);
       } else {
-        onLogin(useradd);
+        onLogin(useradd, PostData.authToken);
       }
     }
   };

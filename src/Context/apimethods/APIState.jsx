@@ -7,7 +7,6 @@ import apiRequest from "../API/ApiRequest";
 export const APIState = (props) => {
 
     const POSTFunction = (formdata, code) =>
-        console.log("APIState - POSTFunction called with:", { formdata, code }) ||
         apiRequest({
             url: apiroute.host + code,
             method: "POST",

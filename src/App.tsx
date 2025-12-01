@@ -17,11 +17,7 @@ import { AIAssistant } from "./components/ai/AIAssistant";
 import { AboutDialog } from "./components/common/AboutDialog";
 import { Button } from "./components/ui/button";
 import * as apiroute from "./Context/API/ApiRouter";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "./components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +30,11 @@ import { User, Building2, LogOut, Info, Shield } from "lucide-react";
 import { APIState } from "./Context/apimethods/APIState";
 import APIContext from "./Context/apimethods/APIContext";
 
+const iconMap: any = {
+  User: User,
+  Building2: Building2,
+};
+
 export default function App() {
   const context = useContext(APIContext);
   const { GETFunction } = context;
@@ -44,91 +45,90 @@ export default function App() {
   const [showAboutDialog, setShowAboutDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAIAssistantOpen, setIsAIAssistantOpen] =
-    useState(false);
-  const [currentView, setCurrentView] = useState<{ screen: string; data?: Record<string, any> }>({
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<{
+    screen: string;
+    data?: Record<string, any>;
+  }>({
     screen: "home",
     data: undefined,
   });
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [availableProfiles, setAvailableProfiles] = useState<any[]>([]);
+  const [currentProfile, setCurrentProfile] = useState<any>(null);
 
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("auth-token")
+  );
 
-  // Initialize authentication and detect system theme preference
+  // RUN ONLY ONCE
+
+  // ----------------------- THEME EFFECT -----------------------
   useEffect(() => {
+    document.documentElement.lang = "en";
 
-    const fetchData = async () => {
-      try {
-        // Set document language for accessibility
-        document.documentElement.lang = "en";
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const prefersDark = mediaQuery.matches;
 
-        //Check authentication status
-        /*const savedAuth = localStorage.getItem("isAuthenticated");
-        const savedAdminStatus = localStorage.getItem("isAdmin");
-        if (savedAuth === "true") {
-          setIsAuthenticated(true);
-          setIsAdmin(savedAdminStatus === "true");
-        }*/
+    setIsDarkMode(prefersDark);
+    document.documentElement.classList.toggle("dark", prefersDark);
 
-
-
-        // Detect system theme preference
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        setIsDarkMode(prefersDark);
-        document.documentElement.classList.toggle(
-          "dark",
-          prefersDark,
-        );
-
-        // Listen for system theme changes
-        const mediaQuery = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        );
-        const handleChange = (e: MediaQueryListEvent) => {
-          setIsDarkMode(e.matches);
-          document.documentElement.classList.toggle(
-            "dark",
-            e.matches,
-          );
-        };
-
-        mediaQuery.addEventListener("change", handleChange);
-        let token = localStorage.getItem("auth-token");
-        if (token) {
-          let verifyToken = await verifyuserisAdmin();
-
-          if (verifyToken) {
-            setIsAdmin(true);
-            setIsAuthenticated(true);
-          } else {
-            setIsAdmin(false);
-            setIsAuthenticated(true);
-          }
-        }
-
-        return () =>
-          mediaQuery.removeEventListener("change", handleChange);
-      } catch (err) {
-        console.error(err);
-      }
+    const handleChange = (e: any) => {
+      setIsDarkMode(e.matches);
+      document.documentElement.classList.toggle("dark", e.matches);
     };
-    fetchData();
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  // Auth effect (runs after login + refresh)
+  useEffect(() => {
+    const authenticate = async () => {
+      if (!token) return;
+
+      const isAdminUser = await verifyuserisAdmin();
+      setIsAdmin(isAdminUser);
+      setIsAuthenticated(true);
+
+      await AvaliProfiles();
+    };
+
+    authenticate();
+  }, [token]);
+
+  // ✔ Verify user type
+  // ----------------------- VERIFY ADMIN -----------------------
   const verifyuserisAdmin = async () => {
-    let IsAdminStatus = await GETFunction(apiroute.verifyusertype);
-    return IsAdminStatus.success;
-  }
+    const result = await GETFunction(apiroute.verifyusertype);
+    return result?.status; // MUST return boolean
+  };
 
+  // ----------------------- LOAD PROFILES -----------------------
+  const AvaliProfiles = async () => {
+    try {
+      const response = await GETFunction(apiroute.userlogdata);
+      const profiles = response?.userlogData ?? [];
 
+      setAvailableProfiles(profiles);
+
+      // Set first profile as current
+      if (profiles.length > 0) {
+        setCurrentProfile(profiles[0]);
+      }
+
+      return profiles;
+    } catch (err) {
+      console.error("Error fetching profiles:", err);
+    }
+  };
+
+  // ✔ Tab handler
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
 
-    // Map tabs to screens
-    const screenMap = {
+    const screenMap: Record<string, string> = {
       home: "home",
       discover: "discover",
       events: "events",
@@ -136,37 +136,27 @@ export default function App() {
       admin: "admin",
     };
 
-    setCurrentView({ screen: (screenMap as Record<string, string>)[tab] || "home" });
+    setCurrentView({ screen: screenMap[tab] || "home", data: undefined });
   };
 
-  const handleLogin = (adminStatus: boolean) => {
+  // ✔ Login
+  const handleLogin = (adminStatus: any, tokenValue: any) => {
+    // store token
+    localStorage.setItem("auth-token", tokenValue);
+    setToken(tokenValue); // IMPORTANT — triggers auth useEffect
+
     setIsAuthenticated(true);
     setIsAdmin(adminStatus);
-    //localStorage.setItem("isAuthenticated", "true");
-    //localStorage.setItem("isAdmin", adminStatus.toString());
   };
 
-  const handleLogout = async () => {
+  // ✔ Logout
+  const handleLogout = () => {
     setIsAuthenticated(false);
     setIsAdmin(false);
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("isAdmin");
+
     localStorage.removeItem("auth-token");
-    // Reset app state when logging out
+    setToken(null); // removes token from state
 
-    let token = localStorage.getItem("auth-token");
-    console.log("Token in App.tsx:", token);
-    if (token) {
-      let verifyToken = await verifyuserisAdmin();
-
-      if (verifyToken) {
-        setIsAdmin(true);
-        setIsAuthenticated(true);
-      } else {
-        setIsAdmin(false);
-        setIsAuthenticated(true);
-      }
-    }
     setActiveTab("home");
     setCurrentView({ screen: "home" });
   };
@@ -176,33 +166,13 @@ export default function App() {
   };
 
   // Mock user data - in production this would come from your auth system
-  const currentUser = {
-    name: isAdmin ? "Admin" : "Alex Johnson",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-    initials: isAdmin ? "AD" : "AJ",
-    isAdmin: isAdmin,
-  };
-
-  // Mock list of profiles the user can access (student + organizations they manage)
-  const availableProfiles = [
-    {
-      id: "student",
-      name: "My Profile (Student)",
-      type: "student",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-      icon: User,
-    },
-    {
-      id: "org1",
-      name: "Computer Science Society",
-      type: "organization",
-      avatar:
-        "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=300&h=300&fit=crop",
-      icon: Building2,
-    }
-  ];
+  // const currentUser = {
+  //   name: isAdmin ? "Admin" : "Alex Johnson",
+  //   avatar:
+  //     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+  //   initials: isAdmin ? "AD" : "AJ",
+  //   isAdmin: isAdmin,
+  // };
 
   const renderCurrentScreen = () => {
     // Render screens based on current view
@@ -211,19 +181,22 @@ export default function App() {
         return (
           <APIState>
             <HomeFeed onNavigate={handleNavigate} />
-          </APIState>);
+          </APIState>
+        );
 
       case "discover":
         return (
           <APIState>
             <EventDiscovery onNavigate={handleNavigate} />
-          </APIState>);
+          </APIState>
+        );
 
       case "events":
         return (
           <APIState>
             <EventsScreen onNavigate={handleNavigate} />
-          </APIState>);
+          </APIState>
+        );
 
       case "event-detail":
         return (
@@ -272,12 +245,15 @@ export default function App() {
         return (
           <APIState>
             <AdminScreen />
-          </APIState>);
+          </APIState>
+        );
 
       default:
-        return (<APIState>
-          <HomeFeed onNavigate={handleNavigate} />
-        </APIState>);
+        return (
+          <APIState>
+            <HomeFeed onNavigate={handleNavigate} />
+          </APIState>
+        );
     }
   };
 
@@ -296,6 +272,7 @@ export default function App() {
               onSuccess={() => {
                 setShowResetPassword(false);
                 setShowForgotPassword(false);
+                setCurrentView({ screen: "home", data: undefined });
               }}
             />
           </APIState>
@@ -321,18 +298,18 @@ export default function App() {
     }
 
     // Show login/signup screen
-    return (
-      !localStorage.getItem("auth-token") ?
-        <div className="min-h-screen bg-background text-foreground">
-          <APIState>
-            <StartPage
-              onLogin={handleLogin}
-              onForgotPassword={() => setShowForgotPassword(true)}
-            />
-          </APIState>
-        </div> :
-        <div className="min-h-screen bg-background text-foreground">
-        </div>);
+    return !localStorage.getItem("auth-token") ? (
+      <div className="min-h-screen bg-background text-foreground">
+        <APIState>
+          <StartPage
+            onLogin={handleLogin}
+            onForgotPassword={() => setShowForgotPassword(true)}
+          />
+        </APIState>
+      </div>
+    ) : (
+      <div className="min-h-screen bg-background text-foreground"></div>
+    );
   }
 
   // Show main app if authenticated
@@ -352,6 +329,8 @@ export default function App() {
         onTabChange={handleTabChange}
         isAdmin={isAdmin}
       />
+      {/* Debug: isAdmin value */}
+      {/* {console.log(isAdmin)} */}
 
       {/* Top Right Controls */}
       <div
@@ -369,56 +348,51 @@ export default function App() {
             >
               <Avatar className="h-10 w-10">
                 <AvatarImage
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
+                  src={currentProfile?.image}
+                  alt={currentProfile?.Name}
                 />
                 <AvatarFallback>
-                  {currentUser.initials}
+                  {currentProfile?.Name?.substring(0, 1)}
                 </AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuLabel>
-              Switch Profile
-            </DropdownMenuLabel>
+            <DropdownMenuLabel>Switch Profile</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {availableProfiles.map((profile) => {
-              const Icon = profile.icon;
+            {availableProfiles.map((profile: any) => {
+              const Icon = iconMap[profile.icon] || User; // fallback icon
+
               return (
                 <DropdownMenuItem
-                  key={profile.id}
-                  onClick={() =>
-                    handleNavigate("profile", {
-                      profileId: profile.id,
-                    })
-                  }
+                  key={profile.ID}
+                  onClick={() => {
+                    setCurrentProfile(profile); // <-- store clicked profile
+                    handleNavigate("profile", profile); // <-- pass entire profile data
+                  }}
                   className="cursor-pointer"
                 >
                   <div className="flex items-center gap-3 w-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={profile.avatar}
-                        alt={profile.name}
-                      />
+                      <AvatarImage src={profile.image} alt={profile.Name} />
                       <AvatarFallback>
                         <Icon className="h-4 w-4" />
                       </AvatarFallback>
                     </Avatar>
+
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">
-                        {profile.name}
-                      </div>
+                      <div className="font-medium truncate">{profile.Name}</div>
                       <div className="text-xs text-muted-foreground capitalize">
-                        {profile.type}
+                        {profile.SourceTable}
                       </div>
                     </div>
                   </div>
                 </DropdownMenuItem>
               );
             })}
+
             <DropdownMenuSeparator />
-            {currentUser.isAdmin && (
+            {isAdmin && (
               <>
                 <DropdownMenuItem
                   onClick={() => handleNavigate("admin")}
@@ -461,22 +435,21 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation - Mobile only, hide in event detail */}
-      {currentView.screen !== "event-detail" && currentView.screen !== "organizationProfile" && (
-        <div className="lg:hidden">
-          <BottomNav
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            isAdmin={isAdmin}
-          />
-        </div>
-      )}
+      {currentView.screen !== "event-detail" &&
+        currentView.screen !== "organizationProfile" && (
+          <div className="lg:hidden">
+            <BottomNav
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              isAdmin={isAdmin}
+            />
+          </div>
+        )}
 
       {/* AI Assistant */}
       <AIAssistant
         isOpen={isAIAssistantOpen}
-        onToggle={() =>
-          setIsAIAssistantOpen(!isAIAssistantOpen)
-        }
+        onToggle={() => setIsAIAssistantOpen(!isAIAssistantOpen)}
       />
 
       {/* About Dialog */}
