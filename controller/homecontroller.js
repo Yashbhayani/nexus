@@ -22,9 +22,17 @@ module.exports.feed = async (req, res) => {
 
     const Blogsfeeds = await sequelize.query(
       `
-            SELECT 
-                b.ID AS ID,
-
+ SELECT 
+                b.ID AS ID,                 
+                CASE 
+                    WHEN u.ID IS NOT NULL THEN u.ID 
+                    WHEN o.ID IS NOT NULL THEN o.ID
+                    ELSE NULL
+                END AS UserID,
+                CASE
+                  WHEN u.ID IS NOT NULL AND u.ID = :UID THEN TRUE
+                  ELSE FALSE
+                END AS LoginUserID,
                 -- Name field
                 CASE 
                     WHEN u.ID IS NOT NULL THEN 
@@ -40,10 +48,31 @@ module.exports.feed = async (req, res) => {
                     WHEN o.ID IS NOT NULL THEN o.OrganizationUserName
                     ELSE NULL
                 END AS UserName,
-
+                CASE 
+                    WHEN u.ID IS NOT NULL THEN False
+                    ELSE True
+                END AS isOrganization,                
                 b.PostTitle,
                 b.Content,
                 b.Image,
+                CASE 
+					WHEN u.ID IS NOT NULL THEN 
+						(
+							SELECT i.ImageURL 
+							FROM nexus.userinfo AS uu
+							LEFT JOIN nexus.images AS i ON i.ID = uu.ImgID
+							WHERE uu.UID = u.ID
+						)
+					WHEN o.ID IS NOT NULL THEN 
+						(
+							SELECT i.ImageURL 
+							FROM nexus.organization AS oo
+							LEFT JOIN nexus.images AS i ON i.ID = oo.ImgID
+							WHERE oo.ID = o.ID
+						)
+					ELSE NULL
+				END AS UserImage,
+
 
                 -- Time ago in human-readable format
                 CASE 
@@ -75,10 +104,13 @@ module.exports.feed = async (req, res) => {
 
             FROM nexus.blogtable AS b
             LEFT JOIN nexus.user AS u
-                ON u.ID = b.UID 
+                ON u.ID = b.UID
+            LEFT JOIN nexus.userinfo AS ui
+                ON ui.ID = u.ID 
             LEFT JOIN nexus.organization AS o
                 ON o.ID = b.OID 
             Order by rand();
+            
            -- ORDER BY b.CreatedDate DESC;
         `,
       {
@@ -141,7 +173,7 @@ module.exports.explore = async (req, res) => {
                     CONCAT(u.FirstName, ' ', u.LastName) AS name,
                     im.ImageURL As image,
                     ui.BIO As bio,
-                    s.Name As year,
+                    s.Name As StudentType,
                     ss.Name As major,
                     ut.Name AS SourceTable,
                     (
@@ -165,14 +197,15 @@ module.exports.explore = async (req, res) => {
                 FROM nexus.user AS u
                 LEFT JOIN nexus.userinfo AS ui
                     ON ui.UID = u.ID
+                LEFT JOIN nexus.images AS im
+                    ON im.ID = ui.ImgID
                 LEFT JOIN nexus.status AS s
                     ON s.ID = ui.StudentType
                 LEFT JOIN nexus.status AS ss
                     ON ss.ID = ui.Majors
                 LEFT JOIN nexus.usertype AS ut
                 ON ut.ID = u.UTID 
-                LEFT JOIN nexus.images AS im
-                    ON im.ID = ui.ImgID
+
                 Where ui.IsDeleted = 0 AND ut.IsDeleted = 0 AND ut.ID !=1 AND u.ID != :UID
                 Order By rand(); 
         `,
@@ -203,7 +236,8 @@ module.exports.explore = async (req, res) => {
                         ) 
                         THEN TRUE 
                         ELSE FALSE 
-                    END AS isJoined
+                    END AS isJoined,
+                  'organization' AS SourceTable
                 FROM nexus.organization AS o
                 LEFT JOIN nexus.organizationinfo AS oi
                 ON oi.OID = o.ID
@@ -339,7 +373,7 @@ module.exports.otheruserinfo = async (req, res) => {
                 b.PostTitle,
                 b.Content,
                 b.Image,
-
+                s.Name As CategoryName,
     -- Time ago in human-readable format
     CASE 
         WHEN TIMESTAMPDIFF(DAY, COALESCE(b.UpdatedDate, b.CreatedDate), NOW()) > 0 THEN 
@@ -373,6 +407,8 @@ module.exports.otheruserinfo = async (req, res) => {
                 ON u.ID = b.UID 
             LEFT JOIN nexus.organization AS o
                 ON o.ID = b.OID 
+            LEFT JOIN nexus.status As s
+              ON s.ID = b.CategoryID
             Where b.UID = :AUID
             ORDER BY b.CreatedDate DESC;  
       `,
@@ -410,6 +446,7 @@ module.exports.otheruserinfo = async (req, res) => {
     );
 
     success = true;
+    
     res
       .status(200)
       .json({ success, userinfo, useraboutinfo, userposts, userorg });

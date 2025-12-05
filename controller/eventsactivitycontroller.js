@@ -79,8 +79,8 @@ module.exports.get = async (req, res) => {
           ON org.ID  = ea.OID
 
         -- Exclude yesterday, only show from TODAY → FUTURE
-        WHERE ea.IsDeleted = 0
-        AND DATE(ea.EventDate) >= CURDATE() AND ea.ApproverByID IS NOT NULL
+        WHERE ea.IsDeleted = 0 AND DATE(ea.EventDate) >= CURDATE() 
+        AND ea.ApproverByID IS NOT NULL
 
         ORDER BY ea.EventDate ASC;
 
