@@ -363,8 +363,6 @@ export default function App() {
             <DropdownMenuLabel>Switch Profile</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {availableProfiles.map((profile: any) => {
-              { console.log("Rendering profile:", profile); }
-              console.log("profile:", profile);
               const Icon = iconMap[profile.icon] || User; // fallback icon
 
               return (

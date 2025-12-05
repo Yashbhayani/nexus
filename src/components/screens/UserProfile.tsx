@@ -1,23 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Separator } from "../ui/separator";
 import {
   Dialog,
@@ -107,8 +93,7 @@ export function UserProfile({
   onNavigate,
 }: UserProfileProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [isEditDialogOpen, setIsEditDialogOpen] =
-    useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     bio: "",
     major: "",
@@ -135,39 +120,33 @@ export function UserProfile({
   });
 
   // Profile image upload states
-  const [profileImageFile, setProfileImageFile] =
-    useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] =
-    useState<string>("");
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string>("");
 
   // Create event dialog state
-  const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] =
-    useState(false);
-  const [createEventFormData, setCreateEventFormData] =
-    useState({
-      title: "",
-      description: "",
-      date: "",
-      time: "",
-      location: "",
-      category: "",
-      capacity: "",
-      imageUrl: "",
-    });
+  const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] = useState(false);
+  const [createEventFormData, setCreateEventFormData] = useState({
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+    location: "",
+    category: "",
+    capacity: "",
+    imageUrl: "",
+  });
 
   // Event image upload states
-  const [eventImageFile, setEventImageFile] =
-    useState<File | null>(null);
-  const [eventImagePreview, setEventImagePreview] =
-    useState<string>("");
+  const [eventImageFile, setEventImageFile] = useState<File | null>(null);
+  const [eventImagePreview, setEventImagePreview] = useState<string>("");
 
   // Edit event dialog state
-  const [isEditEventDialogOpen, setIsEditEventDialogOpen] =
-    useState(false);
+  const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
 
   // Edit event image upload states
-  const [editEventImageFile, setEditEventImageFile] =
-    useState<File | null>(null);
+  const [editEventImageFile, setEditEventImageFile] = useState<File | null>(
+    null
+  );
   const [editEventImagePreview, setEditEventImagePreview] =
     useState<string>("");
 
@@ -184,10 +163,8 @@ export function UserProfile({
   });
 
   // Member management state
-  const [
-    isInviteMemberDialogOpen,
-    setIsInviteMemberDialogOpen,
-  ] = useState(false);
+  const [isInviteMemberDialogOpen, setIsInviteMemberDialogOpen] =
+    useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("Member"); // Default role when inviting new members
 
@@ -214,14 +191,11 @@ export function UserProfile({
   ]);
 
   // Posts management state
-  const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] =
-    useState(false);
-  const [isEditPostDialogOpen, setIsEditPostDialogOpen] =
-    useState(false);
+  const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] = useState(false);
+  const [isEditPostDialogOpen, setIsEditPostDialogOpen] = useState(false);
 
   // Create organization state
-  const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] =
-    useState(false);
+  const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
   const [createOrgFormData, setCreateOrgFormData] = useState({
     name: "",
     description: "",
@@ -234,24 +208,18 @@ export function UserProfile({
     instagram: "",
     linkedin: "",
   });
-  const [orgLogoFile, setOrgLogoFile] = useState<File | null>(
-    null,
-  );
-  const [orgLogoPreview, setOrgLogoPreview] =
-    useState<string>("");
+  const [orgLogoFile, setOrgLogoFile] = useState<File | null>(null);
+  const [orgLogoPreview, setOrgLogoPreview] = useState<string>("");
   const [createPostFormData, setCreatePostFormData] = useState({
     title: "",
     content: "",
     category: "",
     imageUrl: "",
   });
-  const [uploadedImage, setUploadedImage] =
-    useState<File | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
-  const [uploadedEditImage, setUploadedEditImage] =
-    useState<File | null>(null);
-  const [editImagePreview, setEditImagePreview] =
-    useState<string>("");
+  const [uploadedEditImage, setUploadedEditImage] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string>("");
 
   // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
@@ -336,7 +304,7 @@ export function UserProfile({
   ]);
 
   // Mock student data
-  const studentProfile = {
+  const [studentProfile, setStudentProfile] = useState({
     name: "Yash Bhayani",
     email: "alex.johnson@university.edu",
     avatar:
@@ -404,7 +372,7 @@ export function UserProfile({
         },
       },
     ],
-  };
+  });
 
   // Mock organization data - ALL organizations in the system
   const allOrganizations: Record<string, any> = {
@@ -656,50 +624,40 @@ export function UserProfile({
 
   // Determine profile type based on selectedProfileId
   const profileType =
-    selectedProfileId === "student"
-      ? "student"
-      : "organization";
+    selectedProfileId === "student" ? "student" : "organization";
 
   // Get the correct organization profile based on selectedProfileId
   const organizationProfile =
     profileType === "organization"
-      ? allOrganizations[selectedProfileId] ||
-        allOrganizations["1"]
+      ? allOrganizations[selectedProfileId] || allOrganizations["1"]
       : allOrganizations["1"]; // Default fallback
 
   // Get current profile data based on type
   const currentProfile =
-    profileType === "student"
-      ? studentProfile
-      : organizationProfile;
+    profileType === "student" ? studentProfile : organizationProfile;
 
   // Get current user's role in the organization (for permission checking)
   // In this case, Alex Johnson is Vice President (id: "2")
   const currentUserId = "2"; // This would come from auth context in real app
   const currentUserRole =
     profileType === "organization"
-      ? organizationProfile.members.find(
-          (m) => m.id === currentUserId,
-        )?.role || "Member"
+      ? organizationProfile.members.find((m: any) => m.id === currentUserId)
+          ?.role || "Member"
       : "Member";
 
   // Role-based permission helper functions (only applicable for organization profiles)
   const canEditBio = () => {
     if (profileType !== "organization") return false;
-    return [
-      "President",
-      "Vice President",
-      "Event Manager",
-    ].includes(currentUserRole);
+    return ["President", "Vice President", "Event Manager"].includes(
+      currentUserRole
+    );
   };
 
   const canManageEvents = () => {
     if (profileType !== "organization") return false;
-    return [
-      "President",
-      "Vice President",
-      "Event Manager",
-    ].includes(currentUserRole);
+    return ["President", "Vice President", "Event Manager"].includes(
+      currentUserRole
+    );
   };
 
   const canManagePosts = () => {
@@ -714,9 +672,7 @@ export function UserProfile({
 
   const canManageMembers = () => {
     if (profileType !== "organization") return false;
-    return ["President", "Vice President"].includes(
-      currentUserRole,
-    );
+    return ["President", "Vice President"].includes(currentUserRole);
   };
 
   // Simulate loading delay
@@ -733,7 +689,7 @@ export function UserProfile({
     const loadFromLocalStorage = () => {
       try {
         // Load student profile data
-        const savedStudentData = localStorage.getItem('nexus_student_profile');
+        const savedStudentData = localStorage.getItem("nexus_student_profile");
         if (savedStudentData) {
           const parsed = JSON.parse(savedStudentData);
           if (parsed.editFormData) {
@@ -745,13 +701,15 @@ export function UserProfile({
         }
 
         // Load student posts
-        const savedStudentPosts = localStorage.getItem('nexus_student_posts');
+        const savedStudentPosts = localStorage.getItem("nexus_student_posts");
         if (savedStudentPosts) {
           setStudentPosts(JSON.parse(savedStudentPosts));
         }
 
         // Load organization data for specific profile
-        const savedOrgData = localStorage.getItem(`nexus_org_profile_${selectedProfileId}`);
+        const savedOrgData = localStorage.getItem(
+          `nexus_org_profile_${selectedProfileId}`
+        );
         if (savedOrgData) {
           const parsed = JSON.parse(savedOrgData);
           if (parsed.orgEditFormData) {
@@ -763,32 +721,40 @@ export function UserProfile({
         }
 
         // Load organization posts
-        const savedOrgPosts = localStorage.getItem(`nexus_org_posts_${selectedProfileId}`);
+        const savedOrgPosts = localStorage.getItem(
+          `nexus_org_posts_${selectedProfileId}`
+        );
         if (savedOrgPosts) {
           setOrganizationPosts(JSON.parse(savedOrgPosts));
         }
 
         // Load pending requests
-        const savedPendingRequests = localStorage.getItem(`nexus_pending_requests_${selectedProfileId}`);
+        const savedPendingRequests = localStorage.getItem(
+          `nexus_pending_requests_${selectedProfileId}`
+        );
         if (savedPendingRequests) {
           setPendingRequests(JSON.parse(savedPendingRequests));
         }
 
         // Load follow state
-        const savedFollowState = localStorage.getItem(`nexus_follow_${selectedProfileId}`);
+        const savedFollowState = localStorage.getItem(
+          `nexus_follow_${selectedProfileId}`
+        );
         if (savedFollowState) {
           setIsFollowing(JSON.parse(savedFollowState));
         }
 
         // Load created organizations
-        const savedCreateOrgData = localStorage.getItem('nexus_created_organizations');
+        const savedCreateOrgData = localStorage.getItem(
+          "nexus_created_organizations"
+        );
         if (savedCreateOrgData) {
           const orgs = JSON.parse(savedCreateOrgData);
           // This data structure is already loaded in allOrganizations
           // You can extend this to merge with allOrganizations if needed
         }
       } catch (error) {
-        console.error('Error loading data from localStorage:', error);
+        console.error("Error loading data from localStorage:", error);
       }
     };
 
@@ -802,54 +768,72 @@ export function UserProfile({
         editFormData,
         profileImagePreview,
       };
-      localStorage.setItem('nexus_student_profile', JSON.stringify(studentData));
+      localStorage.setItem(
+        "nexus_student_profile",
+        JSON.stringify(studentData)
+      );
     } catch (error) {
-      console.error('Error saving student profile to localStorage:', error);
+      console.error("Error saving student profile to localStorage:", error);
     }
   }, [editFormData, profileImagePreview]);
 
   // Local Storage: Save student posts whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem('nexus_student_posts', JSON.stringify(studentPosts));
+      localStorage.setItem("nexus_student_posts", JSON.stringify(studentPosts));
     } catch (error) {
-      console.error('Error saving student posts to localStorage:', error);
+      console.error("Error saving student posts to localStorage:", error);
     }
   }, [studentPosts]);
 
   // Local Storage: Save organization data whenever it changes
   useEffect(() => {
-    if (profileType === 'organization') {
+    if (profileType === "organization") {
       try {
         const orgData = {
           orgEditFormData,
           profileImagePreview,
         };
-        localStorage.setItem(`nexus_org_profile_${selectedProfileId}`, JSON.stringify(orgData));
+        localStorage.setItem(
+          `nexus_org_profile_${selectedProfileId}`,
+          JSON.stringify(orgData)
+        );
       } catch (error) {
-        console.error('Error saving organization profile to localStorage:', error);
+        console.error(
+          "Error saving organization profile to localStorage:",
+          error
+        );
       }
     }
   }, [orgEditFormData, profileImagePreview, selectedProfileId, profileType]);
 
   // Local Storage: Save organization posts whenever they change
   useEffect(() => {
-    if (profileType === 'organization') {
+    if (profileType === "organization") {
       try {
-        localStorage.setItem(`nexus_org_posts_${selectedProfileId}`, JSON.stringify(organizationPosts));
+        localStorage.setItem(
+          `nexus_org_posts_${selectedProfileId}`,
+          JSON.stringify(organizationPosts)
+        );
       } catch (error) {
-        console.error('Error saving organization posts to localStorage:', error);
+        console.error(
+          "Error saving organization posts to localStorage:",
+          error
+        );
       }
     }
   }, [organizationPosts, selectedProfileId, profileType]);
 
   // Local Storage: Save pending requests whenever they change
   useEffect(() => {
-    if (profileType === 'organization') {
+    if (profileType === "organization") {
       try {
-        localStorage.setItem(`nexus_pending_requests_${selectedProfileId}`, JSON.stringify(pendingRequests));
+        localStorage.setItem(
+          `nexus_pending_requests_${selectedProfileId}`,
+          JSON.stringify(pendingRequests)
+        );
       } catch (error) {
-        console.error('Error saving pending requests to localStorage:', error);
+        console.error("Error saving pending requests to localStorage:", error);
       }
     }
   }, [pendingRequests, selectedProfileId, profileType]);
@@ -857,16 +841,17 @@ export function UserProfile({
   // Local Storage: Save follow state whenever it changes
   useEffect(() => {
     try {
-      localStorage.setItem(`nexus_follow_${selectedProfileId}`, JSON.stringify(isFollowing));
+      localStorage.setItem(
+        `nexus_follow_${selectedProfileId}`,
+        JSON.stringify(isFollowing)
+      );
     } catch (error) {
-      console.error('Error saving follow state to localStorage:', error);
+      console.error("Error saving follow state to localStorage:", error);
     }
   }, [isFollowing, selectedProfileId]);
 
   // Profile image upload handlers
-  const handleProfileImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setProfileImageFile(file);
@@ -929,9 +914,7 @@ export function UserProfile({
   const handleAddSkill = () => {
     if (
       editFormData.newSkill.trim() &&
-      !editFormData.skills.includes(
-        editFormData.newSkill.trim(),
-      )
+      !editFormData.skills.includes(editFormData.newSkill.trim())
     ) {
       setEditFormData((prev) => ({
         ...prev,
@@ -953,9 +936,7 @@ export function UserProfile({
   const handleAddInterest = () => {
     if (
       editFormData.newInterest.trim() &&
-      !editFormData.interests.includes(
-        editFormData.newInterest.trim(),
-      )
+      !editFormData.interests.includes(editFormData.newInterest.trim())
     ) {
       setEditFormData((prev) => ({
         ...prev,
@@ -984,8 +965,7 @@ export function UserProfile({
       studentProfile.major = editFormData.major;
       studentProfile.minor = editFormData.minor;
       studentProfile.academicLevel = editFormData.academicLevel;
-      studentProfile.graduationYear =
-        editFormData.graduationYear;
+      studentProfile.graduationYear = editFormData.graduationYear;
       studentProfile.skills = editFormData.skills;
       studentProfile.interests = editFormData.interests;
 
@@ -998,27 +978,18 @@ export function UserProfile({
       }
     } else {
       // Save organization profile
-      console.log(
-        "Saving organization profile:",
-        orgEditFormData,
-      );
+      console.log("Saving organization profile:", orgEditFormData);
 
       // Update local data
-      organizationProfile.description =
-        orgEditFormData.description;
+      organizationProfile.description = orgEditFormData.description;
       organizationProfile.mission = orgEditFormData.mission;
       organizationProfile.category = orgEditFormData.category;
-      organizationProfile.contactInfo.email =
-        orgEditFormData.email;
-      organizationProfile.contactInfo.phone =
-        orgEditFormData.phone;
+      organizationProfile.contactInfo.email = orgEditFormData.email;
+      organizationProfile.contactInfo.phone = orgEditFormData.phone;
       organizationProfile.website = orgEditFormData.website;
-      organizationProfile.socialMedia.discord =
-        orgEditFormData.discord;
-      organizationProfile.socialMedia.instagram =
-        orgEditFormData.instagram;
-      organizationProfile.socialMedia.linkedin =
-        orgEditFormData.linkedin;
+      organizationProfile.socialMedia.discord = orgEditFormData.discord;
+      organizationProfile.socialMedia.instagram = orgEditFormData.instagram;
+      organizationProfile.socialMedia.linkedin = orgEditFormData.linkedin;
 
       // Update profile image if a new one was uploaded
       if (
@@ -1036,9 +1007,7 @@ export function UserProfile({
   };
 
   // Event image upload handlers
-  const handleEventImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleEventImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setEventImageFile(file);
@@ -1060,7 +1029,7 @@ export function UserProfile({
 
   // Edit event image upload handlers
   const handleEditEventImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -1086,8 +1055,7 @@ export function UserProfile({
     // In a real app, this would send data to the database
     const eventData = {
       ...createEventFormData,
-      imageUrl:
-        eventImagePreview || createEventFormData.imageUrl,
+      imageUrl: eventImagePreview || createEventFormData.imageUrl,
       status: "pending", // New events need approval
     };
     console.log("Creating event:", eventData);
@@ -1109,12 +1077,12 @@ export function UserProfile({
 
     // Show success message (in real app, would handle success/error from API)
     alert(
-      "Event created successfully! Your event is pending approval and will be visible once approved by an administrator.",
+      "Event created successfully! Your event is pending approval and will be visible once approved by an administrator."
     );
   };
 
   // Handle open edit event dialog
-  const handleOpenEditEvent = (event) => {
+  const handleOpenEditEvent = (event: any) => {
     // Pre-populate the form with the event's current data
     setEditEventFormData({
       id: event.id,
@@ -1144,16 +1112,14 @@ export function UserProfile({
     // In a real app, this would send updated data to the database
     const updatedEventData = {
       ...editEventFormData,
-      imageUrl:
-        editEventImagePreview || editEventFormData.imageUrl,
+      imageUrl: editEventImagePreview || editEventFormData.imageUrl,
     };
     console.log("Updating event:", updatedEventData);
 
     // Update the event in the local data (in real app, this would be from API response)
-    const eventIndex =
-      organizationProfile.upcomingEvents.findIndex(
-        (e) => e.id === editEventFormData.id,
-      );
+    const eventIndex = organizationProfile.upcomingEvents.findIndex(
+      (e: any) => e.id === editEventFormData.id
+    );
     if (eventIndex !== -1) {
       organizationProfile.upcomingEvents[eventIndex] = {
         ...organizationProfile.upcomingEvents[eventIndex],
@@ -1164,8 +1130,7 @@ export function UserProfile({
         location: editEventFormData.location,
         category: editEventFormData.category,
         capacity: editEventFormData.capacity,
-        image:
-          editEventImagePreview || editEventFormData.imageUrl,
+        image: editEventImagePreview || editEventFormData.imageUrl,
       };
     }
 
@@ -1181,12 +1146,7 @@ export function UserProfile({
   // Member management handlers
   const handleSendInvite = () => {
     // In a real app, this would send an email invitation
-    console.log(
-      "Sending invite to:",
-      inviteEmail,
-      "with role:",
-      inviteRole,
-    );
+    console.log("Sending invite to:", inviteEmail, "with role:", inviteRole);
 
     // Reset form and close dialog
     setInviteEmail("");
@@ -1196,11 +1156,9 @@ export function UserProfile({
     alert(`Invitation sent to ${inviteEmail}!`);
   };
 
-  const handleApproveRequest = (requestId) => {
+  const handleApproveRequest = (requestId: any) => {
     // In a real app, this would approve the request in the database
-    const request = pendingRequests.find(
-      (r) => r.id === requestId,
-    );
+    const request = pendingRequests.find((r) => r.id === requestId);
     if (request) {
       console.log("Approving request from:", request.name);
 
@@ -1210,11 +1168,9 @@ export function UserProfile({
         role: "Member", // Default role for new members
       };
 
-      setPendingRequests((prev) =>
-        prev.filter((r) => r.id !== requestId),
-      );
+      setPendingRequests((prev) => prev.filter((r) => r.id !== requestId));
       alert(
-        `${request.name} has been approved and added to the organization with "Member" role!`,
+        `${request.name} has been approved and added to the organization with "Member" role!`
       );
 
       // In a real app, you would add the newMember to the organization's members array
@@ -1222,55 +1178,40 @@ export function UserProfile({
     }
   };
 
-  const handleRejectRequest = (requestId) => {
+  const handleRejectRequest = (requestId: any) => {
     // In a real app, this would reject the request in the database
-    const request = pendingRequests.find(
-      (r) => r.id === requestId,
-    );
+    const request = pendingRequests.find((r) => r.id === requestId);
     if (request) {
       console.log("Rejecting request from:", request.name);
-      setPendingRequests((prev) =>
-        prev.filter((r) => r.id !== requestId),
-      );
+      setPendingRequests((prev) => prev.filter((r) => r.id !== requestId));
       alert(`${request.name}'s request has been rejected.`);
     }
   };
 
-  const handleRemoveMember = (memberId, memberName) => {
+  const handleRemoveMember = (memberId: any, memberName: any) => {
     // In a real app, this would remove the member from the database
     if (
       confirm(
-        `Are you sure you want to remove ${memberName} from the organization?`,
+        `Are you sure you want to remove ${memberName} from the organization?`
       )
     ) {
       console.log("Removing member:", memberId);
-      alert(
-        `${memberName} has been removed from the organization.`,
-      );
+      alert(`${memberName} has been removed from the organization.`);
     }
   };
 
   const handleUpdateMemberRole = (
-    memberId,
-    memberName,
-    newRole,
+    memberId: any,
+    memberName: any,
+    newRole: any
   ) => {
     // In a real app, this would update the member's role in the database
-    console.log(
-      "Updating role for member:",
-      memberId,
-      "to:",
-      newRole,
-    );
-    alert(
-      `${memberName}'s role has been updated to ${newRole}.`,
-    );
+    console.log("Updating role for member:", memberId, "to:", newRole);
+    alert(`${memberName}'s role has been updated to ${newRole}.`);
   };
 
   // Image upload handler
-  const handleImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage(file);
@@ -1299,9 +1240,7 @@ export function UserProfile({
   };
 
   // Edit image upload handler
-  const handleEditImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedEditImage(file);
@@ -1352,7 +1291,7 @@ export function UserProfile({
     alert("Post created successfully!");
   };
 
-  const handleEditPost = (post) => {
+  const handleEditPost = (post: any) => {
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -1380,8 +1319,8 @@ export function UserProfile({
               category: editPostFormData.category,
               imageUrl: editPostFormData.imageUrl,
             }
-          : post,
-      ),
+          : post
+      )
     );
 
     // Reset edit image states and close dialog
@@ -1392,13 +1331,11 @@ export function UserProfile({
     alert("Post updated successfully!");
   };
 
-  const handleDeletePost = (postId, postTitle) => {
+  const handleDeletePost = (postId: any, postTitle: any) => {
     // In a real app, this would delete the post from the database
-    if (
-      confirm(`Are you sure you want to delete "${postTitle}"?`)
-    ) {
+    if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
       setOrganizationPosts(
-        organizationPosts.filter((post) => post.id !== postId),
+        organizationPosts.filter((post) => post.id !== postId)
       );
       alert("Post deleted successfully!");
     }
@@ -1410,7 +1347,7 @@ export function UserProfile({
     if (!isFollowing) {
       // Update follower count
       if (profileType === "student") {
-        setStudentProfile((prev) => ({
+        setStudentProfile((prev: any) => ({
           ...prev,
           stats: {
             ...prev.stats,
@@ -1457,7 +1394,7 @@ export function UserProfile({
     alert("Post created successfully!");
   };
 
-  const handleEditStudentPost = (post) => {
+  const handleEditStudentPost = (post: any) => {
     // Open edit dialog with pre-filled data
     setEditPostFormData({
       id: post.id,
@@ -1485,8 +1422,8 @@ export function UserProfile({
               category: editPostFormData.category,
               imageUrl: editPostFormData.imageUrl,
             }
-          : post,
-      ),
+          : post
+      )
     );
 
     // Reset edit image states and close dialog
@@ -1497,22 +1434,16 @@ export function UserProfile({
     alert("Post updated successfully!");
   };
 
-  const handleDeleteStudentPost = (postId, postTitle) => {
+  const handleDeleteStudentPost = (postId: any, postTitle: any) => {
     // In a real app, this would delete the post from the database
-    if (
-      confirm(`Are you sure you want to delete "${postTitle}"?`)
-    ) {
-      setStudentPosts(
-        studentPosts.filter((post) => post.id !== postId),
-      );
+    if (confirm(`Are you sure you want to delete "${postTitle}"?`)) {
+      setStudentPosts(studentPosts.filter((post) => post.id !== postId));
       alert("Post deleted successfully!");
     }
   };
 
   // Organization creation handlers
-  const handleOrgLogoUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleOrgLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setOrgLogoFile(file);
@@ -1539,9 +1470,7 @@ export function UserProfile({
       !createOrgFormData.category ||
       !createOrgFormData.description
     ) {
-      alert(
-        "Please fill in all required fields (Name, Category, Description)",
-      );
+      alert("Please fill in all required fields (Name, Category, Description)");
       return;
     }
 
@@ -1551,7 +1480,9 @@ export function UserProfile({
       name: createOrgFormData.name,
       logo:
         orgLogoPreview ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(createOrgFormData.name)}&background=random`,
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          createOrgFormData.name
+        )}&background=random`,
       category: createOrgFormData.category,
       role: "President", // By default, when a user creates an organization, assign them the "President" role
       socialMedia: {
@@ -1581,9 +1512,7 @@ export function UserProfile({
     setOrgLogoPreview("");
     setIsCreateOrgDialogOpen(false);
 
-    alert(
-      "Organization created successfully! You are now the President.",
-    );
+    alert("Organization created successfully! You are now the President.");
   };
 
   if (isLoading) {
@@ -1617,7 +1546,7 @@ export function UserProfile({
                 <AvatarFallback className="text-3xl">
                   {currentProfile.name
                     .split(" ")
-                    .map((n) => n[0])
+                    .map((n: any) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
@@ -1633,10 +1562,7 @@ export function UserProfile({
                     </h1>
                     {profileType === "organization" && (
                       <>
-                        <Badge
-                          variant="secondary"
-                          className="text-sm"
-                        >
+                        <Badge variant="secondary" className="text-sm">
                           {organizationProfile.category}
                         </Badge>
                         <Badge
@@ -1660,9 +1586,7 @@ export function UserProfile({
                     ) : (
                       <>
                         <Building2 className="h-4 w-4" />
-                        <span className="text-sm">
-                          Organization
-                        </span>
+                        <span className="text-sm">Organization</span>
                       </>
                     )}
                   </div>
@@ -1671,8 +1595,7 @@ export function UserProfile({
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {isOwnProfile ? (
                     <>
-                      {(profileType === "student" ||
-                        canEditBio()) && (
+                      {(profileType === "student" || canEditBio()) && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -1685,9 +1608,7 @@ export function UserProfile({
                     </>
                   ) : (
                     <Button
-                      variant={
-                        isFollowing ? "outline" : "default"
-                      }
+                      variant={isFollowing ? "outline" : "default"}
                       size="sm"
                       onClick={handleFollowToggle}
                     >
@@ -1759,10 +1680,7 @@ export function UserProfile({
                     </div>
                     <div>
                       <div className="font-semibold">
-                        {
-                          organizationProfile.stats
-                            .postsPublished
-                        }
+                        {organizationProfile.stats.postsPublished}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Posts Published
@@ -1784,9 +1702,7 @@ export function UserProfile({
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="posts">Posts</TabsTrigger>
-              <TabsTrigger value="organizations">
-                Organizations
-              </TabsTrigger>
+              <TabsTrigger value="organizations">Organizations</TabsTrigger>
             </TabsList>
 
             {/* About Tab */}
@@ -1797,9 +1713,7 @@ export function UserProfile({
                   <CardTitle>Bio</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
-                    {studentProfile.bio}
-                  </p>
+                  <p className="text-muted-foreground">{studentProfile.bio}</p>
                 </CardContent>
               </Card>
 
@@ -1814,17 +1728,13 @@ export function UserProfile({
                       <div className="text-sm text-muted-foreground mb-1">
                         Major
                       </div>
-                      <div className="font-medium">
-                        {studentProfile.major}
-                      </div>
+                      <div className="font-medium">{studentProfile.major}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">
                         Minor
                       </div>
-                      <div className="font-medium">
-                        {studentProfile.minor}
-                      </div>
+                      <div className="font-medium">{studentProfile.minor}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">
@@ -1857,16 +1767,11 @@ export function UserProfile({
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {studentProfile.skills.map(
-                        (skill, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                          >
-                            {skill}
-                          </Badge>
-                        ),
-                      )}
+                      {studentProfile.skills.map((skill, index) => (
+                        <Badge key={index} variant="secondary">
+                          {skill}
+                        </Badge>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -1880,13 +1785,11 @@ export function UserProfile({
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {studentProfile.interests.map(
-                        (interest, index) => (
-                          <Badge key={index} variant="outline">
-                            {interest}
-                          </Badge>
-                        ),
-                      )}
+                      {studentProfile.interests.map((interest, index) => (
+                        <Badge key={index} variant="outline">
+                          {interest}
+                        </Badge>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -1901,9 +1804,7 @@ export function UserProfile({
                 </h2>
                 <Button
                   size="sm"
-                  onClick={() =>
-                    setIsCreatePostDialogOpen(true)
-                  }
+                  onClick={() => setIsCreatePostDialogOpen(true)}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Post
@@ -1912,10 +1813,7 @@ export function UserProfile({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {studentPosts.map((post) => (
-                  <Card
-                    key={post.id}
-                    className="overflow-hidden"
-                  >
+                  <Card key={post.id} className="overflow-hidden">
                     <CardContent className="p-0">
                       {post.imageUrl && (
                         <ImageWithFallback
@@ -1928,19 +1826,14 @@ export function UserProfile({
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <Badge
-                                variant="secondary"
-                                className="text-xs"
-                              >
+                              <Badge variant="secondary" className="text-xs">
                                 {post.category}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 {post.date}
                               </span>
                             </div>
-                            <h3 className="font-semibold mb-2">
-                              {post.title}
-                            </h3>
+                            <h3 className="font-semibold mb-2">{post.title}</h3>
                             <p className="text-sm text-muted-foreground line-clamp-3">
                               {post.content}
                             </p>
@@ -1949,9 +1842,7 @@ export function UserProfile({
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() =>
-                                handleEditStudentPost(post)
-                              }
+                              onClick={() => handleEditStudentPost(post)}
                             >
                               <Edit3 className="h-4 w-4" />
                             </Button>
@@ -1960,10 +1851,7 @@ export function UserProfile({
                               size="sm"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={() =>
-                                handleDeleteStudentPost(
-                                  post.id,
-                                  post.title,
-                                )
+                                handleDeleteStudentPost(post.id, post.title)
                               }
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1979,8 +1867,8 @@ export function UserProfile({
                   <Card className="md:col-span-2">
                     <CardContent className="p-12 text-center">
                       <p className="text-muted-foreground">
-                        No posts yet. Create your first post to
-                        share with the community!
+                        No posts yet. Create your first post to share with the
+                        community!
                       </p>
                     </CardContent>
                   </Card>
@@ -1989,29 +1877,19 @@ export function UserProfile({
             </TabsContent>
 
             {/* Organizations Tab */}
-            <TabsContent
-              value="organizations"
-              className="space-y-4"
-            >
+            <TabsContent value="organizations" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">
-                  My Organizations
-                </h2>
+                <h2 className="text-xl font-semibold">My Organizations</h2>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() =>
-                      setIsCreateOrgDialogOpen(true)
-                    }
+                    onClick={() => setIsCreateOrgDialogOpen(true)}
                   >
                     <Building2 className="h-4 w-4 mr-2" />
                     Create Organization
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => onNavigate?.("discover")}
-                  >
+                  <Button size="sm" onClick={() => onNavigate?.("discover")}>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Join New
                   </Button>
@@ -2019,94 +1897,76 @@ export function UserProfile({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {studentProfile.enrolledOrganizations.map(
-                  (org) => (
-                    <Card
-                      key={org.id}
-                      className="overflow-hidden"
-                    >
-                      <CardContent className="p-4 space-y-4">
-                        <div className="flex gap-4">
-                          <Avatar className="h-16 w-16">
-                            <AvatarImage
-                              src={org.logo}
-                              alt={org.name}
-                            />
-                            <AvatarFallback>
-                              {org.name[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold mb-1 truncate">
-                              {org.name}
-                            </h3>
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {org.category}
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {org.role}
-                              </Badge>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2"
-                              onClick={() =>
-                                onNavigate?.("profile", {
-                                  profileId: org.id,
-                                  activeTab: "about",
-                                })
-                              }
-                            >
-                              View Profile
-                            </Button>
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        {/* Social Media Section */}
-                        <div>
-                          <h4 className="text-sm font-semibold mb-2">
-                            Social Media
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            <Badge
-                              variant="secondary"
-                              className="flex items-center gap-1 text-xs"
-                            >
-                              <LinkIcon className="h-3 w-3" />
-                              Discord: {org.socialMedia.discord}
+                {studentProfile.enrolledOrganizations.map((org) => (
+                  <Card key={org.id} className="overflow-hidden">
+                    <CardContent className="p-4 space-y-4">
+                      <div className="flex gap-4">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage src={org.logo} alt={org.name} />
+                          <AvatarFallback>{org.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold mb-1 truncate">
+                            {org.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {org.category}
                             </Badge>
-                            <Badge
-                              variant="secondary"
-                              className="flex items-center gap-1 text-xs"
-                            >
-                              <LinkIcon className="h-3 w-3" />
-                              Instagram:{" "}
-                              {org.socialMedia.instagram}
-                            </Badge>
-                            <Badge
-                              variant="secondary"
-                              className="flex items-center gap-1 text-xs"
-                            >
-                              <LinkIcon className="h-3 w-3" />
-                              LinkedIn:{" "}
-                              {org.socialMedia.linkedin}
+                            <Badge variant="outline" className="text-xs">
+                              {org.role}
                             </Badge>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2"
+                            onClick={() =>
+                              onNavigate?.("profile", {
+                                profileId: org.id,
+                                activeTab: "about",
+                              })
+                            }
+                          >
+                            View Profile
+                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ),
-                )}
+                      </div>
+
+                      <Separator />
+
+                      {/* Social Media Section */}
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2">
+                          Social Media
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            <LinkIcon className="h-3 w-3" />
+                            Discord: {org.socialMedia.discord}
+                          </Badge>
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            <LinkIcon className="h-3 w-3" />
+                            Instagram: {org.socialMedia.instagram}
+                          </Badge>
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            <LinkIcon className="h-3 w-3" />
+                            LinkedIn: {org.socialMedia.linkedin}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
           </Tabs>
@@ -2158,10 +2018,7 @@ export function UserProfile({
                           Email
                         </div>
                         <div className="font-medium truncate">
-                          {
-                            organizationProfile.contactInfo
-                              .email
-                          }
+                          {organizationProfile.contactInfo.email}
                         </div>
                       </div>
                     </div>
@@ -2172,10 +2029,7 @@ export function UserProfile({
                           Phone
                         </div>
                         <div className="font-medium">
-                          {
-                            organizationProfile.contactInfo
-                              .phone
-                          }
+                          {organizationProfile.contactInfo.phone}
                         </div>
                       </div>
                     </div>
@@ -2207,19 +2061,14 @@ export function UserProfile({
                   </div>
                   <Separator />
                   <div>
-                    <h3 className="font-semibold mb-3">
-                      Leadership
-                    </h3>
+                    <h3 className="font-semibold mb-3">Leadership</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <div className="text-sm text-muted-foreground">
                           President
                         </div>
                         <div className="font-medium">
-                          {
-                            organizationProfile.contactInfo
-                              .president
-                          }
+                          {organizationProfile.contactInfo.president}
                         </div>
                       </div>
                       <div>
@@ -2227,52 +2076,35 @@ export function UserProfile({
                           Vice President
                         </div>
                         <div className="font-medium">
-                          {
-                            organizationProfile.contactInfo
-                              .vicePresident
-                          }
+                          {organizationProfile.contactInfo.vicePresident}
                         </div>
                       </div>
                     </div>
                   </div>
                   <Separator />
                   <div>
-                    <h3 className="font-semibold mb-3">
-                      Social Media
-                    </h3>
+                    <h3 className="font-semibold mb-3">Social Media</h3>
                     <div className="flex flex-wrap gap-2">
                       <Badge
                         variant="secondary"
                         className="flex items-center gap-1"
                       >
                         <LinkIcon className="h-3 w-3" />
-                        Discord:{" "}
-                        {
-                          organizationProfile.socialMedia
-                            .discord
-                        }
+                        Discord: {organizationProfile.socialMedia.discord}
                       </Badge>
                       <Badge
                         variant="secondary"
                         className="flex items-center gap-1"
                       >
                         <LinkIcon className="h-3 w-3" />
-                        Instagram:{" "}
-                        {
-                          organizationProfile.socialMedia
-                            .instagram
-                        }
+                        Instagram: {organizationProfile.socialMedia.instagram}
                       </Badge>
                       <Badge
                         variant="secondary"
                         className="flex items-center gap-1"
                       >
                         <LinkIcon className="h-3 w-3" />
-                        LinkedIn:{" "}
-                        {
-                          organizationProfile.socialMedia
-                            .linkedin
-                        }
+                        LinkedIn: {organizationProfile.socialMedia.linkedin}
                       </Badge>
                     </div>
                   </div>
@@ -2296,9 +2128,7 @@ export function UserProfile({
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Full access to all features
-                          </span>
+                          <span>Full access to all features</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
@@ -2306,17 +2136,11 @@ export function UserProfile({
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Create, edit, and delete posts &
-                            events
-                          </span>
+                          <span>Create, edit, and delete posts & events</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Approve, remove, and change member
-                            roles
-                          </span>
+                          <span>Approve, remove, and change member roles</span>
                         </li>
                       </ul>
                     </div>
@@ -2324,9 +2148,7 @@ export function UserProfile({
                     {/* Event Manager */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          Event Manager
-                        </Badge>
+                        <Badge variant="secondary">Event Manager</Badge>
                       </div>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                         <li className="flex items-start gap-2">
@@ -2335,10 +2157,7 @@ export function UserProfile({
                         </li>
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Create, edit, and delete posts &
-                            events
-                          </span>
+                          <span>Create, edit, and delete posts & events</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
@@ -2350,28 +2169,20 @@ export function UserProfile({
                     {/* Content Editor */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          Content Editor
-                        </Badge>
+                        <Badge variant="secondary">Content Editor</Badge>
                       </div>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Create, edit, and delete posts only
-                          </span>
+                          <span>Create, edit, and delete posts only</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Cannot edit organization bio
-                          </span>
+                          <span>Cannot edit organization bio</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            Cannot manage events or members
-                          </span>
+                          <span>Cannot manage events or members</span>
                         </li>
                       </ul>
                     </div>
@@ -2384,9 +2195,7 @@ export function UserProfile({
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                         <li className="flex items-start gap-2">
                           <Check className="h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            View organization information
-                          </span>
+                          <span>View organization information</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
@@ -2394,9 +2203,7 @@ export function UserProfile({
                         </li>
                         <li className="flex items-start gap-2">
                           <X className="h-4 w-4 text-red-600 dark:text-red-500 mt-0.5 flex-shrink-0" />
-                          <span>
-                            View-only access to all content
-                          </span>
+                          <span>View-only access to all content</span>
                         </li>
                       </ul>
                     </div>
@@ -2408,15 +2215,11 @@ export function UserProfile({
             {/* Events Tab */}
             <TabsContent value="events" className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">
-                  Upcoming Events
-                </h2>
+                <h2 className="text-xl font-semibold">Upcoming Events</h2>
                 {canManageEvents() && (
                   <Button
                     size="sm"
-                    onClick={() =>
-                      setIsCreateEventDialogOpen(true)
-                    }
+                    onClick={() => setIsCreateEventDialogOpen(true)}
                   >
                     <Calendar className="h-4 w-4 mr-2" />
                     Create Event
@@ -2425,79 +2228,67 @@ export function UserProfile({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {organizationProfile.upcomingEvents.map(
-                  (event) => (
-                    <Card
-                      key={event.id}
-                      className="overflow-hidden"
-                    >
-                      <CardContent className="p-0">
-                        <ImageWithFallback
-                          src={event.image}
-                          alt={event.title}
-                          className="w-full h-48 object-cover"
-                        />
-                        <div className="p-4">
-                          <div className="flex items-start justify-between gap-4 mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                <h3 className="font-semibold line-clamp-2">
-                                  {event.title}
-                                </h3>
-                                {event.status === "pending" && (
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-yellow-50 text-yellow-700 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-500 dark:border-yellow-800 flex-shrink-0"
-                                  >
-                                    Pending
-                                  </Badge>
-                                )}
-                                {event.status ===
-                                  "approved" && (
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-green-50 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-500 dark:border-green-800 flex-shrink-0"
-                                  >
-                                    Approved
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                                <Calendar className="h-4 w-4" />
-                                <span>
-                                  {event.date} • {event.time}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                                <MapPin className="h-4 w-4" />
-                                <span className="truncate">
-                                  {event.location}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Users className="h-4 w-4" />
-                                <span>
-                                  {event.attendees} interested
-                                </span>
-                              </div>
+                {organizationProfile.upcomingEvents.map((event: any) => (
+                  <Card key={event.id} className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <ImageWithFallback
+                        src={event.image}
+                        alt={event.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="font-semibold line-clamp-2">
+                                {event.title}
+                              </h3>
+                              {event.status === "pending" && (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-yellow-50 text-yellow-700 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-500 dark:border-yellow-800 flex-shrink-0"
+                                >
+                                  Pending
+                                </Badge>
+                              )}
+                              {event.status === "approved" && (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-green-50 text-green-700 border-green-300 dark:bg-green-900/20 dark:text-green-500 dark:border-green-800 flex-shrink-0"
+                                >
+                                  Approved
+                                </Badge>
+                              )}
                             </div>
-                            {canManageEvents() && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleOpenEditEvent(event)
-                                }
-                              >
-                                <Edit3 className="h-4 w-4" />
-                              </Button>
-                            )}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>
+                                {event.date} • {event.time}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                              <MapPin className="h-4 w-4" />
+                              <span className="truncate">{event.location}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Users className="h-4 w-4" />
+                              <span>{event.attendees} interested</span>
+                            </div>
                           </div>
+                          {canManageEvents() && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenEditEvent(event)}
+                            >
+                              <Edit3 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  ),
-                )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
 
@@ -2510,9 +2301,7 @@ export function UserProfile({
                 {canManagePosts() && (
                   <Button
                     size="sm"
-                    onClick={() =>
-                      setIsCreatePostDialogOpen(true)
-                    }
+                    onClick={() => setIsCreatePostDialogOpen(true)}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create Post
@@ -2522,10 +2311,7 @@ export function UserProfile({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {organizationPosts.map((post) => (
-                  <Card
-                    key={post.id}
-                    className="overflow-hidden"
-                  >
+                  <Card key={post.id} className="overflow-hidden">
                     <CardContent className="p-0">
                       {post.imageUrl && (
                         <ImageWithFallback
@@ -2538,19 +2324,14 @@ export function UserProfile({
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <Badge
-                                variant="secondary"
-                                className="text-xs"
-                              >
+                              <Badge variant="secondary" className="text-xs">
                                 {post.category}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 {post.date}
                               </span>
                             </div>
-                            <h3 className="font-semibold mb-2">
-                              {post.title}
-                            </h3>
+                            <h3 className="font-semibold mb-2">{post.title}</h3>
                             <p className="text-sm text-muted-foreground line-clamp-3">
                               {post.content}
                             </p>
@@ -2560,15 +2341,11 @@ export function UserProfile({
                             <div className="flex items-center gap-4 mt-3">
                               <div className="flex items-center gap-1.5 text-muted-foreground">
                                 <Heart className="h-4 w-4" />
-                                <span className="text-sm">
-                                  {0}
-                                </span>
+                                <span className="text-sm">{0}</span>
                               </div>
                               <div className="flex items-center gap-1.5 text-muted-foreground">
                                 <MessageCircle className="h-4 w-4" />
-                                <span className="text-sm">
-                                  { 0}
-                                </span>
+                                <span className="text-sm">{0}</span>
                               </div>
                             </div>
                           </div>
@@ -2577,9 +2354,7 @@ export function UserProfile({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                  handleEditPost(post)
-                                }
+                                onClick={() => handleEditPost(post)}
                               >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
@@ -2588,10 +2363,7 @@ export function UserProfile({
                                 size="sm"
                                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() =>
-                                  handleDeletePost(
-                                    post.id,
-                                    post.title,
-                                  )
+                                  handleDeletePost(post.id, post.title)
                                 }
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -2608,8 +2380,7 @@ export function UserProfile({
                   <Card className="md:col-span-2">
                     <CardContent className="p-12 text-center">
                       <p className="text-muted-foreground">
-                        No posts yet. Create your first post to
-                        get started!
+                        No posts yet. Create your first post to get started!
                       </p>
                     </CardContent>
                   </Card>
@@ -2620,85 +2391,73 @@ export function UserProfile({
             {/* Members Tab */}
             <TabsContent value="members" className="space-y-6">
               {/* Pending Requests Section */}
-              {canManageMembers() &&
-                pendingRequests.length > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold">
-                        Pending Requests (
-                        {pendingRequests.length})
-                      </h2>
-                    </div>
-
-                    <div className="space-y-3">
-                      {pendingRequests.map((request) => (
-                        <Card key={request.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-12 w-12">
-                                <AvatarImage
-                                  src={request.avatar}
-                                  alt={request.name}
-                                />
-                                <AvatarFallback>
-                                  {request.name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold truncate">
-                                  {request.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground truncate">
-                                  {request.major}
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Requested{" "}
-                                  {request.requestDate}
-                                </p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() =>
-                                    handleApproveRequest(
-                                      request.id,
-                                    )
-                                  }
-                                >
-                                  <Check className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleRejectRequest(
-                                      request.id,
-                                    )
-                                  }
-                                >
-                                  <X className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+              {canManageMembers() && pendingRequests.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold">
+                      Pending Requests ({pendingRequests.length})
+                    </h2>
                   </div>
-                )}
+
+                  <div className="space-y-3">
+                    {pendingRequests.map((request) => (
+                      <Card key={request.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage
+                                src={request.avatar}
+                                alt={request.name}
+                              />
+                              <AvatarFallback>
+                                {request.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold truncate">
+                                {request.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {request.major}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Requested {request.requestDate}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handleApproveRequest(request.id)}
+                              >
+                                <Check className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRejectRequest(request.id)}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Current Members Section */}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">
-                    Members ({organizationProfile.stats.members}
-                    )
+                    Members ({organizationProfile.stats.members})
                   </h2>
                   {/* {canManageMembers() && (
                     <Button size="sm" onClick={() => setIsInviteMemberDialogOpen(true)}>
@@ -2709,7 +2468,7 @@ export function UserProfile({
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
-                  {organizationProfile.members.map((member) => (
+                  {organizationProfile.members.map((member: any) => (
                     <Card key={member.id}>
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
@@ -2721,7 +2480,7 @@ export function UserProfile({
                             <AvatarFallback>
                               {member.name
                                 .split(" ")
-                                .map((n) => n[0])
+                                .map((n: any) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
@@ -2738,11 +2497,11 @@ export function UserProfile({
                             {canManageMembers() ? (
                               <Select
                                 value={member.role}
-                                onValueChange={(newRole) =>
+                                onValueChange={(newRole: any) =>
                                   handleUpdateMemberRole(
                                     member.id,
                                     member.name,
-                                    newRole,
+                                    newRole
                                   )
                                 }
                               >
@@ -2762,9 +2521,7 @@ export function UserProfile({
                                   <SelectItem value="Content Editor">
                                     Content Editor
                                   </SelectItem>
-                                  <SelectItem value="Member">
-                                    Member
-                                  </SelectItem>
+                                  <SelectItem value="Member">Member</SelectItem>
                                 </SelectContent>
                               </Select>
                             ) : (
@@ -2783,10 +2540,7 @@ export function UserProfile({
                                 variant="ghost"
                                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 onClick={() =>
-                                  handleRemoveMember(
-                                    member.id,
-                                    member.name,
-                                  )
+                                  handleRemoveMember(member.id, member.name)
                                 }
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -2805,17 +2559,11 @@ export function UserProfile({
       </div>
 
       {/* Edit Profile Dialog */}
-      <Dialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-      >
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Edit{" "}
-              {profileType === "student"
-                ? "Profile"
-                : "Organization"}
+              Edit {profileType === "student" ? "Profile" : "Organization"}
             </DialogTitle>
             <DialogDescription>
               {profileType === "student"
@@ -2834,10 +2582,7 @@ export function UserProfile({
                   <div className="flex items-start gap-4">
                     <Avatar className="h-20 w-20">
                       <AvatarImage
-                        src={
-                          profileImagePreview ||
-                          studentProfile.avatar
-                        }
+                        src={profileImagePreview || studentProfile.avatar}
                         alt={studentProfile.name}
                       />
                       <AvatarFallback>
@@ -2858,8 +2603,7 @@ export function UserProfile({
                             className="cursor-pointer"
                           />
                           <p className="text-xs text-muted-foreground mt-1">
-                            Upload a new profile picture (JPG,
-                            PNG, or GIF)
+                            Upload a new profile picture (JPG, PNG, or GIF)
                           </p>
                         </div>
                       ) : (
@@ -2867,10 +2611,7 @@ export function UserProfile({
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
                               {profileImageFile.name} (
-                              {(
-                                profileImageFile.size / 1024
-                              ).toFixed(1)}{" "}
-                              KB)
+                              {(profileImageFile.size / 1024).toFixed(1)} KB)
                             </span>
                           </div>
                           <Button
@@ -2897,9 +2638,7 @@ export function UserProfile({
                     id="bio"
                     placeholder="Tell us about yourself..."
                     value={editFormData.bio}
-                    onChange={(e) =>
-                      handleFormChange("bio", e.target.value)
-                    }
+                    onChange={(e) => handleFormChange("bio", e.target.value)}
                     rows={4}
                     className="resize-none"
                   />
@@ -2917,7 +2656,7 @@ export function UserProfile({
                       <Label htmlFor="major">Major</Label>
                       <Select
                         value={editFormData.major}
-                        onValueChange={(value) =>
+                        onValueChange={(value: any) =>
                           handleFormChange("major", value)
                         }
                       >
@@ -2940,18 +2679,10 @@ export function UserProfile({
                           <SelectItem value="Business Administration">
                             Business Administration
                           </SelectItem>
-                          <SelectItem value="Psychology">
-                            Psychology
-                          </SelectItem>
-                          <SelectItem value="Biology">
-                            Biology
-                          </SelectItem>
-                          <SelectItem value="Chemistry">
-                            Chemistry
-                          </SelectItem>
-                          <SelectItem value="Physics">
-                            Physics
-                          </SelectItem>
+                          <SelectItem value="Psychology">Psychology</SelectItem>
+                          <SelectItem value="Biology">Biology</SelectItem>
+                          <SelectItem value="Chemistry">Chemistry</SelectItem>
+                          <SelectItem value="Physics">Physics</SelectItem>
                           <SelectItem value="Mathematics">
                             Mathematics
                           </SelectItem>
@@ -2964,30 +2695,18 @@ export function UserProfile({
                           <SelectItem value="Civil Engineering">
                             Civil Engineering
                           </SelectItem>
-                          <SelectItem value="Fine Arts">
-                            Fine Arts
-                          </SelectItem>
+                          <SelectItem value="Fine Arts">Fine Arts</SelectItem>
                           <SelectItem value="Graphic Design">
                             Graphic Design
                           </SelectItem>
-                          <SelectItem value="English">
-                            English
-                          </SelectItem>
-                          <SelectItem value="History">
-                            History
-                          </SelectItem>
+                          <SelectItem value="English">English</SelectItem>
+                          <SelectItem value="History">History</SelectItem>
                           <SelectItem value="Political Science">
                             Political Science
                           </SelectItem>
-                          <SelectItem value="Economics">
-                            Economics
-                          </SelectItem>
-                          <SelectItem value="Nursing">
-                            Nursing
-                          </SelectItem>
-                          <SelectItem value="Other">
-                            Other
-                          </SelectItem>
+                          <SelectItem value="Economics">Economics</SelectItem>
+                          <SelectItem value="Nursing">Nursing</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -2996,7 +2715,7 @@ export function UserProfile({
                       <Label htmlFor="minor">Minor</Label>
                       <Select
                         value={editFormData.minor}
-                        onValueChange={(value) =>
+                        onValueChange={(value: any) =>
                           handleFormChange("minor", value)
                         }
                       >
@@ -3004,9 +2723,7 @@ export function UserProfile({
                           <SelectValue placeholder="Select minor (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="None">
-                            None
-                          </SelectItem>
+                          <SelectItem value="None">None</SelectItem>
                           <SelectItem value="Computer Science">
                             Computer Science
                           </SelectItem>
@@ -3022,18 +2739,10 @@ export function UserProfile({
                           <SelectItem value="Business Administration">
                             Business Administration
                           </SelectItem>
-                          <SelectItem value="Psychology">
-                            Psychology
-                          </SelectItem>
-                          <SelectItem value="Biology">
-                            Biology
-                          </SelectItem>
-                          <SelectItem value="Chemistry">
-                            Chemistry
-                          </SelectItem>
-                          <SelectItem value="Physics">
-                            Physics
-                          </SelectItem>
+                          <SelectItem value="Psychology">Psychology</SelectItem>
+                          <SelectItem value="Biology">Biology</SelectItem>
+                          <SelectItem value="Chemistry">Chemistry</SelectItem>
+                          <SelectItem value="Physics">Physics</SelectItem>
                           <SelectItem value="Mathematics">
                             Mathematics
                           </SelectItem>
@@ -3046,105 +2755,61 @@ export function UserProfile({
                           <SelectItem value="Civil Engineering">
                             Civil Engineering
                           </SelectItem>
-                          <SelectItem value="Fine Arts">
-                            Fine Arts
-                          </SelectItem>
+                          <SelectItem value="Fine Arts">Fine Arts</SelectItem>
                           <SelectItem value="Graphic Design">
                             Graphic Design
                           </SelectItem>
-                          <SelectItem value="English">
-                            English
-                          </SelectItem>
-                          <SelectItem value="History">
-                            History
-                          </SelectItem>
+                          <SelectItem value="English">English</SelectItem>
+                          <SelectItem value="History">History</SelectItem>
                           <SelectItem value="Political Science">
                             Political Science
                           </SelectItem>
-                          <SelectItem value="Economics">
-                            Economics
-                          </SelectItem>
-                          <SelectItem value="Nursing">
-                            Nursing
-                          </SelectItem>
-                          <SelectItem value="Other">
-                            Other
-                          </SelectItem>
+                          <SelectItem value="Economics">Economics</SelectItem>
+                          <SelectItem value="Nursing">Nursing</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="academicLevel">
-                        Academic Level
-                      </Label>
+                      <Label htmlFor="academicLevel">Academic Level</Label>
                       <Select
                         value={editFormData.academicLevel}
-                        onValueChange={(value) =>
-                          handleFormChange(
-                            "academicLevel",
-                            value,
-                          )
+                        onValueChange={(value: any) =>
+                          handleFormChange("academicLevel", value)
                         }
                       >
                         <SelectTrigger id="academicLevel">
                           <SelectValue placeholder="Select level" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Freshman">
-                            Freshman
-                          </SelectItem>
-                          <SelectItem value="Sophomore">
-                            Sophomore
-                          </SelectItem>
-                          <SelectItem value="Junior">
-                            Junior
-                          </SelectItem>
-                          <SelectItem value="Senior">
-                            Senior
-                          </SelectItem>
-                          <SelectItem value="Graduate">
-                            Graduate
-                          </SelectItem>
+                          <SelectItem value="Freshman">Freshman</SelectItem>
+                          <SelectItem value="Sophomore">Sophomore</SelectItem>
+                          <SelectItem value="Junior">Junior</SelectItem>
+                          <SelectItem value="Senior">Senior</SelectItem>
+                          <SelectItem value="Graduate">Graduate</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="graduationYear">
-                        Graduation Year
-                      </Label>
+                      <Label htmlFor="graduationYear">Graduation Year</Label>
                       <Select
                         value={editFormData.graduationYear}
-                        onValueChange={(value) =>
-                          handleFormChange(
-                            "graduationYear",
-                            value,
-                          )
+                        onValueChange={(value: any) =>
+                          handleFormChange("graduationYear", value)
                         }
                       >
                         <SelectTrigger id="graduationYear">
                           <SelectValue placeholder="Select year" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="2024">
-                            2024
-                          </SelectItem>
-                          <SelectItem value="2025">
-                            2025
-                          </SelectItem>
-                          <SelectItem value="2026">
-                            2026
-                          </SelectItem>
-                          <SelectItem value="2027">
-                            2027
-                          </SelectItem>
-                          <SelectItem value="2028">
-                            2028
-                          </SelectItem>
-                          <SelectItem value="2029">
-                            2029
-                          </SelectItem>
+                          <SelectItem value="2024">2024</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2026">2026</SelectItem>
+                          <SelectItem value="2027">2027</SelectItem>
+                          <SelectItem value="2028">2028</SelectItem>
+                          <SelectItem value="2029">2029</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -3165,10 +2830,7 @@ export function UserProfile({
                       placeholder="Add a skill (e.g., Python, React)"
                       value={editFormData.newSkill}
                       onChange={(e) =>
-                        handleFormChange(
-                          "newSkill",
-                          e.target.value,
-                        )
+                        handleFormChange("newSkill", e.target.value)
                       }
                       onKeyPress={(e) => {
                         if (e.key === "Enter") {
@@ -3177,11 +2839,7 @@ export function UserProfile({
                         }
                       }}
                     />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={handleAddSkill}
-                    >
+                    <Button type="button" size="sm" onClick={handleAddSkill}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -3196,9 +2854,7 @@ export function UserProfile({
                         {skill}
                         <button
                           type="button"
-                          onClick={() =>
-                            handleRemoveSkill(skill)
-                          }
+                          onClick={() => handleRemoveSkill(skill)}
                           className="ml-2 hover:text-destructive"
                         >
                           <X className="h-3 w-3" />
@@ -3222,10 +2878,7 @@ export function UserProfile({
                       placeholder="Add an interest (e.g., AI, Web Development)"
                       value={editFormData.newInterest}
                       onChange={(e) =>
-                        handleFormChange(
-                          "newInterest",
-                          e.target.value,
-                        )
+                        handleFormChange("newInterest", e.target.value)
                       }
                       onKeyPress={(e) => {
                         if (e.key === "Enter") {
@@ -3234,36 +2887,28 @@ export function UserProfile({
                         }
                       }}
                     />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={handleAddInterest}
-                    >
+                    <Button type="button" size="sm" onClick={handleAddInterest}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {editFormData.interests.map(
-                      (interest, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="pl-3 pr-1"
+                    {editFormData.interests.map((interest, index) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="pl-3 pr-1"
+                      >
+                        {interest}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveInterest(interest)}
+                          className="ml-2 hover:text-destructive"
                         >
-                          {interest}
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleRemoveInterest(interest)
-                            }
-                            className="ml-2 hover:text-destructive"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ),
-                    )}
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </>
@@ -3276,16 +2921,13 @@ export function UserProfile({
                   <div className="flex items-start gap-4">
                     <Avatar className="h-20 w-20">
                       <AvatarImage
-                        src={
-                          profileImagePreview ||
-                          organizationProfile.avatar
-                        }
+                        src={profileImagePreview || organizationProfile.avatar}
                         alt={organizationProfile.name}
                       />
                       <AvatarFallback>
                         {organizationProfile.name
                           .split(" ")
-                          .map((n) => n[0])
+                          .map((n: any) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
@@ -3300,8 +2942,7 @@ export function UserProfile({
                             className="cursor-pointer"
                           />
                           <p className="text-xs text-muted-foreground mt-1">
-                            Upload a new organization logo (JPG,
-                            PNG, or GIF)
+                            Upload a new organization logo (JPG, PNG, or GIF)
                           </p>
                         </div>
                       ) : (
@@ -3309,10 +2950,7 @@ export function UserProfile({
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
                               {profileImageFile.name} (
-                              {(
-                                profileImageFile.size / 1024
-                              ).toFixed(1)}{" "}
-                              KB)
+                              {(profileImageFile.size / 1024).toFixed(1)} KB)
                             </span>
                           </div>
                           <Button
@@ -3340,9 +2978,7 @@ export function UserProfile({
                   </h3>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">
-                      Description
-                    </Label>
+                    <Label htmlFor="description">Description</Label>
                     <Textarea
                       id="description"
                       placeholder="Brief description of your organization..."
@@ -3359,9 +2995,7 @@ export function UserProfile({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="mission">
-                      Mission Statement
-                    </Label>
+                    <Label htmlFor="mission">Mission Statement</Label>
                     <Textarea
                       id="mission"
                       placeholder="Your organization's mission..."
@@ -3381,7 +3015,7 @@ export function UserProfile({
                     <Label htmlFor="category">Category</Label>
                     <Select
                       value={orgEditFormData.category}
-                      onValueChange={(value) =>
+                      onValueChange={(value: any) =>
                         setOrgEditFormData((prev) => ({
                           ...prev,
                           category: value,
@@ -3392,30 +3026,16 @@ export function UserProfile({
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Academic">
-                          Academic
-                        </SelectItem>
-                        <SelectItem value="Technical">
-                          Technical
-                        </SelectItem>
-                        <SelectItem value="Sports">
-                          Sports
-                        </SelectItem>
-                        <SelectItem value="Cultural">
-                          Cultural
-                        </SelectItem>
-                        <SelectItem value="Social">
-                          Social
-                        </SelectItem>
+                        <SelectItem value="Academic">Academic</SelectItem>
+                        <SelectItem value="Technical">Technical</SelectItem>
+                        <SelectItem value="Sports">Sports</SelectItem>
+                        <SelectItem value="Cultural">Cultural</SelectItem>
+                        <SelectItem value="Social">Social</SelectItem>
                         <SelectItem value="Professional">
                           Professional
                         </SelectItem>
-                        <SelectItem value="Arts">
-                          Arts
-                        </SelectItem>
-                        <SelectItem value="Service">
-                          Service
-                        </SelectItem>
+                        <SelectItem value="Arts">Arts</SelectItem>
+                        <SelectItem value="Service">Service</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -3507,9 +3127,7 @@ export function UserProfile({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="instagram">
-                        Instagram
-                      </Label>
+                      <Label htmlFor="instagram">Instagram</Label>
                       <Input
                         id="instagram"
                         placeholder="@organization"
@@ -3551,9 +3169,7 @@ export function UserProfile({
             >
               Cancel
             </Button>
-            <Button onClick={handleSaveProfile}>
-              Save Changes
-            </Button>
+            <Button onClick={handleSaveProfile}>Save Changes</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -3567,8 +3183,8 @@ export function UserProfile({
           <DialogHeader>
             <DialogTitle>Create New Event</DialogTitle>
             <DialogDescription>
-              Fill out the details below to create a new event
-              for your organization.
+              Fill out the details below to create a new event for your
+              organization.
             </DialogDescription>
           </DialogHeader>
 
@@ -3586,8 +3202,7 @@ export function UserProfile({
                     className="cursor-pointer"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Upload an event cover image (JPG, PNG, or
-                    GIF)
+                    Upload an event cover image (JPG, PNG, or GIF)
                   </p>
                 </div>
               ) : (
@@ -3605,10 +3220,7 @@ export function UserProfile({
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">
                         {eventImageFile.name} (
-                        {(eventImageFile.size / 1024).toFixed(
-                          1,
-                        )}{" "}
-                        KB)
+                        {(eventImageFile.size / 1024).toFixed(1)} KB)
                       </span>
                     </div>
                   )}
@@ -3645,9 +3257,7 @@ export function UserProfile({
 
             {/* Event Description */}
             <div className="space-y-2">
-              <Label htmlFor="event-description">
-                Description *
-              </Label>
+              <Label htmlFor="event-description">Description *</Label>
               <Textarea
                 id="event-description"
                 placeholder="Describe what your event is about, what attendees will learn or experience..."
@@ -3715,12 +3325,10 @@ export function UserProfile({
             {/* Category and Capacity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="event-category">
-                  Category *
-                </Label>
+                <Label htmlFor="event-category">Category *</Label>
                 <Select
                   value={createEventFormData.category}
-                  onValueChange={(value) =>
+                  onValueChange={(value: any) =>
                     setCreateEventFormData((prev) => ({
                       ...prev,
                       category: value,
@@ -3731,36 +3339,20 @@ export function UserProfile({
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="workshop">
-                      Workshop
-                    </SelectItem>
-                    <SelectItem value="seminar">
-                      Seminar
-                    </SelectItem>
-                    <SelectItem value="social">
-                      Social
-                    </SelectItem>
-                    <SelectItem value="networking">
-                      Networking
-                    </SelectItem>
-                    <SelectItem value="competition">
-                      Competition
-                    </SelectItem>
-                    <SelectItem value="conference">
-                      Conference
-                    </SelectItem>
-                    <SelectItem value="meeting">
-                      Meeting
-                    </SelectItem>
+                    <SelectItem value="workshop">Workshop</SelectItem>
+                    <SelectItem value="seminar">Seminar</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="networking">Networking</SelectItem>
+                    <SelectItem value="competition">Competition</SelectItem>
+                    <SelectItem value="conference">Conference</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="event-capacity">
-                  Capacity (optional)
-                </Label>
+                <Label htmlFor="event-capacity">Capacity (optional)</Label>
                 <Input
                   id="event-capacity"
                   type="number"
@@ -3830,8 +3422,7 @@ export function UserProfile({
                     className="cursor-pointer"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Upload an event cover image (JPG, PNG, or
-                    GIF)
+                    Upload an event cover image (JPG, PNG, or GIF)
                   </p>
                 </div>
               ) : (
@@ -3849,10 +3440,7 @@ export function UserProfile({
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">
                         {editEventImageFile.name} (
-                        {(
-                          editEventImageFile.size / 1024
-                        ).toFixed(1)}{" "}
-                        KB)
+                        {(editEventImageFile.size / 1024).toFixed(1)} KB)
                       </span>
                     </div>
                   )}
@@ -3873,9 +3461,7 @@ export function UserProfile({
 
             {/* Event Title */}
             <div className="space-y-2">
-              <Label htmlFor="edit-event-title">
-                Event Title *
-              </Label>
+              <Label htmlFor="edit-event-title">Event Title *</Label>
               <Input
                 id="edit-event-title"
                 placeholder="e.g., Tech Workshop: Introduction to AI"
@@ -3891,9 +3477,7 @@ export function UserProfile({
 
             {/* Event Description */}
             <div className="space-y-2">
-              <Label htmlFor="edit-event-description">
-                Description *
-              </Label>
+              <Label htmlFor="edit-event-description">Description *</Label>
               <Textarea
                 id="edit-event-description"
                 placeholder="Describe what your event is about, what attendees will learn or experience..."
@@ -3944,9 +3528,7 @@ export function UserProfile({
 
             {/* Location */}
             <div className="space-y-2">
-              <Label htmlFor="edit-event-location">
-                Location *
-              </Label>
+              <Label htmlFor="edit-event-location">Location *</Label>
               <Input
                 id="edit-event-location"
                 placeholder="e.g., Engineering Building Room 203"
@@ -3963,12 +3545,10 @@ export function UserProfile({
             {/* Category and Capacity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-event-category">
-                  Category *
-                </Label>
+                <Label htmlFor="edit-event-category">Category *</Label>
                 <Select
                   value={editEventFormData.category}
-                  onValueChange={(value) =>
+                  onValueChange={(value: any) =>
                     setEditEventFormData((prev) => ({
                       ...prev,
                       category: value,
@@ -3979,36 +3559,20 @@ export function UserProfile({
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="workshop">
-                      Workshop
-                    </SelectItem>
-                    <SelectItem value="seminar">
-                      Seminar
-                    </SelectItem>
-                    <SelectItem value="social">
-                      Social
-                    </SelectItem>
-                    <SelectItem value="networking">
-                      Networking
-                    </SelectItem>
-                    <SelectItem value="competition">
-                      Competition
-                    </SelectItem>
-                    <SelectItem value="conference">
-                      Conference
-                    </SelectItem>
-                    <SelectItem value="meeting">
-                      Meeting
-                    </SelectItem>
+                    <SelectItem value="workshop">Workshop</SelectItem>
+                    <SelectItem value="seminar">Seminar</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                    <SelectItem value="networking">Networking</SelectItem>
+                    <SelectItem value="competition">Competition</SelectItem>
+                    <SelectItem value="conference">Conference</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="edit-event-capacity">
-                  Capacity (optional)
-                </Label>
+                <Label htmlFor="edit-event-capacity">Capacity (optional)</Label>
                 <Input
                   id="edit-event-capacity"
                   type="number"
@@ -4060,17 +3624,14 @@ export function UserProfile({
           <DialogHeader>
             <DialogTitle>Invite New Member</DialogTitle>
             <DialogDescription>
-              Send an invitation to join your organization via
-              email.
+              Send an invitation to join your organization via email.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             {/* Email Input */}
             <div className="space-y-2">
-              <Label htmlFor="invite-email">
-                Email Address *
-              </Label>
+              <Label htmlFor="invite-email">Email Address *</Label>
               <Input
                 id="invite-email"
                 type="email"
@@ -4082,29 +3643,16 @@ export function UserProfile({
 
             {/* Role Selection */}
             <div className="space-y-2">
-              <Label htmlFor="invite-role">
-                Initial Role *
-              </Label>
-              <Select
-                value={inviteRole}
-                onValueChange={setInviteRole}
-              >
+              <Label htmlFor="invite-role">Initial Role *</Label>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
                 <SelectTrigger id="invite-role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="President">
-                    President
-                  </SelectItem>
-                  <SelectItem value="Vice President">
-                    Vice President
-                  </SelectItem>
-                  <SelectItem value="Event Manager">
-                    Event Manager
-                  </SelectItem>
-                  <SelectItem value="Content Editor">
-                    Content Editor
-                  </SelectItem>
+                  <SelectItem value="President">President</SelectItem>
+                  <SelectItem value="Vice President">Vice President</SelectItem>
+                  <SelectItem value="Event Manager">Event Manager</SelectItem>
+                  <SelectItem value="Content Editor">Content Editor</SelectItem>
                   <SelectItem value="Member">Member</SelectItem>
                 </SelectContent>
               </Select>
@@ -4113,8 +3661,8 @@ export function UserProfile({
             {/* Information Note */}
             <div className="rounded-lg bg-muted p-3">
               <p className="text-sm text-muted-foreground">
-                An email invitation will be sent to this address
-                with a link to join your organization.
+                An email invitation will be sent to this address with a link to
+                join your organization.
               </p>
             </div>
           </div>
@@ -4129,9 +3677,7 @@ export function UserProfile({
             </Button>
             <Button
               onClick={handleSendInvite}
-              disabled={
-                !inviteEmail || !inviteEmail.includes("@")
-              }
+              disabled={!inviteEmail || !inviteEmail.includes("@")}
             >
               <Send className="h-4 w-4 mr-2" />
               Send Invitation
@@ -4149,17 +3695,15 @@ export function UserProfile({
           <DialogHeader>
             <DialogTitle>Create New Post</DialogTitle>
             <DialogDescription>
-              Share updates, announcements, and news with your
-              organization members.
+              Share updates, announcements, and news with your organization
+              members.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             {/* Post Title */}
             <div className="space-y-2">
-              <Label htmlFor="create-post-title">
-                Post Title *
-              </Label>
+              <Label htmlFor="create-post-title">Post Title *</Label>
               <Input
                 id="create-post-title"
                 placeholder="e.g., Hackathon 2025 Registration Open"
@@ -4175,9 +3719,7 @@ export function UserProfile({
 
             {/* Post Content */}
             <div className="space-y-2">
-              <Label htmlFor="create-post-content">
-                Content *
-              </Label>
+              <Label htmlFor="create-post-content">Content *</Label>
               <Textarea
                 id="create-post-content"
                 placeholder="Write your post content here..."
@@ -4191,19 +3733,17 @@ export function UserProfile({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Provide detailed information about your
-                announcement, event, or news
+                Provide detailed information about your announcement, event, or
+                news
               </p>
             </div>
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="create-post-category">
-                Category *
-              </Label>
+              <Label htmlFor="create-post-category">Category *</Label>
               <Select
                 value={createPostFormData.category}
-                onValueChange={(value) =>
+                onValueChange={(value: any) =>
                   setCreatePostFormData((prev) => ({
                     ...prev,
                     category: value,
@@ -4216,43 +3756,23 @@ export function UserProfile({
                 <SelectContent>
                   {profileType === "student" ? (
                     <>
-                      <SelectItem value="Study">
-                        Study
-                      </SelectItem>
+                      <SelectItem value="Study">Study</SelectItem>
                       <SelectItem value="Collaboration">
                         Collaboration
                       </SelectItem>
-                      <SelectItem value="Achievement">
-                        Achievement
-                      </SelectItem>
-                      <SelectItem value="Question">
-                        Question
-                      </SelectItem>
-                      <SelectItem value="Opportunity">
-                        Opportunity
-                      </SelectItem>
-                      <SelectItem value="General">
-                        General
-                      </SelectItem>
+                      <SelectItem value="Achievement">Achievement</SelectItem>
+                      <SelectItem value="Question">Question</SelectItem>
+                      <SelectItem value="Opportunity">Opportunity</SelectItem>
+                      <SelectItem value="General">General</SelectItem>
                     </>
                   ) : (
                     <>
-                      <SelectItem value="Announcement">
-                        Announcement
-                      </SelectItem>
-                      <SelectItem value="Event">
-                        Event
-                      </SelectItem>
+                      <SelectItem value="Announcement">Announcement</SelectItem>
+                      <SelectItem value="Event">Event</SelectItem>
                       <SelectItem value="News">News</SelectItem>
-                      <SelectItem value="Update">
-                        Update
-                      </SelectItem>
-                      <SelectItem value="Achievement">
-                        Achievement
-                      </SelectItem>
-                      <SelectItem value="Opportunity">
-                        Opportunity
-                      </SelectItem>
+                      <SelectItem value="Update">Update</SelectItem>
+                      <SelectItem value="Achievement">Achievement</SelectItem>
+                      <SelectItem value="Opportunity">Opportunity</SelectItem>
                     </>
                   )}
                 </SelectContent>
@@ -4261,9 +3781,7 @@ export function UserProfile({
 
             {/* Image Upload */}
             <div className="space-y-2">
-              <Label htmlFor="create-post-image">
-                Cover Image (optional)
-              </Label>
+              <Label htmlFor="create-post-image">Cover Image (optional)</Label>
               {!imagePreview ? (
                 <div className="flex items-center gap-2">
                   <Input
@@ -4295,8 +3813,7 @@ export function UserProfile({
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {uploadedImage?.name} (
-                    {(uploadedImage!.size / 1024).toFixed(1)}{" "}
-                    KB)
+                    {(uploadedImage!.size / 1024).toFixed(1)} KB)
                   </p>
                 </div>
               )}
@@ -4306,8 +3823,7 @@ export function UserProfile({
             </div>
 
             {/* Preview Section */}
-            {(createPostFormData.title ||
-              createPostFormData.content) && (
+            {(createPostFormData.title || createPostFormData.content) && (
               <div className="space-y-2">
                 <Label>Preview</Label>
                 <Card className="overflow-hidden">
@@ -4321,10 +3837,7 @@ export function UserProfile({
                     )}
                     <div className="p-4">
                       {createPostFormData.category && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs mb-2"
-                        >
+                        <Badge variant="secondary" className="text-xs mb-2">
                           {createPostFormData.category}
                         </Badge>
                       )}
@@ -4388,9 +3901,7 @@ export function UserProfile({
           <div className="space-y-4 py-4">
             {/* Post Title */}
             <div className="space-y-2">
-              <Label htmlFor="edit-post-title">
-                Post Title *
-              </Label>
+              <Label htmlFor="edit-post-title">Post Title *</Label>
               <Input
                 id="edit-post-title"
                 placeholder="e.g., Hackathon 2025 Registration Open"
@@ -4406,9 +3917,7 @@ export function UserProfile({
 
             {/* Post Content */}
             <div className="space-y-2">
-              <Label htmlFor="edit-post-content">
-                Content *
-              </Label>
+              <Label htmlFor="edit-post-content">Content *</Label>
               <Textarea
                 id="edit-post-content"
                 placeholder="Write your post content here..."
@@ -4422,19 +3931,17 @@ export function UserProfile({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Provide detailed information about your
-                announcement, event, or news
+                Provide detailed information about your announcement, event, or
+                news
               </p>
             </div>
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="edit-post-category">
-                Category *
-              </Label>
+              <Label htmlFor="edit-post-category">Category *</Label>
               <Select
                 value={editPostFormData.category}
-                onValueChange={(value) =>
+                onValueChange={(value: any) =>
                   setEditPostFormData((prev) => ({
                     ...prev,
                     category: value,
@@ -4447,43 +3954,23 @@ export function UserProfile({
                 <SelectContent>
                   {profileType === "student" ? (
                     <>
-                      <SelectItem value="Study">
-                        Study
-                      </SelectItem>
+                      <SelectItem value="Study">Study</SelectItem>
                       <SelectItem value="Collaboration">
                         Collaboration
                       </SelectItem>
-                      <SelectItem value="Achievement">
-                        Achievement
-                      </SelectItem>
-                      <SelectItem value="Question">
-                        Question
-                      </SelectItem>
-                      <SelectItem value="Opportunity">
-                        Opportunity
-                      </SelectItem>
-                      <SelectItem value="General">
-                        General
-                      </SelectItem>
+                      <SelectItem value="Achievement">Achievement</SelectItem>
+                      <SelectItem value="Question">Question</SelectItem>
+                      <SelectItem value="Opportunity">Opportunity</SelectItem>
+                      <SelectItem value="General">General</SelectItem>
                     </>
                   ) : (
                     <>
-                      <SelectItem value="Announcement">
-                        Announcement
-                      </SelectItem>
-                      <SelectItem value="Event">
-                        Event
-                      </SelectItem>
+                      <SelectItem value="Announcement">Announcement</SelectItem>
+                      <SelectItem value="Event">Event</SelectItem>
                       <SelectItem value="News">News</SelectItem>
-                      <SelectItem value="Update">
-                        Update
-                      </SelectItem>
-                      <SelectItem value="Achievement">
-                        Achievement
-                      </SelectItem>
-                      <SelectItem value="Opportunity">
-                        Opportunity
-                      </SelectItem>
+                      <SelectItem value="Update">Update</SelectItem>
+                      <SelectItem value="Achievement">Achievement</SelectItem>
+                      <SelectItem value="Opportunity">Opportunity</SelectItem>
                     </>
                   )}
                 </SelectContent>
@@ -4492,9 +3979,7 @@ export function UserProfile({
 
             {/* Image Upload */}
             <div className="space-y-2">
-              <Label htmlFor="edit-post-image">
-                Cover Image (optional)
-              </Label>
+              <Label htmlFor="edit-post-image">Cover Image (optional)</Label>
               {!editImagePreview ? (
                 <div className="flex items-center gap-2">
                   <Input
@@ -4527,10 +4012,7 @@ export function UserProfile({
                   {uploadedEditImage && (
                     <p className="text-xs text-muted-foreground">
                       {uploadedEditImage.name} (
-                      {(uploadedEditImage.size / 1024).toFixed(
-                        1,
-                      )}{" "}
-                      KB)
+                      {(uploadedEditImage.size / 1024).toFixed(1)} KB)
                     </p>
                   )}
                 </div>
@@ -4541,8 +4023,7 @@ export function UserProfile({
             </div>
 
             {/* Preview Section */}
-            {(editPostFormData.title ||
-              editPostFormData.content) && (
+            {(editPostFormData.title || editPostFormData.content) && (
               <div className="space-y-2">
                 <Label>Preview</Label>
                 <Card className="overflow-hidden">
@@ -4556,10 +4037,7 @@ export function UserProfile({
                     )}
                     <div className="p-4">
                       {editPostFormData.category && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs mb-2"
-                        >
+                        <Badge variant="secondary" className="text-xs mb-2">
                           {editPostFormData.category}
                         </Badge>
                       )}
@@ -4616,8 +4094,8 @@ export function UserProfile({
           <DialogHeader>
             <DialogTitle>Create New Organization</DialogTitle>
             <DialogDescription>
-              Set up your new campus organization. Fill in the
-              required information to get started.
+              Set up your new campus organization. Fill in the required
+              information to get started.
             </DialogDescription>
           </DialogHeader>
 
@@ -4630,14 +4108,14 @@ export function UserProfile({
                   <AvatarImage
                     src={
                       orgLogoPreview ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(createOrgFormData.name || "Org")}&background=random`
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        createOrgFormData.name || "Org"
+                      )}&background=random`
                     }
                     alt="Organization logo"
                   />
                   <AvatarFallback>
-                    {createOrgFormData.name
-                      ? createOrgFormData.name[0]
-                      : "O"}
+                    {createOrgFormData.name ? createOrgFormData.name[0] : "O"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">
@@ -4651,8 +4129,7 @@ export function UserProfile({
                         className="cursor-pointer"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Upload your organization's logo (JPG,
-                        PNG, or GIF)
+                        Upload your organization's logo (JPG, PNG, or GIF)
                       </p>
                     </div>
                   ) : (
@@ -4660,8 +4137,7 @@ export function UserProfile({
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">
                           {orgLogoFile.name} (
-                          {(orgLogoFile.size / 1024).toFixed(1)}{" "}
-                          KB)
+                          {(orgLogoFile.size / 1024).toFixed(1)} KB)
                         </span>
                       </div>
                       <Button
@@ -4689,9 +4165,7 @@ export function UserProfile({
               </h3>
 
               <div className="space-y-2">
-                <Label htmlFor="org-name">
-                  Organization Name *
-                </Label>
+                <Label htmlFor="org-name">Organization Name *</Label>
                 <Input
                   id="org-name"
                   placeholder="e.g., Tech Innovation Club"
@@ -4709,7 +4183,7 @@ export function UserProfile({
                 <Label htmlFor="org-category">Category *</Label>
                 <Select
                   value={createOrgFormData.category}
-                  onValueChange={(value) =>
+                  onValueChange={(value: any) =>
                     setCreateOrgFormData((prev) => ({
                       ...prev,
                       category: value,
@@ -4720,36 +4194,20 @@ export function UserProfile({
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Academic">
-                      Academic
-                    </SelectItem>
-                    <SelectItem value="Cultural">
-                      Cultural
-                    </SelectItem>
-                    <SelectItem value="Sports">
-                      Sports
-                    </SelectItem>
-                    <SelectItem value="Technology">
-                      Technology
-                    </SelectItem>
+                    <SelectItem value="Academic">Academic</SelectItem>
+                    <SelectItem value="Cultural">Cultural</SelectItem>
+                    <SelectItem value="Sports">Sports</SelectItem>
+                    <SelectItem value="Technology">Technology</SelectItem>
                     <SelectItem value="Arts">Arts</SelectItem>
-                    <SelectItem value="Service">
-                      Service
-                    </SelectItem>
-                    <SelectItem value="Professional">
-                      Professional
-                    </SelectItem>
-                    <SelectItem value="Social">
-                      Social
-                    </SelectItem>
+                    <SelectItem value="Service">Service</SelectItem>
+                    <SelectItem value="Professional">Professional</SelectItem>
+                    <SelectItem value="Social">Social</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="org-description">
-                  Description *
-                </Label>
+                <Label htmlFor="org-description">Description *</Label>
                 <Textarea
                   id="org-description"
                   placeholder="Brief description of your organization..."
@@ -4871,9 +4329,7 @@ export function UserProfile({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="org-instagram">
-                    Instagram
-                  </Label>
+                  <Label htmlFor="org-instagram">Instagram</Label>
                   <Input
                     id="org-instagram"
                     placeholder="@yourorganization"

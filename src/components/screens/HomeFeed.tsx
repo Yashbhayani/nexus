@@ -9,13 +9,13 @@ import { LoadingSpinner } from "../common/LoadingSpinner";
 import { SkeletonPostCard, SkeletonBigEventCard } from "../common/SkeletonCard";
 import APIContext from "../../Context/apimethods/APIContext";
 import * as apiroute from "../../Context/API/ApiRouter";
+import { it } from "node:test";
 
 interface HomeFeedProps {
   onNavigate?: (screen: string, data?: any) => void;
 }
 
 export function HomeFeed({ onNavigate }: HomeFeedProps) {
-
   const context = useContext(APIContext);
   const { GETFunction, POSTFunction } = context;
 
@@ -85,41 +85,53 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
   const handleShare = (postId: string) => {};
 
   const handleUserClick = (
-    username: string,
-    userType: "student" | "organization"
+    userid: any,
+    isOrganization: boolean,
+    loginUserID: boolean
+    //userType: "student" | "organization"
   ) => {
-    // Check if this is the current user or an organization they manage
-    const ownProfiles = ["studentgov", "engsociety", "campusrec"]; // Organizations the user manages
-
-    if (userType === "organization") {
-      // Navigate to organization profile - map username to organizationId
-      const orgIdMapping: Record<string, string> = {
-        studentgov: "org1", // Computer Science Club / Student Government
-        engsociety: "org2", // Engineering Society
-        campusrec: "org3", // Campus Recreation
-      };
-
-      const organizationId = orgIdMapping[username] || "org1";
-      onNavigate?.("organizationProfile", { organizationId });
+    console.log(userid);
+    if (isOrganization) {
+      onNavigate?.("organizationProfile", { userid });
     } else {
-      // Check if clicking on own profile
-      if (username === "alex_j" || username === "alexjohnson") {
-        // Navigate to own profile
+      if (loginUserID) {
         onNavigate?.("profile", { profileId: "student" });
       } else {
-        // Navigate to other user's profile - map username to userId
-        const userIdMapping: Record<string, string> = {
-          sarahc_22: "1", // Sarah Chen
-          emily_r: "2", // Emily Rodriguez
-          marcus_j: "3", // Marcus Johnson
-          david_kim: "4", // David Kim
-          jess_t: "5", // Jessica Taylor
-        };
-
-        const userId = userIdMapping[username] || "1";
-        onNavigate?.("otherUserProfile", { userId });
+        onNavigate?.("otherUserProfile", { userId: userid });
       }
     }
+    // Check if this is the current user or an organization they manage
+    // const ownProfiles = ["studentgov", "engsociety", "campusrec"]; // Organizations the user manages
+
+    // if (userType === "organization") {
+    //   // Navigate to organization profile - map username to organizationId
+    //   const orgIdMapping: Record<string, string> = {
+    //     studentgov: "org1", // Computer Science Club / Student Government
+    //     engsociety: "org2", // Engineering Society
+    //     campusrec: "org3", // Campus Recreation
+    //   };
+
+    //   const organizationId = orgIdMapping[username] || "org1";
+    //   onNavigate?.("organizationProfile", { organizationId });
+    // } else {
+    //   // Check if clicking on own profile
+    //   if (username === "alex_j" || username === "alexjohnson") {
+    //     // Navigate to own profile
+    //     onNavigate?.("profile", { profileId: "student" });
+    //   } else {
+    //     // Navigate to other user's profile - map username to userId
+    //     const userIdMapping: Record<string, string> = {
+    //       sarahc_22: "1", // Sarah Chen
+    //       emily_r: "2", // Emily Rodriguez
+    //       marcus_j: "3", // Marcus Johnson
+    //       david_kim: "4", // David Kim
+    //       jess_t: "5", // Jessica Taylor
+    //     };
+
+    //     const userId = userIdMapping[username] || "1";
+    //     onNavigate?.("otherUserProfile", { userId });
+    //   }
+    // }
   };
 
   const handleRSVP = (eventId: string) => {
@@ -163,9 +175,10 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
         setPosts(
           FeedData.Blogsfeeds.map((item: any) => ({
             id: item.ID?.toString(),
+            userID: item.UserID,
             user: {
               name: item.OrganizationName || item.Name,
-              avatar: item.UserImage || "https://placehold.co/150",
+              avatar: item.UserImage,
 
               // 🔥 ALWAYS RETURNS A VALID USERNAME
               username:
@@ -182,6 +195,8 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
             comments: Number(item.Comments) || 0,
             isLiked: item.IsLiked,
             commentsList: item.commentsList || [],
+            isOrganization: item.isOrganization,
+            loginUserID: item.LoginUserID,
           }))
         );
       }

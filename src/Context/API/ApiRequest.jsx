@@ -3,7 +3,6 @@ const apiRequest = async ({ url, method = "GET", body = null, params = {} }) => 
     // Build query string from params
     const queryString = new URLSearchParams(params).toString();
     const fullUrl = queryString ? `${url}?${queryString}` : url;
-
     // Make request
     const response = await fetch(fullUrl, {
       method,

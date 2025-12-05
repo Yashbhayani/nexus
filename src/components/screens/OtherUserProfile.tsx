@@ -1,23 +1,9 @@
 import { useState, useEffect, useContext } from "react";
 import { Button } from "../ui/button";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Separator } from "../ui/separator";
 import {
   SkeletonProfileHeader,
@@ -44,7 +30,7 @@ import * as apiroute from "../../Context/API/ApiRouter";
 import APIContext from "../../Context/apimethods/APIContext";
 
 interface OtherUserProfileProps {
-  userId: string;
+  userId: number;
   onNavigate?: (screen: string, data?: any) => void;
   onBack?: () => void;
 }
@@ -54,7 +40,6 @@ export function OtherUserProfile({
   onNavigate,
   onBack,
 }: OtherUserProfileProps) {
-
   const context = useContext(APIContext);
   const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
 
@@ -62,129 +47,38 @@ export function OtherUserProfile({
   const [activeTab, setActiveTab] = useState("about");
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(234);
-
-  // Mock user data - in real app, this would be fetched based on userId
-  const otherUserProfile = {
-    id: userId,
-    name: "Sarah Chen",
-    email: "sarah.chen@university.edu",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
-    bio: "Software Engineering major with a passion for mobile development and UX design. Love building apps that make a difference!",
-    academicLevel: "Senior",
-    major: "Software Engineering",
-    // minor: "Design",
-    // graduationYear: "2025",
-    location: "Student Center, 2nd Floor",
-    joinedDate: "Fall 2021",
-    stats: {
-      enrolledOrgs: 7,
-      eventsAttended: 42,
-      followers: 234,
-    },
-    skills: [
-      "Swift",
-      "Kotlin",
-      "Figma",
-      "React Native",
-      "Product Design",
-    ],
-    interests: [
-      "Mobile Development",
-      "UX Design",
-      "Entrepreneurship",
-      "Photography",
-    ],
-    enrolledOrganizations: [
-      {
-        id: "1",
-        name: "Computer Science Society",
-        role: "President",
-        logo: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=100&h=100&fit=crop",
-        category: "Academic",
-      },
-      {
-        id: "2",
-        name: "Design Collective",
-        role: "Co-founder",
-        logo: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=100&h=100&fit=crop",
-        category: "Creative",
-      },
-      {
-        id: "3",
-        name: "Women in Tech",
-        role: "Mentor",
-        logo: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=100&h=100&fit=crop",
-        category: "Professional",
-      },
-      {
-        id: "4",
-        name: "Startup Incubator",
-        role: "Member",
-        logo: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=100&h=100&fit=crop",
-        category: "Entrepreneurship",
-      },
-    ],
-  };
-
-  // Mock posts from this user
-  const userPosts = [
-    {
-      id: "1",
-      organization: "Computer Science Society",
-      orgLogo:
-        "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=100&h=100&fit=crop",
-      author: "Sarah Chen",
-      authorAvatar: otherUserProfile.avatar,
-      timestamp: "2 hours ago",
-      content:
-        "Excited to announce our upcoming hackathon! 🚀 Join us for 24 hours of coding, learning, and building amazing projects. Registration opens next week!",
-      image:
-        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop",
-      likes: 124,
-      comments: 18,
-      category: "Event",
-    },
-    {
-      id: "2",
-      organization: "Design Collective",
-      orgLogo:
-        "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=100&h=100&fit=crop",
-      author: "Sarah Chen",
-      authorAvatar: otherUserProfile.avatar,
-      timestamp: "1 day ago",
-      content:
-        "New workshop alert! Learn the fundamentals of user research and how to conduct effective usability testing. Perfect for beginners!",
-      likes: 89,
-      comments: 12,
-      category: "Workshop",
-    },
-    {
-      id: "3",
-      organization: "Women in Tech",
-      orgLogo:
-        "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=100&h=100&fit=crop",
-      author: "Sarah Chen",
-      authorAvatar: otherUserProfile.avatar,
-      timestamp: "3 days ago",
-      content:
-        "Thank you to everyone who attended our mentorship kickoff! Looking forward to an amazing semester of learning and growth together 💜",
-      image:
-        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=400&fit=crop",
-      likes: 156,
-      comments: 24,
-      category: "Update",
-    },
-  ];
+  const [othuserinfo, setOtheruserinfo] = useState<any>(null);
+  const [useraboutinfo, setUseraboutinfo] = useState<any>(null);
+  const [userposts, setUserposts] = useState<any>(null);
+  const [userorg, setUserorg] = useState<any>(null);
 
   // Simulate loading
   useEffect(() => {
-    setIsLoading(true);
+    const fetchData = async () => {
+      await otheruserinfo();
+      setIsLoading(false);
+    };
+    fetchData();
+    /*    setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 800);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer);*/
   }, [userId]);
+
+  const otheruserinfo = async () => {
+    const parms = {
+      AUID: userId,
+    };
+
+    const Data = await GETFunction(apiroute.otheruserinfo, parms);
+    if (Data.success) {
+      setOtheruserinfo(Data.userinfo[0]);
+      setUseraboutinfo(Data.useraboutinfo[0]);
+      setUserposts(Data.userposts);
+      setUserorg(Data.userorg);
+    }
+  };
 
   const handleFollowToggle = () => {
     setIsFollowing(!isFollowing);
@@ -226,11 +120,9 @@ export function OtherUserProfile({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="font-semibold">
-                {otherUserProfile.name}
-              </h1>
+              <h1 className="font-semibold">{othuserinfo?.Name}</h1>
               <p className="text-sm text-muted-foreground">
-                {otherUserProfile.major}
+                {othuserinfo?.Majors}
               </p>
             </div>
           </div>
@@ -243,24 +135,24 @@ export function OtherUserProfile({
               <div className="flex flex-col items-center text-center space-y-4">
                 <Avatar className="h-32 w-32 ring-4 ring-primary/10">
                   <AvatarImage
-                    src={otherUserProfile.avatar}
-                    alt={otherUserProfile.name}
+                    src={
+                      othuserinfo?.Image
+                        ? othuserinfo?.Image
+                        : "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                    }
+                    alt={othuserinfo?.Name}
                   />
                   <AvatarFallback className="text-3xl">
-                    {otherUserProfile.name
-                      .split(" ")
-                      .map((n) => n[0])
+                    {othuserinfo?.Name.split(" ")
+                      .map((n: any) => n[0])
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="space-y-2">
-                  <h2 className="text-2xl">
-                    {otherUserProfile.name}
-                  </h2>
+                  <h2 className="text-2xl">{othuserinfo?.Name}</h2>
                   <p className="text-muted-foreground">
-                    {otherUserProfile.academicLevel} •{" "}
-                    {otherUserProfile.major}
+                    {othuserinfo?.StudentType} • {othuserinfo?.Majors}
                   </p>
                   {/* {otherUserProfile.minor && (
                     <p className="text-sm text-muted-foreground">
@@ -273,7 +165,7 @@ export function OtherUserProfile({
                 <div className="flex gap-8 pt-2">
                   <div className="text-center">
                     <div className="text-2xl text-primary">
-                      {otherUserProfile.stats.enrolledOrgs}
+                      {othuserinfo?.Organizations}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       Organizations
@@ -281,7 +173,7 @@ export function OtherUserProfile({
                   </div>
                   <div className="text-center">
                     <div className="text-2xl text-primary">
-                      {otherUserProfile.stats.eventsAttended}
+                      {othuserinfo?.EventsAttended}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       Events Attended
@@ -289,7 +181,7 @@ export function OtherUserProfile({
                   </div>
                   <div className="text-center">
                     <div className="text-2xl text-primary">
-                      {followerCount}
+                      {othuserinfo?.Followers}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       Followers
@@ -304,7 +196,7 @@ export function OtherUserProfile({
                   onClick={handleFollowToggle}
                   className="w-full max-w-xs"
                 >
-                  {isFollowing ? (
+                  {othuserinfo?.IsFollowing ? (
                     <>
                       <Check className="h-4 w-4 mr-2" />
                       Following
@@ -329,16 +221,11 @@ export function OtherUserProfile({
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="posts">Posts</TabsTrigger>
-              <TabsTrigger value="organizations">
-                Organizations
-              </TabsTrigger>
+              <TabsTrigger value="organizations">Organizations</TabsTrigger>
             </TabsList>
 
             {/* About Tab */}
-            <TabsContent
-              value="about"
-              className="space-y-4 mt-4"
-            >
+            <TabsContent value="about" className="space-y-4 mt-4">
               {/* Stats */}
               {/* <Card>
                 <CardContent className="pt-6">
@@ -368,7 +255,9 @@ export function OtherUserProfile({
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    {otherUserProfile.bio}
+                    {useraboutinfo.bio
+                      ? useraboutinfo.bio
+                      : "This user is a mystery."}
                   </p>
                 </CardContent>
               </Card>
@@ -385,11 +274,9 @@ export function OtherUserProfile({
                     <GraduationCap className="h-5 w-5 text-primary" />
                     <div>
                       <div className="text-sm text-foreground">
-                        {otherUserProfile.academicLevel}
+                        {othuserinfo?.StudentType}
                       </div>
-                      <div className="text-xs">
-                        Academic Level
-                      </div>
+                      <div className="text-xs">Academic Level</div>
                     </div>
                   </div>
                   <Separator />
@@ -397,7 +284,7 @@ export function OtherUserProfile({
                     <Award className="h-5 w-5 text-primary" />
                     <div>
                       <div className="text-sm text-foreground">
-                        {otherUserProfile.major}
+                        {othuserinfo?.Majors}
                       </div>
                       <div className="text-xs">Major</div>
                     </div>
@@ -432,46 +319,37 @@ export function OtherUserProfile({
               </Card>
 
               {/* Skills */}
-              {otherUserProfile.skills.length > 0 && (
+              {useraboutinfo.skills && useraboutinfo.skills.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">
-                      Skills
-                    </CardTitle>
+                    <CardTitle className="text-lg">Skills</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {otherUserProfile.skills.map(
-                        (skill, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                          >
-                            {skill}
-                          </Badge>
-                        ),
-                      )}
+                      {useraboutinfo?.skills.map((skill: any, index: any) => (
+                        <Badge key={index} variant="secondary">
+                          {skill}
+                        </Badge>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
               )}
 
               {/* Interests */}
-              {otherUserProfile.interests.length > 0 && (
+              {useraboutinfo.interest && useraboutinfo.interest.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">
-                      Interests
-                    </CardTitle>
+                    <CardTitle className="text-lg">Interests</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {otherUserProfile.interests.map(
-                        (interest, index) => (
+                      {useraboutinfo.interest.map(
+                        (interest: any, index: any) => (
                           <Badge key={index} variant="outline">
                             {interest}
                           </Badge>
-                        ),
+                        )
                       )}
                     </div>
                   </CardContent>
@@ -480,82 +358,80 @@ export function OtherUserProfile({
             </TabsContent>
 
             {/* Posts Tab */}
-            <TabsContent
-              value="posts"
-              className="space-y-4 mt-4"
-            >
-              {userPosts.length === 0 ? (
+            <TabsContent value="posts" className="space-y-4 mt-4">
+              {userposts.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <p className="text-muted-foreground">
-                      No posts yet
-                    </p>
+                    <p className="text-muted-foreground">No posts yet</p>
                   </CardContent>
                 </Card>
               ) : (
-                userPosts.map((post) => (
-                  <Card
-                    key={post.id}
-                    className="overflow-hidden"
-                  >
+                userposts.map((post: any) => (
+                  <Card key={post.id} className="overflow-hidden">
                     <CardContent className="p-4 space-y-3">
                       {/* Post Header */}
                       <div className="flex items-start gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage
-                            src={post.orgLogo}
-                            alt={post.organization}
+                            src={
+                              othuserinfo?.Image
+                                ? othuserinfo?.Image
+                                : "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                            }
+                            alt={othuserinfo.Name}
                           />
-                          <AvatarFallback>
-                            {post.organization[0]}
-                          </AvatarFallback>
+                          <AvatarFallback>{othuserinfo.Name}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="font-medium truncate">
-                              {post.organization}
-                            </p>
-                            <Badge
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {post.category}
+                            <p className="font-medium truncate">{post.Name}</p>
+                            <Badge variant="secondary" className="text-xs">
+                              {post.CategoryName}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <span>{post.author}</span>
+                            <span>{post.UserName}</span>
                             <span>•</span>
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              <span>{post.timestamp}</span>
+                              <span>{post.TimeAgo}</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Post Content */}
-                      <p className="text-sm">{post.content}</p>
+                      <h4 className="text-sm">{post.PostTitle}</h4>
 
                       {/* Post Image */}
-                      {post.image && (
+                      {post.Image ? (
                         <div className="rounded-lg overflow-hidden">
                           <ImageWithFallback
-                            src={post.image}
+                            src={post.Image}
                             alt="Post image"
                             className="w-full h-48 object-cover"
                           />
                         </div>
+                      ) : (
+                        <></>
                       )}
+
+                      {/* Post Content */}
+                      <p className="text-sm">{post.Content}</p>
 
                       {/* Post Actions */}
                       <div className="flex items-center gap-6 pt-2">
                         <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                          <Heart className="h-4 w-4" />
-                          <span>{post.likes}</span>
+                          <Heart
+                            className={`h-4 w-4 ${
+                              post.IsLiked ? "fill-current" : ""
+                            }`}
+                          />{" "}
+                          <span>{post.Likes}</span>
                         </button>
                         <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                           <MessageCircle className="h-4 w-4" />
-                          <span>{post.comments}</span>
+                          <span>{post.Comments}</span>
                         </button>
                         {/* <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors ml-auto">
                           <Share2 className="h-4 w-4" />
@@ -568,12 +444,8 @@ export function OtherUserProfile({
             </TabsContent>
 
             {/* Organizations Tab */}
-            <TabsContent
-              value="organizations"
-              className="space-y-4 mt-4"
-            >
-              {otherUserProfile.enrolledOrganizations.length ===
-              0 ? (
+            <TabsContent value="organizations" className="space-y-4 mt-4">
+              {userorg?.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
                     <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -584,52 +456,48 @@ export function OtherUserProfile({
                 </Card>
               ) : (
                 <div className="grid gap-4">
-                  {otherUserProfile.enrolledOrganizations.map(
-                    (org) => (
-                      <Card
-                        key={org.id}
-                        className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() =>
-                          onNavigate?.("organizationProfile", {
-                            orgName: org.name,
-                          })
-                        }
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-4">
-                            <Avatar className="h-16 w-16">
-                              <AvatarImage
-                                src={org.logo}
-                                alt={org.name}
-                              />
-                              <AvatarFallback>
-                                {org.name[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold truncate">
-                                {org.name}
-                              </h3>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {org.category}
-                                </Badge>
-                                <Badge
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {org.role}
-                                </Badge>
-                              </div>
+                  {userorg?.map((org: any) => (
+                    <Card
+                      key={org.orgID}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() =>
+                        onNavigate?.("organizationProfile", {
+                          orgName: org.OrganizationName,
+                        })
+                      }
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <Avatar className="h-16 w-16">
+                            <AvatarImage
+                              src={
+                                org.image
+                                  ? org.image
+                                  : "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                              }
+                              alt={org.OrganizationName}
+                            />
+                            <AvatarFallback>
+                              {org.OrganizationName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold truncate">
+                              {org.OrganizationName}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                {org.OrganizationType}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                {org.UserRole}
+                              </Badge>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ),
-                  )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
             </TabsContent>
