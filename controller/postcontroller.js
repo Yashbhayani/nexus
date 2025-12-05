@@ -381,10 +381,10 @@ module.exports.orgget = async (req, res) => {
 
     const { OID } = req.query;
 
-    const UserData = await User.findByPk(UID);
-    if (!UserData) {
-      return res.status(404).json({ error: "Account has not found", success });
-    }
+    // const UserData = await User.findByPk(UID);
+    // if (!UserData) {
+    //   return res.status(404).json({ error: "Account has not found", success });
+    // }
     const userBlogs = await sequelize.query(
       `
       SELECT 
