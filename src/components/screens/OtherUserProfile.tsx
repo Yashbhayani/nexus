@@ -5,6 +5,8 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Separator } from "../ui/separator";
+import { Input } from "../ui/input";
+
 import {
   SkeletonProfileHeader,
   SkeletonPostCard,
@@ -24,6 +26,7 @@ import {
   Users,
   UserPlus,
   Check,
+  Send,
 } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import * as apiroute from "../../Context/API/ApiRouter";
@@ -41,7 +44,7 @@ export function OtherUserProfile({
   onBack,
 }: OtherUserProfileProps) {
   const context = useContext(APIContext);
-  const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
+  const { GETFunction, POSTFunction } = context;
 
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("about");
@@ -51,19 +54,20 @@ export function OtherUserProfile({
   const [useraboutinfo, setUseraboutinfo] = useState<any>(null);
   const [userposts, setUserposts] = useState<any>(null);
   const [userorg, setUserorg] = useState<any>(null);
-
+  const [showComments, setShowComments] = useState(false);
+  const [openCommentsPostId, setOpenCommentsPostId] = useState<number | null>(
+    null
+  );
+  const [commentsList, setCommentsList] = useState<any>(null);
+  const [newComment, setNewComment] = useState("");
   // Simulate loading
   useEffect(() => {
+    console.log("Navigate to student:", userId);
     const fetchData = async () => {
       await otheruserinfo();
       setIsLoading(false);
     };
     fetchData();
-    /*    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);*/
   }, [userId]);
 
   const otheruserinfo = async () => {
@@ -72,21 +76,91 @@ export function OtherUserProfile({
     };
 
     const Data = await GETFunction(apiroute.otheruserinfo, parms);
+    console.log("Other User Info Data:", Data);
     if (Data.success) {
       setOtheruserinfo(Data.userinfo[0]);
       setUseraboutinfo(Data.useraboutinfo[0]);
       setUserposts(Data.userposts);
       setUserorg(Data.userorg);
+      setFollowerCount(othuserinfo?.Followers);
+    }
+  };
+  const onLike = async (postId: number) => {
+    const params = { BID: postId };
+    const DataLike = await GETFunction(apiroute.like, params);
+
+    if (DataLike.success) {
+      setUserposts((prevPosts: any) =>
+        prevPosts.map((post: any) =>
+          post.ID === postId
+            ? {
+                ...post,
+                IsLiked: !post.IsLiked,
+                Likes: post.IsLiked ? post.Likes - 1 : post.Likes + 1,
+              }
+            : post
+        )
+      );
     }
   };
 
-  const handleFollowToggle = () => {
+  const handleFollowToggle = async () => {
     setIsFollowing(!isFollowing);
-    // Update follower count
-    if (!isFollowing) {
-      setFollowerCount(followerCount + 1);
+
+    const params = { UserID: userId };
+    const DataFollow = await GETFunction(apiroute.followuser, params);
+    if (DataFollow.success) {
+      // Update follower count
+      if (DataFollow.IsFollowing) {
+        setFollowerCount(followerCount + 1);
+      } else {
+        followerCount - 1 === 0
+          ? setFollowerCount(0)
+          : setFollowerCount(Math.max(0, followerCount - 1));
+      }
+    }
+  };
+
+  const handleCommentClick = async (postId: number) => {
+    // If clicking the same post → toggle close/open
+    if (openCommentsPostId === postId) {
+      setShowComments(!showComments);
+      return;
+    }
+
+    // Otherwise open comments for new post
+    setOpenCommentsPostId(postId);
+    setShowComments(true);
+    const params = { BID: postId };
+    const DataComment = await GETFunction(apiroute.comments, params);
+
+    if (DataComment?.success) {
+      setCommentsList(DataComment.getcommenst);
     } else {
-      setFollowerCount(Math.max(0, followerCount - 1));
+      setCommentsList([]);
+    }
+  };
+
+  const handleAddComment = async (postId: number) => {
+    if (!newComment.trim()) return;
+
+    let body = {
+      BID: postId,
+      comment: newComment,
+    };
+
+    const response = await POSTFunction(body, apiroute.comments);
+
+    if (response.success) {
+      setNewComment(""); // clear input after posting
+
+      // fetch new comment list WITHOUT closing comment box
+      const params = { BID: postId };
+      const DataComment = await GETFunction(apiroute.comments, params);
+
+      if (DataComment?.success && Array.isArray(DataComment.getcommenst)) {
+        setCommentsList(DataComment.getcommenst);
+      }
     }
   };
 
@@ -154,11 +228,6 @@ export function OtherUserProfile({
                   <p className="text-muted-foreground">
                     {othuserinfo?.StudentType} • {othuserinfo?.Majors}
                   </p>
-                  {/* {otherUserProfile.minor && (
-                    <p className="text-sm text-muted-foreground">
-                      Minor: {otherUserProfile.minor}
-                    </p>
-                  )} */}
                 </div>
 
                 {/* Stats */}
@@ -181,7 +250,9 @@ export function OtherUserProfile({
                   </div>
                   <div className="text-center">
                     <div className="text-2xl text-primary">
-                      {othuserinfo?.Followers}
+                      {followerCount === undefined || followerCount === null
+                        ? othuserinfo?.Followers
+                        : followerCount}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       Followers
@@ -426,10 +497,14 @@ export function OtherUserProfile({
                             className={`h-4 w-4 ${
                               post.IsLiked ? "fill-current" : ""
                             }`}
+                            onClick={() => onLike(post.ID)}
                           />{" "}
                           <span>{post.Likes}</span>
                         </button>
-                        <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                        <button
+                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                          onClick={() => handleCommentClick(post.ID)}
+                        >
                           <MessageCircle className="h-4 w-4" />
                           <span>{post.Comments}</span>
                         </button>
@@ -437,6 +512,99 @@ export function OtherUserProfile({
                           <Share2 className="h-4 w-4" />
                         </button> */}
                       </div>
+                      {showComments && openCommentsPostId === post.ID && (
+                        <div className="mt-4 pt-4 border-t border-border">
+                          {/* Existing Comments */}
+                          {commentsList && commentsList.length > 0 ? (
+                            <div className="space-y-4 mb-4">
+                              {commentsList.map((comment: any) => {
+                                // Determine if commenter is an organization
+
+                                return (
+                                  <div
+                                    key={comment.CommentID}
+                                    className="flex gap-3"
+                                  >
+                                    <button
+                                      //  onClick={() => onCommentUserClick?.(comment.userID, isCommentOrg ? 'organization' : 'student')}
+                                      className="hover:opacity-80 transition-opacity"
+                                    >
+                                      <Avatar className="h-8 w-8 mt-1">
+                                        <AvatarImage
+                                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                            comment.Name
+                                          )}`}
+                                          alt={comment.Name}
+                                        />
+                                        <AvatarFallback>
+                                          {comment.Name.charAt(0)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    </button>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="bg-muted/50 rounded-lg px-3 py-2">
+                                        <button
+                                          //  onClick={() => onCommentUserClick?.(comment.user.username, isCommentOrg ? 'organization' : 'student')}
+                                          className="font-medium text-sm hover:text-primary hover:underline cursor-pointer"
+                                        >
+                                          {comment.Name}
+                                        </button>
+                                        <p className="text-sm leading-relaxed mt-1">
+                                          {comment.comment}
+                                        </p>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-1 ml-1">
+                                        {comment.TimeAgo}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                              No comments yet. Be the first to comment!
+                            </p>
+                          )}
+
+                          {/* Add Comment Form */}
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleAddComment(post.ID);
+                            }}
+                            className="flex gap-2"
+                          >
+                            <Avatar className="h-8 w-8 mt-1">
+                              <AvatarImage
+                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop"
+                                alt="You"
+                              />
+                              <AvatarFallback>You</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 flex gap-2">
+                              <Input
+                                type="text"
+                                value={newComment}
+                                onChange={(e: any) =>
+                                  setNewComment(e.target.value)
+                                }
+                                placeholder="Write a comment..."
+                                className="flex-1"
+                              />
+                              <Button
+                                type="submit"
+                                size="sm"
+                                disabled={!newComment.trim()}
+                                className="h-10"
+                                aria-label="Post comment"
+                              >
+                                <Send className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))

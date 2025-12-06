@@ -95,7 +95,6 @@ export function PostCard({
     post.user.username.includes("rec");
 
   const handleUserClick = () => {
-    console.log(post, isOrganization);
     if (onUserClick) {
       onUserClick(post.userID, post.isOrganization, post.loginUserID);
     }

@@ -285,11 +285,11 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
     );
   };
 
-  const handleNavigateToOrganization = (orgId: string) => {
+  const handleNavigateToOrganization = (orgId: any) => {
     onNavigate?.("organizationProfile", { organizationId: orgId });
   };
 
-  const handleNavigateToStudent = (studentId: string) => {
+  const handleNavigateToStudent = (studentId: any) => {
     onNavigate?.("otherUserProfile", { userId: studentId });
   };
 
@@ -305,6 +305,7 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
   const EexploreData = async () => {
     const exdata = await GETFunction(apiroute.explore);
 
+    console.log("Explore Data:", exdata);
     // Normalize Organizations
     const normalizedOrgs = exdata.orgDate.map((org: any) => ({
       id: org.ID,

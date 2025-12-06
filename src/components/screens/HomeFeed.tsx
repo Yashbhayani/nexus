@@ -23,20 +23,22 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
   const [posts, setPosts] = useState<any[]>([]);
   const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
 
-  const handleLike = (postId: string) => {
-    setIsLoading(true);
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-            }
-          : post
-      )
-    );
-    setIsLoading(false);
+  const handleLike = async (postId: string) => {
+    const params = { BID: postId };
+    let DataLike = await GETFunction(apiroute.like, params);
+    if (DataLike.success) {
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                isLiked: !post.isLiked,
+                likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+              }
+            : post
+        )
+      );
+    }
   };
 
   const handleComment = async (postId: string) => {
@@ -90,9 +92,8 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
     loginUserID: boolean
     //userType: "student" | "organization"
   ) => {
-    console.log(userid);
     if (isOrganization) {
-      onNavigate?.("organizationProfile", { userid });
+      onNavigate?.("organizationProfile", { organizationId: userid });
     } else {
       if (loginUserID) {
         onNavigate?.("profile", { profileId: "student" });
@@ -100,38 +101,6 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
         onNavigate?.("otherUserProfile", { userId: userid });
       }
     }
-    // Check if this is the current user or an organization they manage
-    // const ownProfiles = ["studentgov", "engsociety", "campusrec"]; // Organizations the user manages
-
-    // if (userType === "organization") {
-    //   // Navigate to organization profile - map username to organizationId
-    //   const orgIdMapping: Record<string, string> = {
-    //     studentgov: "org1", // Computer Science Club / Student Government
-    //     engsociety: "org2", // Engineering Society
-    //     campusrec: "org3", // Campus Recreation
-    //   };
-
-    //   const organizationId = orgIdMapping[username] || "org1";
-    //   onNavigate?.("organizationProfile", { organizationId });
-    // } else {
-    //   // Check if clicking on own profile
-    //   if (username === "alex_j" || username === "alexjohnson") {
-    //     // Navigate to own profile
-    //     onNavigate?.("profile", { profileId: "student" });
-    //   } else {
-    //     // Navigate to other user's profile - map username to userId
-    //     const userIdMapping: Record<string, string> = {
-    //       sarahc_22: "1", // Sarah Chen
-    //       emily_r: "2", // Emily Rodriguez
-    //       marcus_j: "3", // Marcus Johnson
-    //       david_kim: "4", // David Kim
-    //       jess_t: "5", // Jessica Taylor
-    //     };
-
-    //     const userId = userIdMapping[username] || "1";
-    //     onNavigate?.("otherUserProfile", { userId });
-    //   }
-    // }
   };
 
   const handleRSVP = (eventId: string) => {
