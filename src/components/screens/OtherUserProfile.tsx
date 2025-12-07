@@ -76,7 +76,6 @@ export function OtherUserProfile({
     };
 
     const Data = await GETFunction(apiroute.otheruserinfo, parms);
-    console.log("Other User Info Data:", Data);
     if (Data.success) {
       setOtheruserinfo(Data.userinfo[0]);
       setUseraboutinfo(Data.useraboutinfo[0]);
@@ -531,9 +530,13 @@ export function OtherUserProfile({
                                     >
                                       <Avatar className="h-8 w-8 mt-1">
                                         <AvatarImage
-                                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                            comment.Name
-                                          )}`}
+                                          src={
+                                            comment.UserImage
+                                              ? comment.UserImage
+                                              : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                                  comment.Name
+                                                )}`
+                                          }
                                           alt={comment.Name}
                                         />
                                         <AvatarFallback>

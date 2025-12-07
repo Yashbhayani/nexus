@@ -51,9 +51,11 @@ export function HomeFeed({ onNavigate }: HomeFeedProps) {
           id: `c${Date.now()}_${index}`,
           user: {
             name: c.Name,
-            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              c.Name
-            )}`,
+            avatar: c.UserImage
+              ? c.UserImage
+              : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  c.Name
+                )}`,
             username: c.Name.replace(/\s+/g, "").toLowerCase(),
           },
           content: c.comment,
