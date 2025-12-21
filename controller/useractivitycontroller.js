@@ -94,7 +94,7 @@ module.exports.like = async (req, res) => {
     });
 
     // CASE 1: Already liked → Unlike (soft delete)
-    if (existingLike &&  Boolean(!existingLike.IsDeleted)) {
+    if (existingLike && Boolean(!existingLike.IsDeleted)) {
       await Like.update(
         { IsDeleted: true },
         { where: { BID, UID: Userdata.ID } }
@@ -199,7 +199,14 @@ module.exports.getcomments = async (req, res) => {
     const getcommenst = await sequelize.query(
       `
         SELECT 
+          c.ID As CommentID,
           u.ID As UserId,
+          (
+							SELECT i.ImageURL 
+							FROM nexus.userinfo AS uu
+							LEFT JOIN nexus.images AS i ON i.ID = uu.ImgID
+							WHERE uu.UID = u.ID
+						) AS UserImage,
         CONCAT(u.FirstName, ' ', u.LastName) AS Name,
           CASE
               WHEN TIMESTAMPDIFF(SECOND, c.CreatedByDate, NOW()) < 60 
@@ -278,6 +285,7 @@ module.exports.followuser = async (req, res) => {
       return res.status(200).json({
         success,
         message: "Followed successfully!",
+        IsFollowing: true,
       });
     }
 
@@ -298,7 +306,8 @@ module.exports.followuser = async (req, res) => {
       success = true;
       return res.status(200).json({
         success,
-        message: "Followed again!",
+        message: "Followed successfully!",
+        IsFollowing: true,
       });
     }
 
@@ -319,6 +328,7 @@ module.exports.followuser = async (req, res) => {
     return res.status(200).json({
       success,
       message: "Unfollowed successfully!",
+      IsFollowing: false,
     });
   } catch (err) {
     console.error(err.message);

@@ -34,6 +34,7 @@ module.exports.get = async (req, res) => {
         SELECT 
           o.ID AS OrganizationID,
           o.OrganizationName AS OrganizationName,
+          SUBSTRING_INDEX(oi.email, '@', 1) AS OrganizationUserName,
           i.ImageURL AS Image,
           s.Name AS OrganizationType,
 
