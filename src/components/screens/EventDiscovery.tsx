@@ -38,159 +38,10 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
     "Cultural",
   ];
   const types = ["all", "organizations", "students"];
-  const [dummyorganizations, setdummyOrganizations] = useState<any[]>([]);
-  const [dumystudents, setdummyStudents] = useState<any[]>([]);
-  const [organizations, setOrganizations] = useState([
-    {
-      id: "org1",
-      name: "Computer Science Club",
-      image:
-        "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=400&h=300&fit=crop",
-      description:
-        "Join fellow CS students for coding challenges, tech talks, and networking events.",
-      category: "Academic",
-      members: 156,
-      location: "Engineering Building",
-      isJoined: false,
-    },
-    {
-      id: "org2",
-      name: "Campus Basketball League",
-      image:
-        "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&h=300&fit=crop",
-      description:
-        "Competitive and recreational basketball for all skill levels.",
-      category: "Sports",
-      members: 89,
-      location: "Recreation Center",
-      isJoined: true,
-    },
-    {
-      id: "org3",
-      name: "Art & Design Society",
-      image:
-        "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop",
-      description:
-        "Creative community for artists, designers, and art enthusiasts.",
-      category: "Arts",
-      members: 67,
-      location: "Art Building",
-      isJoined: false,
-    },
-    {
-      id: "org4",
-      name: "Alpha Beta Gamma",
-      image:
-        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop",
-      description:
-        "Academic fraternity focused on leadership and community service.",
-      category: "Greek Life",
-      members: 45,
-      location: "Greek Row",
-      isJoined: false,
-    },
-    {
-      id: "org5",
-      name: "Volunteer Corps",
-      image:
-        "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=300&fit=crop",
-      description:
-        "Make a difference in our community through organized volunteer work.",
-      category: "Service",
-      members: 123,
-      location: "Student Union",
-      isJoined: true,
-    },
-    {
-      id: "org6",
-      name: "International Student Association",
-      image:
-        "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop",
-      description:
-        "Celebrating diversity and connecting students from around the world.",
-      category: "Cultural",
-      members: 234,
-      location: "International Center",
-      isJoined: false,
-    },
-  ]);
+  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
 
-  const [students, setStudents] = useState([
-    {
-      id: "stu1",
-      name: "Emily Chen",
-      image:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b286?w=400&h=400&fit=crop",
-      bio: "CS major passionate about AI and machine learning. Love to collaborate on projects!",
-      year: "Junior",
-      major: "Computer Science",
-      interests: ["AI", "Web Dev", "Gaming"],
-      location: "Engineering Quad",
-      isFollowing: false,
-    },
-    {
-      id: "stu2",
-      name: "Marcus Johnson",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-      bio: "Business student and basketball team captain. Always looking for new connections.",
-      year: "Senior",
-      major: "Business Administration",
-      interests: ["Basketball", "Leadership", "Entrepreneurship"],
-      location: "Business Building",
-      isFollowing: true,
-    },
-    {
-      id: "stu3",
-      name: "Sophia Rodriguez",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      bio: "Art major specializing in digital design. Love exploring creative collaborations.",
-      year: "Sophomore",
-      major: "Fine Arts",
-      interests: ["Digital Art", "Photography", "Design"],
-      location: "Art Building",
-      isFollowing: false,
-    },
-    {
-      id: "stu4",
-      name: "Alex Thompson",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
-      bio: "Psychology major interested in research and community mental health initiatives.",
-      year: "Graduate",
-      major: "Psychology",
-      interests: ["Research", "Mental Health", "Community Service"],
-      location: "Psychology Building",
-      isFollowing: false,
-    },
-    {
-      id: "stu5",
-      name: "Sarah Kim",
-      image:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
-      bio: "International student from South Korea studying Environmental Science.",
-      year: "Junior",
-      major: "Environmental Science",
-      interests: ["Sustainability", "Climate Action", "Cultural Exchange"],
-      location: "Science Building",
-      isFollowing: true,
-    },
-    {
-      id: "stu6",
-      name: "David Martinez",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      bio: "Engineering student and fraternity member. Passionate about renewable energy.",
-      year: "Senior",
-      major: "Mechanical Engineering",
-      interests: ["Engineering", "Greek Life", "Renewable Energy"],
-      location: "Engineering Building",
-      isFollowing: false,
-    },
-  ]);
-
-  const filteredOrganizations = dummyorganizations.filter((org) => {
+  const filteredOrganizations = organizations.filter((org) => {
     const matchesSearch =
       org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       org.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -204,7 +55,7 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
     return matchesSearch && matchesCategory && matchesType;
   });
 
-  const filteredStudents = dumystudents.filter((student) => {
+  const filteredStudents = students.filter((student) => {
     const search = searchTerm.toLowerCase();
 
     const name = student.name?.toLowerCase() || "";
@@ -271,16 +122,23 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
       OID: orgId,
     };
     const JoinOrg = await GETFunction(apiroute.joinorganizationurl, parms);
-
-    await EexploreData();
+    // ⭐ Immediately update UI without API reload
+    setOrganizations((prev) =>
+      prev.map((org) =>
+        org.id === orgId ? { ...org, isJoined: !org.isJoined } : org
+      )
+    );
   };
 
-  const handleFollowStudent = (studentId: string) => {
+  const handleFollowStudent = async (studentId: string) => {
+    let parms = {
+      UserID: studentId,
+    };
+    const FollowUser = await GETFunction(apiroute.followuser, parms);
+    // ⭐ If you want to keep main students list in sync also update:
     setStudents((prev) =>
-      prev.map((student) =>
-        student.id === studentId
-          ? { ...student, isFollowing: !student.isFollowing }
-          : student
+      prev.map((stu) =>
+        stu.id === studentId ? { ...stu, isFollowing: !stu.isFollowing } : stu
       )
     );
   };
@@ -304,8 +162,6 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
 
   const EexploreData = async () => {
     const exdata = await GETFunction(apiroute.explore);
-
-    console.log("Explore Data:", exdata);
     // Normalize Organizations
     const normalizedOrgs = exdata.orgDate.map((org: any) => ({
       id: org.ID,
@@ -331,8 +187,8 @@ export function EventDiscovery({ onNavigate }: EventDiscoveryProps) {
       isFollowing: stu.isFollowing || false,
     }));
 
-    setdummyOrganizations(normalizedOrgs);
-    setdummyStudents(normalizedStudents);
+    setOrganizations(normalizedOrgs);
+    setStudents(normalizedStudents);
 
     return true;
   };

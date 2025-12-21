@@ -437,7 +437,7 @@ export function OtherUserProfile({
                 </Card>
               ) : (
                 userposts.map((post: any) => (
-                  <Card key={post.id} className="overflow-hidden">
+                  <Card key={post.ID} className="overflow-hidden">
                     <CardContent className="p-4 space-y-3">
                       {/* Post Header */}
                       <div className="flex items-start gap-3">

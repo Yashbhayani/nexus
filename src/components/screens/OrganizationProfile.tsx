@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -24,9 +24,13 @@ import {
   UserCheck,
   Target,
   Link as LinkIcon,
+  Clock,
+  MessageCircle,
 } from "lucide-react";
 import * as apiroute from "../../Context/API/ApiRouter";
 import APIContext from "../../Context/apimethods/APIContext";
+import * as apiRouter from "../../Context/API/ApiRouter.jsx";
+import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 interface OrganizationProfileProps {
   organizationId: string;
@@ -39,15 +43,14 @@ export function OrganizationProfile({
   onBack,
   onNavigate,
 }: OrganizationProfileProps) {
-
   const context = useContext(APIContext);
   const { GETFunction, DELETEFunction, PATCHFunctionParams } = context;
-
-  
   const [isLoading, setIsLoading] = useState(true);
-
   const [activeTab, setActiveTab] = useState("about");
   const [isJoined, setIsJoined] = useState(false);
+  const [othorginfo, setOtherorginfo] = useState<any>(null);
+  const [orgaboutinfo, setOrgaboutinfo] = useState<any>(null);
+  const [orgposts, setOrgposts] = useState<any>(null);
 
   // Mock organization data - in production this would be fetched based on organizationId
   const organization = {
@@ -230,6 +233,36 @@ export function OrganizationProfile({
     onNavigate?.("otherUserProfile", { userId: memberId });
   };
 
+  useEffect(() => {
+    console.log("Organization ID:", organizationId);
+
+    const fetchData = async () => {
+      await getOrganizationData();
+    };
+    fetchData();
+  }, [organizationId]);
+
+  const getOrganizationData = async () => {
+    // Fetch organization data from API using organizationId
+    // Update state variables accordingly
+    setIsLoading(false);
+
+    const OrgData = await GETFunction(apiRouter.organizationurl, {
+      OID: organizationId,
+    });
+    console.log("Organization Data:", OrgData);
+    setOtherorginfo(OrgData.orgData[0]);
+    setOrgaboutinfo(OrgData.aboutUs[0]);
+    setOrgposts(OrgData.post);
+  };
+
+  const onLike = async (postId: string) => {
+    // Implement like functionality here
+    console.log("Liked post with ID:", postId);
+  };
+
+  const handleCommentClick = (postId: string) => {};
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-8">
       {/* Header with back button */}
@@ -245,7 +278,7 @@ export function OrganizationProfile({
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back</span>
           </Button>
-          <h1 className="text-lg truncate">{organization.name}</h1>
+          <h1 className="text-lg truncate">{othorginfo?.OrganizationName}</h1>
         </div>
       </div>
 
@@ -253,8 +286,8 @@ export function OrganizationProfile({
         {/* Cover Image */}
         <div className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden bg-muted">
           <img
-            src={organization.image}
-            alt={organization.name}
+            src={othorginfo?.Image}
+            alt={othorginfo?.OrganizationName}
             className="w-full h-full object-cover"
           />
         </div>
@@ -263,11 +296,13 @@ export function OrganizationProfile({
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
           <div className="flex-shrink-0 -mt-16 sm:-mt-20">
             <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-background shadow-xl">
-              <AvatarImage src={organization.avatar} alt={organization.name} />
+              <AvatarImage
+                src={othorginfo?.Image}
+                alt={othorginfo?.OrganizationName}
+              />
               <AvatarFallback>
-                {organization.name
-                  .split(" ")
-                  .map((n) => n[0])
+                {othorginfo?.OrganizationName.split(" ")
+                  .map((n: any) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
@@ -275,17 +310,21 @@ export function OrganizationProfile({
 
           <div className="flex-1 space-y-3 w-full sm:w-auto">
             <div>
-              <h2 className="text-2xl sm:text-3xl">{organization.name}</h2>
-              <p className="text-muted-foreground">{organization.description}</p>
+              <h2 className="text-2xl sm:text-3xl">
+                {othorginfo?.OrganizationName}
+              </h2>
+              <p className="text-muted-foreground">
+                {othorginfo?.OrganizationUserName}
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary" className="gap-1">
-                {organization.category}
+                {othorginfo?.OrganizationType}
               </Badge>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Users className="w-4 h-4" />
-                <span>{organization.members} members</span>
+                <span>{othorginfo?.Member} members</span>
               </div>
               {/* <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
@@ -298,9 +337,9 @@ export function OrganizationProfile({
               <Button
                 onClick={handleJoin}
                 className="gap-2"
-                variant={isJoined ? "outline" : "default"}
+                variant={othorginfo?.IsJoin ? "outline" : "default"}
               >
-                {isJoined ? (
+                {othorginfo?.IsJoin ? (
                   <>
                     <UserCheck className="w-4 h-4" />
                     Joined
@@ -335,14 +374,16 @@ export function OrganizationProfile({
                 <CardTitle>About Us</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground">{organization.about}</p>
+                <p className="text-muted-foreground">{orgaboutinfo?.AboutUs}</p>
                 <Separator />
                 <div>
                   <h3 className="font-semibold mb-2 flex items-center gap-2">
                     <Target className="h-4 w-4" />
                     Our Mission
                   </h3>
-                  <p className="text-muted-foreground">{organization.mission}</p>
+                  <p className="text-muted-foreground">
+                    {orgaboutinfo?.Mission}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -358,14 +399,16 @@ export function OrganizationProfile({
                     <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="min-w-0">
                       <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="font-medium truncate">{organization.email}</div>
+                      <div className="font-medium truncate">
+                        {orgaboutinfo?.Email}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <Phone className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="min-w-0">
                       <div className="text-sm text-muted-foreground">Phone</div>
-                      <div className="font-medium">{organization.phone}</div>
+                      <div className="font-medium">{orgaboutinfo?.Phone}</div>
                     </div>
                   </div>
                   {/* <div className="flex items-start gap-3">
@@ -378,9 +421,11 @@ export function OrganizationProfile({
                   <div className="flex items-start gap-3">
                     <Globe className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="min-w-0">
-                      <div className="text-sm text-muted-foreground">Website</div>
+                      <div className="text-sm text-muted-foreground">
+                        Website
+                      </div>
                       <a
-                        href={organization.website}
+                        href={orgaboutinfo?.Website}
                         className="font-medium text-primary hover:underline truncate block"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -395,13 +440,23 @@ export function OrganizationProfile({
                   <h3 className="font-semibold mb-3">Leadership</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <div className="text-sm text-muted-foreground">President</div>
-                      <div className="font-medium">{organization.contactInfo.president}</div>
+                      <div className="text-sm text-muted-foreground">
+                        President
+                      </div>
+                      <div className="font-medium">
+                        {orgaboutinfo?.President}
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Vice President</div>
-                      <div className="font-medium">{organization.contactInfo.vicePresident}</div>
-                    </div>
+                    {orgaboutinfo?.VicePresident && (
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          Vice President
+                        </div>
+                        <div className="font-medium">
+                          {orgaboutinfo?.VicePresident}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* <Separator />
@@ -438,10 +493,7 @@ export function OrganizationProfile({
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {events.map((event) => (
-                  <Card
-                    key={event.id}
-                    className="overflow-hidden"
-                  >
+                  <Card key={event.id} className="overflow-hidden">
                     <div className="flex flex-col gap-4">
                       <div className="w-full h-48 bg-muted flex-shrink-0">
                         <img
@@ -478,72 +530,92 @@ export function OrganizationProfile({
           </TabsContent>
 
           {/* Posts Tab */}
-          <TabsContent value="posts" className="space-y-4 mt-6">
-            {posts.length === 0 ? (
+          <TabsContent value="posts" className="space-y-4 mt-4">
+            {orgposts?.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">No posts yet</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-4">
-                {posts.map((post) => (
-                  <Card key={post.id}>
-                    <CardContent className="p-4 space-y-3">
-                      {/* Post Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="w-10 h-10">
-                            <AvatarImage
-                              src={post.author.avatar}
-                              alt={post.author.name}
-                            />
-                            <AvatarFallback>
-                              {post.author.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{post.author.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {post.timestamp}
-                            </p>
+              orgposts?.map((post: any) => (
+                <Card key={post.ID} className="overflow-hidden">
+                  <CardContent className="p-4 space-y-3">
+                    {/* Post Header */}
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage
+                          src={
+                            othorginfo?.Image
+                              ? othorginfo?.Image
+                              : "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                          }
+                          alt={othorginfo.Name}
+                        />
+                        <AvatarFallback>{othorginfo.Name}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium truncate">{post.Name}</p>
+                          <Badge variant="secondary" className="text-xs">
+                            {post.CategoryName}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <span>{post.UserName}</span>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{post.TimeAgo}</span>
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Post Content */}
-                      <p>{post.content}</p>
+                    {/* Post Content */}
+                    <h4 className="text-sm">{post.PostTitle}</h4>
 
-                      {/* Post Image */}
-                      {post.image && (
-                        <div className="rounded-lg overflow-hidden">
-                          <img
-                            src={post.image}
-                            alt="Post content"
-                            className="w-full h-auto"
-                          />
-                        </div>
-                      )}
-
-                      {/* Post Actions */}
-                      <div className="flex items-center gap-4 pt-2">
-                        <Button variant="ghost" size="sm" className="gap-2">
-                          <Heart className="w-4 h-4" />
-                          <span>{post.likes}</span>
-                        </Button>
-                        <Button variant="ghost" size="sm" className="gap-2">
-                          <MessageSquare className="w-4 h-4" />
-                          <span>{post.comments}</span>
-                        </Button>
+                    {/* Post Image */}
+                    {post.Image ? (
+                      <div className="rounded-lg overflow-hidden">
+                        <ImageWithFallback
+                          src={post.Image}
+                          alt="Post image"
+                          className="w-full h-48 object-cover"
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    ) : (
+                      <></>
+                    )}
+
+                    {/* Post Content */}
+                    <p className="text-sm">{post.Content}</p>
+
+                    {/* Post Actions */}
+                    <div className="flex items-center gap-6 pt-2">
+                      <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                        <Heart
+                          className={`h-4 w-4 ${
+                            post.IsLiked ? "fill-current" : ""
+                          }`}
+                          onClick={() => onLike(post.ID)}
+                        />{" "}
+                        <span>{post.Likes}</span>
+                      </button>
+                      <button
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        onClick={() => handleCommentClick(post.ID)}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{post.Comments}</span>
+                      </button>
+                      {/* <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors ml-auto">
+                          <Share2 className="h-4 w-4" />
+                        </button> */}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
             )}
           </TabsContent>
 
